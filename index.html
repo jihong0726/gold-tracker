@@ -3,114 +3,136 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>TNG e-Mas 黄金记账本</title>
+  <title>TNG e-Mas 黄金记账本 (Pro)</title>
   <style>
     :root{
       --bg: #f3f5f9; --card: #ffffff; --text: #1f2937; --sub: #6b7280;
-      --primary: #005eb8; /* TNG Blue-ish */
+      --primary: #005eb8; /* TNG Blue */
       --primary-dark: #004c9e;
+      --accent: #f59e0b; /* Editing Mode Color */
       --line: #e5e7eb;
-      --green: #059669; --red: #dc2626; --orange: #d97706;
-      --radius: 12px;
+      --green: #059669; --red: #dc2626;
+      --radius: 14px;
     }
     @media (prefers-color-scheme: dark) {
       :root{
         --bg: #111827; --card: #1f2937; --text: #f9fafb; --sub: #9ca3af;
-        --line: #374151;
+        --line: #374151; --primary: #3b82f6;
       }
     }
     *{box-sizing:border-box}
     body{
       margin:0; background:var(--bg); color:var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      padding-bottom: 40px;
+      padding-bottom: 60px; -webkit-tap-highlight-color: transparent;
     }
-    .wrap{max-width:800px; margin:0 auto; padding:16px;}
+    .wrap{max-width:600px; margin:0 auto; padding:16px;}
     
     /* Header */
     header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
-    h1{ font-size:18px; margin:0; color:var(--primary); font-weight:800; }
-    .badge{ font-size:11px; background:var(--primary); color:#fff; padding:2px 6px; border-radius:4px; }
+    h1{ font-size:20px; margin:0; font-weight:800; color:var(--primary); }
+    .badge{ font-size:10px; background:rgba(0,94,184,0.1); color:var(--primary); padding:2px 8px; border-radius:99px; font-weight:600; }
 
-    /* Dashboard Cards */
-    .dashboard{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:16px; }
-    .card{ background:var(--card); padding:16px; border-radius:var(--radius); box-shadow:0 2px 5px rgba(0,0,0,0.05); }
-    .full-width{ grid-column: span 2; }
-    
-    .label{ font-size:12px; color:var(--sub); margin-bottom:4px; }
-    .val{ font-size:20px; font-weight:700; letter-spacing:-0.5px; }
-    .val.sm{ font-size:16px; }
-    .sub-val{ font-size:12px; margin-top:4px; }
-    .green{ color:var(--green); } .red{ color:var(--red); }
-
-    /* Market Price Input Area */
+    /* Market Price Bar */
     .market-bar{
       background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white; padding:12px 16px; border-radius:var(--radius);
+      color: white; padding:16px; border-radius:var(--radius);
       margin-bottom:16px; display:flex; align-items:center; justify-content:space-between;
-      box-shadow: 0 4px 12px rgba(0,94,184,0.3);
+      box-shadow: 0 8px 20px rgba(0,94,184,0.25);
     }
+    .market-input-group{ text-align:right; }
     .market-bar input{
-      background: rgba(255,255,255,0.2); border:none; color:white;
-      width: 100px; text-align:right; padding:6px; border-radius:6px; font-weight:bold;
+      background: rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.2); 
+      color:white; width: 110px; text-align:right; padding:8px; border-radius:8px; 
+      font-weight:bold; font-size:18px; outline:none;
     }
-    .market-bar input::placeholder{ color:rgba(255,255,255,0.6); }
+    .market-bar input:focus{ background:rgba(255,255,255,0.25); border-color:white; }
+    .market-bar ::placeholder{ color:rgba(255,255,255,0.5); }
+
+    /* Dashboard Grid */
+    .dashboard{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:20px; }
+    .card{ background:var(--card); padding:16px; border-radius:var(--radius); box-shadow:0 2px 8px rgba(0,0,0,0.03); }
+    .full-width{ grid-column: span 2; }
+    
+    .label{ font-size:12px; color:var(--sub); margin-bottom:6px; font-weight:500; }
+    .val{ font-size:22px; font-weight:700; letter-spacing:-0.5px; }
+    .sub-val{ font-size:12px; margin-top:4px; font-weight:500; display:flex; align-items:center; gap:4px;}
+    
+    .green{ color:var(--green); } .red{ color:var(--red); } .muted{ color:var(--sub); }
 
     /* Form Area */
-    .form-box{ background:var(--card); padding:16px; border-radius:var(--radius); margin-bottom:20px; border:1px solid var(--line); }
-    .form-title{ font-size:14px; font-weight:600; margin-bottom:12px; display:flex; justify-content:space-between; }
+    .form-box{ 
+      background:var(--card); padding:20px; border-radius:var(--radius); 
+      margin-bottom:24px; border:2px solid transparent; transition:0.3s;
+    }
+    .form-box.editing{ border-color:var(--accent); background:rgba(245, 158, 11, 0.03); }
     
-    .input-group{ margin-bottom:12px; }
-    .input-row{ display:flex; gap:10px; }
-    .input-row > div{ flex:1; }
+    .form-header{ display:flex; justify-content:space-between; margin-bottom:16px; align-items:center; }
+    .form-title{ font-size:16px; font-weight:700; }
+    .form-mode{ font-size:12px; color:var(--accent); font-weight:bold; display:none; }
+    .form-box.editing .form-mode{ display:block; }
+
+    .input-row{ display:flex; gap:12px; margin-bottom:12px; }
+    .input-col{ flex:1; }
     
-    label{ display:block; font-size:11px; color:var(--sub); margin-bottom:4px; font-weight:500; }
+    label{ display:block; font-size:11px; color:var(--sub); margin-bottom:6px; font-weight:600; text-transform:uppercase; }
     input, select{
-      width:100%; padding:10px; background:var(--bg); border:1px solid var(--line);
-      border-radius:8px; color:var(--text); font-size:14px; outline:none;
-      transition: border-color 0.2s;
+      width:100%; padding:12px; background:var(--bg); border:1px solid var(--line);
+      border-radius:10px; color:var(--text); font-size:15px; outline:none;
+      transition: all 0.2s; font-family:inherit;
     }
-    input:focus{ border-color:var(--primary); }
+    input:focus, select:focus{ border-color:var(--primary); background:var(--card); }
     
-    .helper-chips{ display:flex; gap:6px; margin-top:6px; overflow-x:auto; padding-bottom:2px; }
+    /* Chips for Quick Amount */
+    .chips{ display:flex; gap:8px; margin-bottom:16px; overflow-x:auto; padding-bottom:4px; }
     .chip{
-      font-size:11px; padding:4px 10px; background:var(--bg); border:1px solid var(--line);
-      border-radius:20px; color:var(--sub); cursor:pointer; white-space:nowrap;
+      font-size:12px; padding:6px 14px; background:var(--bg); border:1px solid var(--line);
+      border-radius:20px; color:var(--text); cursor:pointer; font-weight:500; white-space:nowrap;
     }
-    .chip:active{ background:var(--line); }
+    .chip:active{ background:var(--line); transform:scale(0.95); }
 
-    .btn-main{
-      width:100%; background:var(--primary); color:white; border:none;
-      padding:14px; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer;
-      box-shadow: 0 4px 10px rgba(0,94,184,0.2);
+    /* Buttons */
+    .btn-group{ display:flex; gap:10px; margin-top:8px; }
+    .btn{
+      flex:1; padding:14px; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer;
+      border:none; display:flex; justify-content:center; align-items:center; gap:6px;
     }
-    .btn-main:active{ transform:scale(0.98); }
-    .btn-danger{ background:var(--red); box-shadow:none; }
-
-    /* List Area */
-    .list-header{ display:flex; justify-content:space-between; align-items:end; margin-bottom:10px; padding:0 4px; }
-    .tx-item{
-      background:var(--card); padding:12px; border-radius:10px; margin-bottom:8px;
-      display:flex; justify-content:space-between; align-items:center;
-      border-left: 4px solid transparent;
-    }
-    .tx-item.buy{ border-left-color: var(--green); }
-    .tx-item.sell{ border-left-color: var(--red); }
+    .btn-primary{ background:var(--primary); color:white; box-shadow:0 4px 12px rgba(0,94,184,0.25); }
+    .btn-primary:active{ transform:scale(0.98); }
+    .btn-cancel{ background:var(--bg); color:var(--sub); border:1px solid var(--line); display:none; }
     
-    .tx-left h4{ margin:0 0 2px; font-size:14px; }
-    .tx-left p{ margin:0; font-size:11px; color:var(--sub); }
-    .tx-right{ text-align:right; }
-    .tx-right .amt{ font-weight:700; font-size:14px; }
-    .tx-right .grams{ font-size:11px; color:var(--sub); }
-    .del-btn{ color:var(--sub); font-size:18px; margin-left:10px; cursor:pointer; padding:0 5px;}
+    .form-box.editing .btn-primary{ background:var(--accent); box-shadow:0 4px 12px rgba(245,158,11,0.3); }
+    .form-box.editing .btn-cancel{ display:block; }
 
-    /* Utilities */
-    .modal{
-      position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8);
-      z-index:99; display:none; justify-content:center; align-items:center; padding:20px;
+    /* Transaction List */
+    .list-header{ 
+      display:flex; justify-content:space-between; align-items:center; 
+      margin-bottom:12px; padding:0 4px; 
     }
-    .modal-content{ background:var(--card); width:100%; max-width:400px; padding:20px; border-radius:16px; }
-    .flex-gap{ display:flex; gap:10px; margin-top:10px; }
+    .tx-item{
+      background:var(--card); padding:16px; border-radius:12px; margin-bottom:10px;
+      display:flex; justify-content:space-between; align-items:center;
+      position:relative; overflow:hidden; cursor:pointer;
+      transition: transform 0.1s; border:1px solid transparent;
+    }
+    .tx-item:active{ transform:scale(0.99); background:var(--bg); }
+    .tx-item.buy{ border-left: 4px solid var(--green); }
+    .tx-item.sell{ border-left: 4px solid var(--red); }
+    
+    .tx-info h4{ margin:0 0 4px; font-size:15px; }
+    .tx-info p{ margin:0; font-size:12px; color:var(--sub); }
+    .tx-vals{ text-align:right; }
+    .tx-vals .amt{ font-weight:700; font-size:15px; }
+    .tx-vals .g{ font-size:12px; color:var(--sub); margin-top:2px; }
+    
+    .edit-hint{ 
+      position:absolute; right:0; top:0; bottom:0; width:40px; 
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; transition:0.2s; color:var(--primary);
+    }
+    
+    /* Utility */
+    .util-btn{ font-size:12px; color:var(--primary); text-decoration:none; cursor:pointer; }
     .hidden{ display:none; }
   </style>
 </head>
@@ -119,181 +141,328 @@
 <div class="wrap">
   <header>
     <h1>TNG e-Mas 记账本</h1>
-    <span class="badge">V2.0</span>
+    <span class="badge" id="version">Pro V3.0</span>
   </header>
 
   <div class="market-bar">
-    <div style="font-size:13px; line-height:1.2">
-      <div>当前市场卖价 (RM/g)</div>
-      <div style="font-size:10px; opacity:0.8">输入 e-Mas "Sell" 价格查看浮盈</div>
+    <div>
+      <div style="font-size:13px; opacity:0.9; margin-bottom:4px;">当前 TNG 回收价 (RM/g)</div>
+      <div style="font-size:10px; opacity:0.7;">打开 TNG 查看 "We Buy" 价格</div>
     </div>
-    <input type="number" id="marketPrice" placeholder="0.00" inputmode="decimal" step="0.01">
+    <div class="market-input-group">
+      <input type="number" id="marketPrice" placeholder="0.00" inputmode="decimal" step="0.01">
+    </div>
   </div>
 
   <div class="dashboard">
     <div class="card">
-      <div class="label">当前持仓 (克)</div>
-      <div class="val" id="kpiHolding">0.0000</div>
+      <div class="label">当前持仓</div>
+      <div class="val" id="kpiHolding">0.0000 <span style="font-size:12px; font-weight:400">g</span></div>
     </div>
     <div class="card">
-      <div class="label">平均成本 (RM/g)</div>
-      <div class="val" id="kpiAvgCost">0.00</div>
+      <div class="label">平均成本</div>
+      <div class="val" id="kpiAvgCost">0.00 <span style="font-size:12px; font-weight:400">/g</span></div>
+      <div class="sub-val" id="kpiBreakEven"></div>
     </div>
     <div class="card full-width">
-      <div style="display:flex; justify-content:space-between;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end">
         <div>
-          <div class="label">持仓现值 / 浮动盈亏</div>
-          <div class="val" id="kpiMarketValue">RM 0.00</div>
-          <div class="sub-val" id="kpiUnrealized">0.00 (0%)</div>
+          <div class="label">浮动盈亏 (Unrealized)</div>
+          <div class="val" id="kpiUnrealized">RM 0.00</div>
+          <div class="sub-val" id="kpiRoi">---</div>
         </div>
         <div style="text-align:right">
           <div class="label">已落袋盈亏</div>
-          <div class="val sm" id="kpiRealized">RM 0.00</div>
+          <div class="val" id="kpiRealized" style="font-size:18px">0.00</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="form-box">
-    <div class="form-title">
-      <span>记一笔</span>
-      <span style="font-weight:400; color:var(--sub); font-size:11px" id="toggleMode">重置</span>
+  <div class="form-box" id="formBox">
+    <div class="form-header">
+      <div class="form-title" id="formTitle">记一笔</div>
+      <div class="form-mode">正在修改历史记录</div>
     </div>
     
-    <div class="input-row" style="margin-bottom:12px;">
-      <div style="flex:0.7">
-        <label>类型</label>
-        <select id="type" onchange="updateFormColor()">
+    <div class="input-row">
+      <div style="flex:0.8">
+        <label>交易类型</label>
+        <select id="type" onchange="updateUIState()">
           <option value="buy">买入 (Buy)</option>
           <option value="sell">卖出 (Sell)</option>
         </select>
       </div>
-      <div style="flex:1.3">
+      <div style="flex:1.2">
         <label>日期</label>
         <input id="date" type="date">
       </div>
     </div>
 
-    <div class="input-group">
-      <label>总金额 (RM)</label>
-      <input id="amount" type="number" inputmode="decimal" placeholder="例如 100.00" step="0.01">
-      <div class="helper-chips" id="amtChips">
-        <div class="chip" onclick="setAmt(10)">RM10</div>
-        <div class="chip" onclick="setAmt(50)">RM50</div>
-        <div class="chip" onclick="setAmt(100)">RM100</div>
-        <div class="chip" onclick="setAmt(200)">RM200</div>
-      </div>
+    <div style="margin-bottom:12px;">
+      <label>交易总金额 (RM)</label>
+      <input id="amount" type="number" inputmode="decimal" placeholder="0.00" step="0.01">
+    </div>
+
+    <div class="chips" id="amtChips">
+      <div class="chip" onclick="setAmt(10)">RM10</div>
+      <div class="chip" onclick="setAmt(50)">RM50</div>
+      <div class="chip" onclick="setAmt(100)">RM100</div>
+      <div class="chip" onclick="setAmt(200)">RM200</div>
     </div>
 
     <div class="input-row">
-      <div>
+      <div class="input-col">
         <label>成交单价 (RM/g)</label>
-        <input id="pricePerGram" type="number" inputmode="decimal" placeholder="例如 380.50" step="0.01">
+        <input id="pricePerGram" type="number" inputmode="decimal" placeholder="0.00" step="0.01">
       </div>
-      <div>
-        <label>获得/卖出克数 (g)</label>
+      <div class="input-col">
+        <label>克数 (g)</label>
         <input id="grams" type="number" inputmode="decimal" placeholder="自动计算" step="0.000001">
       </div>
     </div>
-    
-    <div style="font-size:11px; color:var(--orange); margin-bottom:10px; display:none" id="calcHint">
-      💡 输入金额和单价，自动算克数。或输入金额和克数(照抄收据)。
+
+    <div style="margin-bottom:16px;">
+       <label>备注</label>
+       <input id="note" type="text" placeholder="选填...">
     </div>
 
-    <input id="note" type="text" placeholder="备注 (例如: 又是高位站岗...)" style="margin-bottom:12px;">
-
-    <button class="btn-main" id="addBtn">确认添加</button>
+    <div class="btn-group">
+      <button class="btn btn-cancel" id="cancelBtn" onclick="resetForm()">取消修改</button>
+      <button class="btn btn-primary" id="mainBtn">确认添加</button>
+    </div>
+    <div style="text-align:center; margin-top:10px;" id="delContainer" class="hidden">
+      <span class="util-btn" style="color:var(--red)" onclick="deleteCurrentEdit()">删除此记录</span>
+    </div>
   </div>
 
   <div class="list-header">
-    <div class="label">交易记录</div>
-    <div class="chip" onclick="openMenu()">数据管理 / 导出</div>
+    <div class="label">交易历史 (点击可修改)</div>
+    <span class="util-btn" onclick="exportData()">导出备份</span>
   </div>
   <div id="txList"></div>
 
-</div>
-
-<div class="modal" id="menuModal">
-  <div class="modal-content">
-    <h3>数据管理</h3>
-    <p style="font-size:12px; color:var(--sub); margin-bottom:20px;">数据保存在本地浏览器缓存中。建议定期导出备份。</p>
-    <button class="btn-main" style="background:var(--sub); margin-bottom:10px;" onclick="exportData()">导出备份 (JSON)</button>
-    <button class="btn-main" style="background:var(--sub); margin-bottom:10px;" onclick="document.getElementById('fileInput').click()">导入备份</button>
-    <div class="flex-gap">
-      <button class="btn-main btn-danger" onclick="clearData()">清空数据</button>
-      <button class="btn-main" style="background:var(--bg); color:var(--text); border:1px solid var(--line)" onclick="closeMenu()">关闭</button>
-    </div>
-    <input type="file" id="fileInput" accept=".json" style="display:none" onchange="importData(this)">
+  <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
+  <div style="text-align:center; margin-top:30px;">
+    <span class="util-btn" style="color:var(--sub)" onclick="document.getElementById('importFile').click()">导入旧数据</span>
+    <span style="margin:0 10px; color:var(--line)">|</span>
+    <span class="util-btn" style="color:var(--sub)" onclick="clearAll()">清空重置</span>
   </div>
+
 </div>
 
 <script>
-  // --- Constants & State ---
-  const LS_KEY = "tng_gold_v2";
-  const LS_MARKET = "tng_last_market_price";
-  
-  // --- DOM Elements ---
-  const el = (id) => document.getElementById(id);
-  
-  // --- Initialization ---
-  function init(){
-    const today = new Date().toISOString().split('T')[0];
-    el('date').value = today;
-    
-    // Auto-calc logic: 
-    // If Amount & Price changed -> Calc Grams
-    // If Amount & Grams changed -> Calc Price
-    ['amount', 'pricePerGram'].forEach(id => {
-      el(id).addEventListener('input', () => tryCalc('grams'));
-    });
-    el('grams').addEventListener('input', () => tryCalc('price'));
+  /**
+   * TNG e-Mas Tracker Logic
+   * Features: Auto-calc, Editing, Weighted Avg Cost, Unrealized P/L
+   */
 
+  const LS_KEY = "tng_gold_v3";
+  const LS_MARKET = "tng_market_price_v3";
+  
+  // State
+  let editingId = null; // timestamp of the record being edited
+  
+  // DOM Refs
+  const el = (id) => document.getElementById(id);
+
+  // --- Init ---
+  function init(){
+    // Set Date to Today
+    el('date').value = new Date().toISOString().split('T')[0];
+    
+    // Load Market Price
     el('marketPrice').value = localStorage.getItem(LS_MARKET) || "";
+
+    // Event Listeners for Auto-Calc
+    ['amount', 'pricePerGram'].forEach(id => {
+      el(id).addEventListener('input', () => autoCalc('grams'));
+    });
+    el('grams').addEventListener('input', () => autoCalc('price'));
+
+    // Market Price Change
     el('marketPrice').addEventListener('input', (e) => {
       localStorage.setItem(LS_MARKET, e.target.value);
       render();
     });
 
+    // Main Button Action
+    el('mainBtn').onclick = saveRecord;
+
     render();
   }
 
-  // --- Core Calculation Logic ---
-  function tryCalc(target){
+  // --- Calculation Helpers ---
+  function autoCalc(target){
     const amt = parseFloat(el('amount').value);
     const price = parseFloat(el('pricePerGram').value);
     const grams = parseFloat(el('grams').value);
 
-    if(target === 'grams' && amt && price){
+    // If inputs are empty, don't calc to avoid NaN or Infinity
+    if(target === 'grams' && amt > 0 && price > 0){
+      // TNG uses 6 decimals usually
       el('grams').value = (amt / price).toFixed(6);
-    } else if (target === 'price' && amt && grams){
+    } 
+    else if (target === 'price' && amt > 0 && grams > 0){
       el('pricePerGram').value = (amt / grams).toFixed(2);
     }
   }
 
   function setAmt(val){
     el('amount').value = val;
-    tryCalc('grams');
+    // Trigger calc if price exists
+    autoCalc('grams');
   }
 
+  // --- Data Management ---
   function loadData(){
-    const raw = localStorage.getItem(LS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    try {
+      return JSON.parse(localStorage.getItem(LS_KEY) || "[]");
+    } catch { return []; }
   }
 
   function saveData(data){
     localStorage.setItem(LS_KEY, JSON.stringify(data));
   }
 
-  function getMetrics(txs){
-    let holding = 0;
-    let costTotal = 0; // Total money spent on current holding
-    let realizedPL = 0;
+  // --- Core Logic: Save / Update ---
+  function saveRecord(){
+    const type = el('type').value;
+    const date = el('date').value;
+    const amount = parseFloat(el('amount').value);
+    const grams = parseFloat(el('grams').value);
+    const price = parseFloat(el('pricePerGram').value);
+    const note = el('note').value.trim();
 
-    // Sort by date then timestamp
+    // Validation
+    if(!amount || !grams || !date){
+      alert("请填写完整金额和克数");
+      return;
+    }
+
+    let data = loadData();
+
+    // Logic: If Editing -> Replace; If New -> Push
+    if(editingId){
+      const index = data.findIndex(t => t.ts === editingId);
+      if(index > -1){
+        data[index] = { 
+          ts: editingId, // Keep original ID
+          type, date, amount, grams, price, note 
+        };
+      }
+    } else {
+      // Validate Sell Logic only for new records or simple checks
+      // (For editing, we assume user knows what they are doing, but could add checks)
+      if(type === 'sell'){
+        const metrics = calcMetrics(data); // Calc based on current data
+        if(grams > metrics.holding + 0.000001){
+           alert(`持仓不足！当前只有 ${metrics.holding.toFixed(4)}g`);
+           return;
+        }
+      }
+
+      data.push({
+        ts: Date.now(),
+        type, date, amount, grams, price, note
+      });
+    }
+
+    saveData(data);
+    resetForm();
+    render();
+    
+    // Scroll to list to see result
+    if(!editingId) {
+        document.getElementById('txList').scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  // --- Edit Mode Logic ---
+  function editTx(ts){
+    const data = loadData();
+    const tx = data.find(t => t.ts === ts);
+    if(!tx) return;
+
+    // Enter Edit Mode
+    editingId = ts;
+    
+    // Populate Form
+    el('type').value = tx.type;
+    el('date').value = tx.date;
+    el('amount').value = tx.amount;
+    el('grams').value = tx.grams;
+    el('pricePerGram').value = tx.price;
+    el('note').value = tx.note || "";
+
+    // Update UI
+    el('formBox').classList.add('editing');
+    el('mainBtn').textContent = "保存修改";
+    el('formTitle').textContent = "编辑记录";
+    el('delContainer').classList.remove('hidden');
+    
+    // Scroll to form
+    el('wrap').scrollIntoView({ behavior: 'smooth' });
+    
+    updateUIState();
+  }
+
+  function deleteCurrentEdit(){
+    if(!editingId) return;
+    if(confirm("确定删除这条记录吗？")){
+      let data = loadData();
+      data = data.filter(t => t.ts !== editingId);
+      saveData(data);
+      resetForm();
+      render();
+    }
+  }
+
+  function resetForm(){
+    editingId = null;
+    el('type').value = 'buy';
+    el('amount').value = '';
+    el('grams').value = '';
+    el('pricePerGram').value = '';
+    el('note').value = '';
+    el('date').value = new Date().toISOString().split('T')[0];
+    
+    // Reset UI
+    el('formBox').classList.remove('editing');
+    el('mainBtn').textContent = "确认添加";
+    el('formTitle').textContent = "记一笔";
+    el('delContainer').classList.add('hidden');
+    
+    updateUIState();
+  }
+
+  function updateUIState(){
+    const type = el('type').value;
+    const btn = el('mainBtn');
+    
+    if(!editingId){
+      // Normal Add Mode
+      if(type === 'buy'){
+        btn.style.background = 'var(--primary)';
+        btn.textContent = '确认买入';
+      } else {
+        btn.style.background = 'var(--red)';
+        btn.textContent = '确认卖出';
+      }
+    }
+  }
+
+  // --- Metrics Calculation ---
+  function calcMetrics(txs){
+    // Sort by Date ASC
     const sorted = [...txs].sort((a,b) => {
       if(a.date !== b.date) return a.date > b.date ? 1 : -1;
       return a.ts - b.ts;
     });
+
+    let holding = 0;
+    let totalCost = 0;
+    let realizedPL = 0;
 
     for(let t of sorted){
       const g = parseFloat(t.grams);
@@ -301,150 +470,102 @@
       
       if(t.type === 'buy'){
         holding += g;
-        costTotal += amt;
+        totalCost += amt;
       } else {
-        // Selling uses Weighted Average Cost
-        if(holding <= 0) continue; // Should not happen ideally
-        const avgCost = costTotal / holding;
-        const costOfSold = g * avgCost;
-        
-        realizedPL += (amt - costOfSold);
+        if(holding <= 0) continue;
+        const avg = totalCost / holding;
+        const costPart = g * avg;
+        realizedPL += (amt - costPart);
         holding -= g;
-        costTotal -= costOfSold;
+        totalCost -= costPart;
         
-        if(holding < 0.000001) { holding = 0; costTotal = 0; }
+        if(holding < 0.000001) { holding = 0; totalCost = 0; }
       }
     }
     
-    const avgCost = holding > 0 ? costTotal / holding : 0;
-    return { holding, avgCost, realizedPL, costTotal };
+    const avgCost = holding > 0 ? totalCost / holding : 0;
+    
+    return { holding, totalCost, avgCost, realizedPL };
   }
 
   // --- Rendering ---
   function render(){
-    const txs = loadData();
-    const m = getMetrics(txs);
+    const data = loadData();
+    const m = calcMetrics(data);
     const marketPrice = parseFloat(el('marketPrice').value) || 0;
 
-    // Update KPI Cards
-    el('kpiHolding').textContent = m.holding.toFixed(4);
-    el('kpiAvgCost').textContent = m.avgCost.toFixed(2);
-    el('kpiRealized').textContent = "RM " + m.realizedPL.toFixed(2);
-    el('kpiRealized').className = "val sm " + (m.realizedPL >= 0 ? "green" : "red");
+    // 1. KPI Cards
+    el('kpiHolding').innerHTML = `${m.holding.toFixed(4)} <span style="font-size:12px;font-weight:400">g</span>`;
+    el('kpiAvgCost').innerHTML = `RM ${m.avgCost.toFixed(2)} <span style="font-size:12px;font-weight:400">/g</span>`;
+    
+    const rEl = el('kpiRealized');
+    rEl.textContent = (m.realizedPL >= 0 ? "+" : "") + m.realizedPL.toFixed(2);
+    rEl.className = "val " + (m.realizedPL >= 0 ? "green" : "red");
 
-    // Unrealized / Market Value Logic
+    // 2. Unrealized P/L
     const marketVal = m.holding * marketPrice;
-    el('kpiMarketValue').textContent = "RM " + (marketPrice > 0 ? marketVal.toFixed(2) : "0.00");
+    let unrealizedStr = "RM 0.00";
+    let roiStr = "输入市场价查看";
     
     if(marketPrice > 0 && m.holding > 0){
-      const unrealized = marketVal - m.costTotal;
-      const pct = (unrealized / m.costTotal) * 100;
-      const sign = unrealized >= 0 ? "+" : "";
-      el('kpiUnrealized').textContent = `${sign}${unrealized.toFixed(2)} (${sign}${pct.toFixed(1)}%)`;
-      el('kpiUnrealized').className = "sub-val " + (unrealized >= 0 ? "green" : "red");
+      const diff = marketVal - m.totalCost;
+      const pct = (diff / m.totalCost) * 100;
+      const sign = diff >= 0 ? "+" : "";
+      const colorClass = diff >= 0 ? "green" : "red";
+      
+      el('kpiUnrealized').innerHTML = `<span class="${colorClass}">RM ${sign}${diff.toFixed(2)}</span>`;
+      el('kpiRoi').innerHTML = `<span class="${colorClass}">${sign}${pct.toFixed(2)}%</span> (现值 RM${marketVal.toFixed(0)})`;
+
+      // Break Even Analysis (Optimization A)
+      const gap = marketPrice - m.avgCost;
+      const gapPct = (gap / m.avgCost) * 100;
+      const beSign = gap >= 0 ? "高于" : "低于";
+      const beColor = gap >= 0 ? "green" : "red";
+      el('kpiBreakEven').innerHTML = `现价${beSign}成本 <span class="${beColor}">${Math.abs(gapPct).toFixed(1)}%</span>`;
     } else {
-      el('kpiUnrealized').textContent = "需输入市场卖价";
-      el('kpiUnrealized').className = "sub-val";
+      el('kpiUnrealized').textContent = "RM 0.00";
+      el('kpiRoi').textContent = "---";
+      el('kpiBreakEven').textContent = "";
     }
 
-    // Render List (Newest first)
-    const listEl = el('txList');
-    listEl.innerHTML = "";
+    // 3. List
+    const list = el('txList');
+    list.innerHTML = "";
     
-    const sortedDesc = [...txs].sort((a,b) => {
+    // Sort DESC for display
+    const sortedDesc = [...data].sort((a,b) => {
       if(a.date !== b.date) return a.date < b.date ? 1 : -1;
       return b.ts - a.ts;
     });
 
     sortedDesc.forEach(t => {
-      const div = document.createElement('div');
       const isBuy = t.type === 'buy';
+      const div = document.createElement('div');
       div.className = `tx-item ${t.type}`;
+      div.onclick = () => editTx(t.ts); // Add click handler
+      
       div.innerHTML = `
-        <div class="tx-left">
-          <h4>${isBuy ? '买入' : '卖出'} <span style="font-weight:400; color:var(--sub); font-size:12px">@ RM${parseFloat(t.price).toFixed(2)}/g</span></h4>
-          <p>${t.date} ${t.note ? ' · '+t.note : ''}</p>
+        <div class="tx-info">
+          <h4>${isBuy ? '买入' : '卖出'} <span style="font-size:12px; color:var(--sub); font-weight:400">@ ${parseFloat(t.price).toFixed(2)}</span></h4>
+          <p>${t.date} ${t.note ? '· '+t.note : ''}</p>
         </div>
-        <div class="tx-right">
-          <div class="amt ${isBuy?'':'green'}">RM ${parseFloat(t.amount).toFixed(2)}</div>
-          <div class="grams">${parseFloat(t.grams).toFixed(4)} g</div>
+        <div class="tx-vals">
+          <div class="amt ${isBuy ? '' : 'green'}">RM ${parseFloat(t.amount).toFixed(2)}</div>
+          <div class="g">${parseFloat(t.grams).toFixed(4)} g</div>
         </div>
-        <div class="del-btn" onclick="deleteTx(${t.ts})">×</div>
+        <div class="edit-hint">✎</div>
       `;
-      listEl.appendChild(div);
+      list.appendChild(div);
     });
   }
 
-  // --- Actions ---
-  el('addBtn').onclick = () => {
-    const type = el('type').value;
-    const date = el('date').value;
-    const amount = parseFloat(el('amount').value);
-    const grams = parseFloat(el('grams').value);
-    const price = parseFloat(el('pricePerGram').value);
-
-    if(!amount || !grams || !date) { alert("请填写完整信息"); return; }
-    
-    // Check sell limit
-    if(type === 'sell'){
-      const currentData = loadData();
-      const m = getMetrics(currentData);
-      if(grams > m.holding + 0.000001){ // Tolerance
-        alert(`持仓不足！当前只有 ${m.holding.toFixed(4)}g`);
-        return;
-      }
-    }
-
-    const tx = {
-      ts: Date.now(),
-      type, date, amount, grams, price,
-      note: el('note').value
-    };
-
-    const data = loadData();
-    data.push(tx);
-    saveData(data);
-    
-    // Reset Form
-    el('amount').value = "";
-    el('grams').value = "";
-    el('note').value = "";
-    render();
-  }
-
-  function deleteTx(ts){
-    if(!confirm("确定删除这条记录吗？")) return;
-    let data = loadData();
-    data = data.filter(t => t.ts !== ts);
-    saveData(data);
-    render();
-  }
-
-  function updateFormColor(){
-    const isBuy = el('type').value === 'buy';
-    el('addBtn').style.background = isBuy ? 'var(--primary)' : 'var(--red)';
-    el('addBtn').textContent = isBuy ? '确认买入' : '确认卖出';
-  }
-
-  // --- Data Mgmt ---
-  function openMenu(){ el('menuModal').style.display = 'flex'; }
-  function closeMenu(){ el('menuModal').style.display = 'none'; }
-  
-  function clearData(){
-    if(confirm("确定清空所有数据？无法恢复！")){
-      localStorage.removeItem(LS_KEY);
-      render();
-      closeMenu();
-    }
-  }
-
+  // --- Utilities ---
   function exportData(){
     const data = loadData();
     const blob = new Blob([JSON.stringify(data, null, 2)], {type : 'application/json'});
-    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `TNG_Gold_Backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.href = URL.createObjectURL(blob);
+    a.download = `TNG_Gold_${new Date().toISOString().slice(0,10)}.json`;
     a.click();
   }
 
@@ -458,20 +579,22 @@
         if(Array.isArray(json)){
           saveData(json);
           render();
-          alert("导入成功");
-          closeMenu();
-        } else {
-          alert("文件格式错误");
+          alert("数据恢复成功");
         }
-      } catch(err){
-        alert("JSON 解析失败");
-      }
+      } catch(e) { alert("文件格式错误"); }
     };
     reader.readAsText(file);
     input.value = "";
   }
+  
+  function clearAll(){
+    if(confirm("确定清空全部数据？此操作不可逆！")) {
+      localStorage.removeItem(LS_KEY);
+      localStorage.removeItem(LS_MARKET);
+      init();
+    }
+  }
 
-  // Run
   init();
 
 </script>
