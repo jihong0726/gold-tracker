@@ -2,463 +2,478 @@
 <html lang="zh-Hans">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>黄金买卖记录与成本计算器</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>TNG e-Mas 黄金记账本</title>
   <style>
     :root{
-      --bg:#0b0f14; --card:#111826; --muted:#8aa0b5; --text:#e6eef6;
-      --line:#223044; --good:#40c57a; --bad:#ff5a6b; --warn:#ffcc66;
-      --btn:#1f2a3a; --btn2:#223a5a;
+      --bg: #f3f5f9; --card: #ffffff; --text: #1f2937; --sub: #6b7280;
+      --primary: #005eb8; /* TNG Blue-ish */
+      --primary-dark: #004c9e;
+      --line: #e5e7eb;
+      --green: #059669; --red: #dc2626; --orange: #d97706;
+      --radius: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root{
+        --bg: #111827; --card: #1f2937; --text: #f9fafb; --sub: #9ca3af;
+        --line: #374151;
+      }
     }
     *{box-sizing:border-box}
     body{
-      margin:0; background:linear-gradient(180deg,#070a0f 0%, #0b0f14 40%, #0b0f14 100%);
-      color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans SC, PingFang SC, Microsoft YaHei, Arial;
+      margin:0; background:var(--bg); color:var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding-bottom: 40px;
     }
-    .wrap{max-width:1100px; margin:24px auto; padding:0 16px;}
-    h1{font-size:20px; margin:0 0 12px;}
-    .grid{
-      display:grid; grid-template-columns: 1fr; gap:12px;
+    .wrap{max-width:800px; margin:0 auto; padding:16px;}
+    
+    /* Header */
+    header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    h1{ font-size:18px; margin:0; color:var(--primary); font-weight:800; }
+    .badge{ font-size:11px; background:var(--primary); color:#fff; padding:2px 6px; border-radius:4px; }
+
+    /* Dashboard Cards */
+    .dashboard{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:16px; }
+    .card{ background:var(--card); padding:16px; border-radius:var(--radius); box-shadow:0 2px 5px rgba(0,0,0,0.05); }
+    .full-width{ grid-column: span 2; }
+    
+    .label{ font-size:12px; color:var(--sub); margin-bottom:4px; }
+    .val{ font-size:20px; font-weight:700; letter-spacing:-0.5px; }
+    .val.sm{ font-size:16px; }
+    .sub-val{ font-size:12px; margin-top:4px; }
+    .green{ color:var(--green); } .red{ color:var(--red); }
+
+    /* Market Price Input Area */
+    .market-bar{
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white; padding:12px 16px; border-radius:var(--radius);
+      margin-bottom:16px; display:flex; align-items:center; justify-content:space-between;
+      box-shadow: 0 4px 12px rgba(0,94,184,0.3);
     }
-    @media (min-width: 980px){
-      .grid{grid-template-columns: 420px 1fr;}
+    .market-bar input{
+      background: rgba(255,255,255,0.2); border:none; color:white;
+      width: 100px; text-align:right; padding:6px; border-radius:6px; font-weight:bold;
     }
-    .card{
-      background:rgba(17,24,38,.92);
-      border:1px solid var(--line);
-      border-radius:16px; padding:14px;
-      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+    .market-bar input::placeholder{ color:rgba(255,255,255,0.6); }
+
+    /* Form Area */
+    .form-box{ background:var(--card); padding:16px; border-radius:var(--radius); margin-bottom:20px; border:1px solid var(--line); }
+    .form-title{ font-size:14px; font-weight:600; margin-bottom:12px; display:flex; justify-content:space-between; }
+    
+    .input-group{ margin-bottom:12px; }
+    .input-row{ display:flex; gap:10px; }
+    .input-row > div{ flex:1; }
+    
+    label{ display:block; font-size:11px; color:var(--sub); margin-bottom:4px; font-weight:500; }
+    input, select{
+      width:100%; padding:10px; background:var(--bg); border:1px solid var(--line);
+      border-radius:8px; color:var(--text); font-size:14px; outline:none;
+      transition: border-color 0.2s;
     }
-    .row{display:flex; gap:10px; flex-wrap:wrap;}
-    .row > *{flex:1;}
-    label{display:block; font-size:12px; color:var(--muted); margin:10px 0 6px;}
-    input, select, textarea{
-      width:100%; padding:10px 10px; border-radius:12px;
-      border:1px solid var(--line); background:#0c1320; color:var(--text);
-      outline:none;
+    input:focus{ border-color:var(--primary); }
+    
+    .helper-chips{ display:flex; gap:6px; margin-top:6px; overflow-x:auto; padding-bottom:2px; }
+    .chip{
+      font-size:11px; padding:4px 10px; background:var(--bg); border:1px solid var(--line);
+      border-radius:20px; color:var(--sub); cursor:pointer; white-space:nowrap;
     }
-    input:focus, select:focus, textarea:focus{border-color:#3d5a80}
-    .btnbar{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;}
-    button{
-      border:1px solid var(--line);
-      background:var(--btn);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      cursor:pointer;
+    .chip:active{ background:var(--line); }
+
+    .btn-main{
+      width:100%; background:var(--primary); color:white; border:none;
+      padding:14px; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer;
+      box-shadow: 0 4px 10px rgba(0,94,184,0.2);
     }
-    button.primary{background:var(--btn2);}
-    button.danger{background:#2a1014; border-color:#4b1f27;}
-    button:hover{filter:brightness(1.08)}
-    .kpis{display:grid; grid-template-columns: 1fr 1fr; gap:10px;}
-    .kpi{
-      border:1px dashed var(--line);
-      border-radius:14px; padding:10px;
-      background:rgba(12,19,32,.65);
+    .btn-main:active{ transform:scale(0.98); }
+    .btn-danger{ background:var(--red); box-shadow:none; }
+
+    /* List Area */
+    .list-header{ display:flex; justify-content:space-between; align-items:end; margin-bottom:10px; padding:0 4px; }
+    .tx-item{
+      background:var(--card); padding:12px; border-radius:10px; margin-bottom:8px;
+      display:flex; justify-content:space-between; align-items:center;
+      border-left: 4px solid transparent;
     }
-    .kpi .t{font-size:12px; color:var(--muted)}
-    .kpi .v{font-size:18px; margin-top:6px}
-    .kpi .s{font-size:12px; color:var(--muted); margin-top:6px; line-height:1.35}
-    table{width:100%; border-collapse:collapse; margin-top:10px;}
-    th, td{
-      padding:10px 8px; border-bottom:1px solid var(--line);
-      font-size:13px; text-align:left; vertical-align:top;
+    .tx-item.buy{ border-left-color: var(--green); }
+    .tx-item.sell{ border-left-color: var(--red); }
+    
+    .tx-left h4{ margin:0 0 2px; font-size:14px; }
+    .tx-left p{ margin:0; font-size:11px; color:var(--sub); }
+    .tx-right{ text-align:right; }
+    .tx-right .amt{ font-weight:700; font-size:14px; }
+    .tx-right .grams{ font-size:11px; color:var(--sub); }
+    .del-btn{ color:var(--sub); font-size:18px; margin-left:10px; cursor:pointer; padding:0 5px;}
+
+    /* Utilities */
+    .modal{
+      position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8);
+      z-index:99; display:none; justify-content:center; align-items:center; padding:20px;
     }
-    th{color:var(--muted); font-weight:600}
-    .tag{
-      display:inline-block; padding:2px 8px; border-radius:999px;
-      font-size:12px; border:1px solid var(--line); background:rgba(12,19,32,.7);
-    }
-    .buy{border-color:#275a3a; color:var(--good)}
-    .sell{border-color:#5a2a33; color:var(--bad)}
-    .right{text-align:right}
-    .muted{color:var(--muted)}
-    .small{font-size:12px}
-    .note{margin-top:10px; color:var(--muted); font-size:12px; line-height:1.5}
-    .split{height:1px; background:var(--line); margin:12px 0;}
-    .nowrap{white-space:nowrap}
-    .err{color:var(--bad); font-size:12px; margin-top:8px; display:none;}
-    .ok{color:var(--good); font-size:12px; margin-top:8px; display:none;}
+    .modal-content{ background:var(--card); width:100%; max-width:400px; padding:20px; border-radius:16px; }
+    .flex-gap{ display:flex; gap:10px; margin-top:10px; }
+    .hidden{ display:none; }
   </style>
 </head>
 <body>
+
 <div class="wrap">
-  <h1>黄金买卖记录与成本计算器（每克计价）</h1>
-  <div class="grid">
-    <div class="card">
-      <div class="kpis">
-        <div class="kpi">
-          <div class="t">当前持仓（克）</div>
-          <div class="v" id="kpiHolding">0.000000</div>
-          <div class="s">卖出会减少持仓，不能卖超出当前持仓</div>
-        </div>
-        <div class="kpi">
-          <div class="t">当前平均成本（每克）</div>
-          <div class="v" id="kpiAvg">RM 0.00</div>
-          <div class="s">采用加权平均成本法</div>
-        </div>
-        <div class="kpi">
-          <div class="t">持仓成本总额</div>
-          <div class="v" id="kpiCost">RM 0.00</div>
-          <div class="s">= 持仓克数 × 平均成本</div>
-        </div>
-        <div class="kpi">
-          <div class="t">已实现盈亏</div>
-          <div class="v" id="kpiRealized">RM 0.00</div>
-          <div class="s">= 卖出收入 - 卖出部分成本</div>
-        </div>
-      </div>
+  <header>
+    <h1>TNG e-Mas 记账本</h1>
+    <span class="badge">V2.0</span>
+  </header>
 
-      <div class="split"></div>
-
-      <div class="row">
-        <div style="flex:0.9">
-          <label>类型</label>
-          <select id="type">
-            <option value="buy">买入</option>
-            <option value="sell">卖出</option>
-          </select>
-        </div>
-        <div style="flex:1.1">
-          <label>日期</label>
-          <input id="date" type="date" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>价格（每克，RM）</label>
-          <input id="price" type="number" inputmode="decimal" step="0.000001" placeholder="例如 613.61" />
-        </div>
-        <div>
-          <label>数量（克）</label>
-          <input id="grams" type="number" inputmode="decimal" step="0.000001" placeholder="例如 0.896337" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>备注（可选）</label>
-          <input id="note" type="text" placeholder="例如 金店A / 线上平台 / 促销等" />
-        </div>
-      </div>
-
-      <div class="btnbar">
-        <button class="primary" id="addBtn">添加记录</button>
-        <button id="exportBtn">导出备份（JSON）</button>
-        <button id="importBtn">导入备份（JSON）</button>
-        <button class="danger" id="clearBtn">清空全部数据</button>
-      </div>
-
-      <div class="err" id="errBox"></div>
-      <div class="ok" id="okBox"></div>
-
-      <div class="note">
-        说明<br/>
-        - 金额会自动计算：总额 = 每克价格 × 克数<br/>
-        - 卖出会按当前平均成本扣减成本并计算已实现盈亏<br/>
-        - 数据只保存在你的浏览器里，换电脑或清缓存就没了，所以建议定期导出备份
-      </div>
-
-      <input id="importFile" type="file" accept="application/json" style="display:none" />
+  <div class="market-bar">
+    <div style="font-size:13px; line-height:1.2">
+      <div>当前市场卖价 (RM/g)</div>
+      <div style="font-size:10px; opacity:0.8">输入 e-Mas "Sell" 价格查看浮盈</div>
     </div>
+    <input type="number" id="marketPrice" placeholder="0.00" inputmode="decimal" step="0.01">
+  </div>
 
+  <div class="dashboard">
     <div class="card">
-      <div class="row" style="align-items:flex-end;">
-        <div style="flex:1.3">
-          <label>快速筛选</label>
-          <input id="search" type="text" placeholder="输入备注关键字或日期（YYYY-MM-DD）" />
+      <div class="label">当前持仓 (克)</div>
+      <div class="val" id="kpiHolding">0.0000</div>
+    </div>
+    <div class="card">
+      <div class="label">平均成本 (RM/g)</div>
+      <div class="val" id="kpiAvgCost">0.00</div>
+    </div>
+    <div class="card full-width">
+      <div style="display:flex; justify-content:space-between;">
+        <div>
+          <div class="label">持仓现值 / 浮动盈亏</div>
+          <div class="val" id="kpiMarketValue">RM 0.00</div>
+          <div class="sub-val" id="kpiUnrealized">0.00 (0%)</div>
         </div>
-        <div style="flex:0.7">
-          <label>只看</label>
-          <select id="filterType">
-            <option value="all">全部</option>
-            <option value="buy">只看买入</option>
-            <option value="sell">只看卖出</option>
-          </select>
+        <div style="text-align:right">
+          <div class="label">已落袋盈亏</div>
+          <div class="val sm" id="kpiRealized">RM 0.00</div>
         </div>
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th class="nowrap">日期</th>
-            <th>类型</th>
-            <th class="right nowrap">每克价格</th>
-            <th class="right nowrap">克数</th>
-            <th class="right nowrap">总额</th>
-            <th>备注</th>
-            <th class="right nowrap">操作</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-
-      <div class="note small">
-        计算逻辑（加权平均成本）<br/>
-        - 买入：成本总额 += 买入金额；持仓克数 += 买入克数；平均成本 = 成本总额 / 持仓克数<br/>
-        - 卖出：卖出部分成本 = 卖出克数 × 当前平均成本；已实现盈亏 += 卖出金额 - 卖出部分成本；成本总额 -= 卖出部分成本；持仓克数 -= 卖出克数
       </div>
     </div>
+  </div>
+
+  <div class="form-box">
+    <div class="form-title">
+      <span>记一笔</span>
+      <span style="font-weight:400; color:var(--sub); font-size:11px" id="toggleMode">重置</span>
+    </div>
+    
+    <div class="input-row" style="margin-bottom:12px;">
+      <div style="flex:0.7">
+        <label>类型</label>
+        <select id="type" onchange="updateFormColor()">
+          <option value="buy">买入 (Buy)</option>
+          <option value="sell">卖出 (Sell)</option>
+        </select>
+      </div>
+      <div style="flex:1.3">
+        <label>日期</label>
+        <input id="date" type="date">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>总金额 (RM)</label>
+      <input id="amount" type="number" inputmode="decimal" placeholder="例如 100.00" step="0.01">
+      <div class="helper-chips" id="amtChips">
+        <div class="chip" onclick="setAmt(10)">RM10</div>
+        <div class="chip" onclick="setAmt(50)">RM50</div>
+        <div class="chip" onclick="setAmt(100)">RM100</div>
+        <div class="chip" onclick="setAmt(200)">RM200</div>
+      </div>
+    </div>
+
+    <div class="input-row">
+      <div>
+        <label>成交单价 (RM/g)</label>
+        <input id="pricePerGram" type="number" inputmode="decimal" placeholder="例如 380.50" step="0.01">
+      </div>
+      <div>
+        <label>获得/卖出克数 (g)</label>
+        <input id="grams" type="number" inputmode="decimal" placeholder="自动计算" step="0.000001">
+      </div>
+    </div>
+    
+    <div style="font-size:11px; color:var(--orange); margin-bottom:10px; display:none" id="calcHint">
+      💡 输入金额和单价，自动算克数。或输入金额和克数(照抄收据)。
+    </div>
+
+    <input id="note" type="text" placeholder="备注 (例如: 又是高位站岗...)" style="margin-bottom:12px;">
+
+    <button class="btn-main" id="addBtn">确认添加</button>
+  </div>
+
+  <div class="list-header">
+    <div class="label">交易记录</div>
+    <div class="chip" onclick="openMenu()">数据管理 / 导出</div>
+  </div>
+  <div id="txList"></div>
+
+</div>
+
+<div class="modal" id="menuModal">
+  <div class="modal-content">
+    <h3>数据管理</h3>
+    <p style="font-size:12px; color:var(--sub); margin-bottom:20px;">数据保存在本地浏览器缓存中。建议定期导出备份。</p>
+    <button class="btn-main" style="background:var(--sub); margin-bottom:10px;" onclick="exportData()">导出备份 (JSON)</button>
+    <button class="btn-main" style="background:var(--sub); margin-bottom:10px;" onclick="document.getElementById('fileInput').click()">导入备份</button>
+    <div class="flex-gap">
+      <button class="btn-main btn-danger" onclick="clearData()">清空数据</button>
+      <button class="btn-main" style="background:var(--bg); color:var(--text); border:1px solid var(--line)" onclick="closeMenu()">关闭</button>
+    </div>
+    <input type="file" id="fileInput" accept=".json" style="display:none" onchange="importData(this)">
   </div>
 </div>
 
 <script>
-  const LS_KEY = "gold_ledger_v1";
-
+  // --- Constants & State ---
+  const LS_KEY = "tng_gold_v2";
+  const LS_MARKET = "tng_last_market_price";
+  
+  // --- DOM Elements ---
   const el = (id) => document.getElementById(id);
-  const fmtRM = (n) => "RM " + (isFinite(n) ? Number(n).toFixed(2) : "0.00");
-  const fmt6 = (n) => (isFinite(n) ? Number(n).toFixed(6) : "0.000000");
-
-  function loadState(){
-    try{
-      const raw = localStorage.getItem(LS_KEY);
-      if(!raw) return { tx: [] };
-      const parsed = JSON.parse(raw);
-      if(!parsed || !Array.isArray(parsed.tx)) return { tx: [] };
-      return parsed;
-    }catch{
-      return { tx: [] };
-    }
-  }
-
-  function saveState(state){
-    localStorage.setItem(LS_KEY, JSON.stringify(state));
-  }
-
-  function uid(){
-    return Math.random().toString(36).slice(2) + Date.now().toString(36);
-  }
-
-  function showMsg(type, msg){
-    const err = el("errBox");
-    const ok = el("okBox");
-    err.style.display = "none";
-    ok.style.display = "none";
-    if(type === "err"){
-      err.textContent = msg;
-      err.style.display = "block";
-    }else{
-      ok.textContent = msg;
-      ok.style.display = "block";
-      setTimeout(()=> ok.style.display="none", 2000);
-    }
-  }
-
-  function compute(state){
-    // 按时间 + 添加顺序排序，保证成本计算一致
-    const tx = [...state.tx].sort((a,b)=>{
-      const da = (a.date || "");
-      const db = (b.date || "");
-      if(da !== db) return da < db ? -1 : 1;
-      return (a.createdAt||0) - (b.createdAt||0);
-    });
-
-    let holding = 0;
-    let costTotal = 0;
-    let realized = 0;
-
-    for(const t of tx){
-      const price = Number(t.price);
-      const grams = Number(t.grams);
-      if(!(price > 0 && grams > 0)) continue;
-
-      const amount = price * grams;
-
-      if(t.type === "buy"){
-        costTotal += amount;
-        holding += grams;
-      }else if(t.type === "sell"){
-        if(holding <= 0) continue;
-        const avg = costTotal / holding;
-        const sellCost = grams * avg;
-        realized += amount - sellCost;
-        costTotal -= sellCost;
-        holding -= grams;
-
-        // 防止浮点误差导致负数
-        if(holding < 1e-12){ holding = 0; costTotal = 0; }
-        if(costTotal < 1e-12) costTotal = 0;
-      }
-    }
-
-    const avgCost = holding > 0 ? costTotal / holding : 0;
-    return { holding, costTotal, avgCost, realized };
-  }
-
-  function validateAdd(state, t){
-    if(!t.date) return "请填写日期";
-    if(!(t.price > 0)) return "每克价格必须大于 0";
-    if(!(t.grams > 0)) return "克数必须大于 0";
-
-    if(t.type === "sell"){
-      const m = compute(state);
-      if(t.grams - m.holding > 1e-12){
-        return "卖出克数不能超过当前持仓（当前持仓 " + fmt6(m.holding) + " 克）";
-      }
-    }
-    return "";
-  }
-
-  function render(){
-    const state = loadState();
-    const m = compute(state);
-
-    el("kpiHolding").textContent = fmt6(m.holding);
-    el("kpiAvg").textContent = fmtRM(m.avgCost);
-    el("kpiCost").textContent = fmtRM(m.costTotal);
-
-    const realizedEl = el("kpiRealized");
-    realizedEl.textContent = fmtRM(m.realized);
-    realizedEl.style.color = m.realized >= 0 ? "var(--good)" : "var(--bad)";
-
-    const q = (el("search").value || "").trim().toLowerCase();
-    const ft = el("filterType").value;
-
-    const rows = [...state.tx].sort((a,b)=>{
-      const da = (a.date || "");
-      const db = (b.date || "");
-      if(da !== db) return da < db ? 1 : -1; // 默认最新在上
-      return (b.createdAt||0) - (a.createdAt||0);
-    }).filter(t=>{
-      if(ft !== "all" && t.type !== ft) return false;
-      if(!q) return true;
-      const s = (t.date + " " + (t.note||"") + " " + t.type).toLowerCase();
-      return s.includes(q);
-    });
-
-    const tb = el("tbody");
-    tb.innerHTML = "";
-
-    for(const t of rows){
-      const price = Number(t.price);
-      const grams = Number(t.grams);
-      const amount = price * grams;
-
-      const tr = document.createElement("tr");
-
-      const typeTag = document.createElement("span");
-      typeTag.className = "tag " + (t.type === "buy" ? "buy" : "sell");
-      typeTag.textContent = t.type === "buy" ? "买入" : "卖出";
-
-      tr.innerHTML = `
-        <td class="nowrap">${t.date || "-"}</td>
-        <td></td>
-        <td class="right nowrap">${fmtRM(price)}</td>
-        <td class="right nowrap">${fmt6(grams)}</td>
-        <td class="right nowrap">${fmtRM(amount)}</td>
-        <td>${(t.note || "").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</td>
-        <td class="right nowrap"></td>
-      `;
-
-      tr.children[1].appendChild(typeTag);
-
-      const delBtn = document.createElement("button");
-      delBtn.textContent = "删除";
-      delBtn.className = "danger";
-      delBtn.onclick = ()=>{
-        const st = loadState();
-        st.tx = st.tx.filter(x => x.id !== t.id);
-        saveState(st);
-        render();
-        showMsg("ok", "已删除");
-      };
-      tr.children[6].appendChild(delBtn);
-
-      tb.appendChild(tr);
-    }
-  }
-
+  
+  // --- Initialization ---
   function init(){
-    // 默认日期为今天（按浏览器本地时区）
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth()+1).padStart(2,"0");
-    const dd = String(today.getDate()).padStart(2,"0");
-    el("date").value = `${yyyy}-${mm}-${dd}`;
-
-    el("addBtn").onclick = ()=>{
-      const state = loadState();
-      const t = {
-        id: uid(),
-        type: el("type").value,
-        date: el("date").value,
-        price: Number(el("price").value),
-        grams: Number(el("grams").value),
-        note: el("note").value || "",
-        createdAt: Date.now()
-      };
-
-      const err = validateAdd(state, t);
-      if(err){ showMsg("err", err); return; }
-
-      state.tx.push(t);
-      saveState(state);
-
-      el("price").value = "";
-      el("grams").value = "";
-      el("note").value = "";
-
-      render();
-      showMsg("ok", "已添加记录");
-    };
-
-    el("exportBtn").onclick = ()=>{
-      const state = loadState();
-      const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "黄金记录备份.json";
-      a.click();
-      URL.revokeObjectURL(url);
-      showMsg("ok", "已导出备份");
-    };
-
-    el("importBtn").onclick = ()=> el("importFile").click();
-
-    el("importFile").addEventListener("change", async (e)=>{
-      const file = e.target.files && e.target.files[0];
-      if(!file) return;
-      try{
-        const text = await file.text();
-        const data = JSON.parse(text);
-        if(!data || !Array.isArray(data.tx)) throw new Error("格式不正确");
-        // 简单清洗
-        data.tx = data.tx.map(t=>({
-          id: t.id || uid(),
-          type: t.type === "sell" ? "sell" : "buy",
-          date: t.date || "",
-          price: Number(t.price) || 0,
-          grams: Number(t.grams) || 0,
-          note: t.note || "",
-          createdAt: Number(t.createdAt) || Date.now()
-        }));
-        saveState(data);
-        render();
-        showMsg("ok", "已导入备份");
-      }catch(err){
-        showMsg("err", "导入失败：请确认选择的是本工具导出的 JSON 文件");
-      }finally{
-        e.target.value = "";
-      }
+    const today = new Date().toISOString().split('T')[0];
+    el('date').value = today;
+    
+    // Auto-calc logic: 
+    // If Amount & Price changed -> Calc Grams
+    // If Amount & Grams changed -> Calc Price
+    ['amount', 'pricePerGram'].forEach(id => {
+      el(id).addEventListener('input', () => tryCalc('grams'));
     });
+    el('grams').addEventListener('input', () => tryCalc('price'));
 
-    el("clearBtn").onclick = ()=>{
-      const ok = confirm("确定要清空全部数据吗？清空后无法恢复，建议先导出备份。");
-      if(!ok) return;
-      localStorage.removeItem(LS_KEY);
+    el('marketPrice').value = localStorage.getItem(LS_MARKET) || "";
+    el('marketPrice').addEventListener('input', (e) => {
+      localStorage.setItem(LS_MARKET, e.target.value);
       render();
-      showMsg("ok", "已清空");
-    };
-
-    el("search").addEventListener("input", render);
-    el("filterType").addEventListener("change", render);
+    });
 
     render();
   }
 
+  // --- Core Calculation Logic ---
+  function tryCalc(target){
+    const amt = parseFloat(el('amount').value);
+    const price = parseFloat(el('pricePerGram').value);
+    const grams = parseFloat(el('grams').value);
+
+    if(target === 'grams' && amt && price){
+      el('grams').value = (amt / price).toFixed(6);
+    } else if (target === 'price' && amt && grams){
+      el('pricePerGram').value = (amt / grams).toFixed(2);
+    }
+  }
+
+  function setAmt(val){
+    el('amount').value = val;
+    tryCalc('grams');
+  }
+
+  function loadData(){
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }
+
+  function saveData(data){
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+  }
+
+  function getMetrics(txs){
+    let holding = 0;
+    let costTotal = 0; // Total money spent on current holding
+    let realizedPL = 0;
+
+    // Sort by date then timestamp
+    const sorted = [...txs].sort((a,b) => {
+      if(a.date !== b.date) return a.date > b.date ? 1 : -1;
+      return a.ts - b.ts;
+    });
+
+    for(let t of sorted){
+      const g = parseFloat(t.grams);
+      const amt = parseFloat(t.amount);
+      
+      if(t.type === 'buy'){
+        holding += g;
+        costTotal += amt;
+      } else {
+        // Selling uses Weighted Average Cost
+        if(holding <= 0) continue; // Should not happen ideally
+        const avgCost = costTotal / holding;
+        const costOfSold = g * avgCost;
+        
+        realizedPL += (amt - costOfSold);
+        holding -= g;
+        costTotal -= costOfSold;
+        
+        if(holding < 0.000001) { holding = 0; costTotal = 0; }
+      }
+    }
+    
+    const avgCost = holding > 0 ? costTotal / holding : 0;
+    return { holding, avgCost, realizedPL, costTotal };
+  }
+
+  // --- Rendering ---
+  function render(){
+    const txs = loadData();
+    const m = getMetrics(txs);
+    const marketPrice = parseFloat(el('marketPrice').value) || 0;
+
+    // Update KPI Cards
+    el('kpiHolding').textContent = m.holding.toFixed(4);
+    el('kpiAvgCost').textContent = m.avgCost.toFixed(2);
+    el('kpiRealized').textContent = "RM " + m.realizedPL.toFixed(2);
+    el('kpiRealized').className = "val sm " + (m.realizedPL >= 0 ? "green" : "red");
+
+    // Unrealized / Market Value Logic
+    const marketVal = m.holding * marketPrice;
+    el('kpiMarketValue').textContent = "RM " + (marketPrice > 0 ? marketVal.toFixed(2) : "0.00");
+    
+    if(marketPrice > 0 && m.holding > 0){
+      const unrealized = marketVal - m.costTotal;
+      const pct = (unrealized / m.costTotal) * 100;
+      const sign = unrealized >= 0 ? "+" : "";
+      el('kpiUnrealized').textContent = `${sign}${unrealized.toFixed(2)} (${sign}${pct.toFixed(1)}%)`;
+      el('kpiUnrealized').className = "sub-val " + (unrealized >= 0 ? "green" : "red");
+    } else {
+      el('kpiUnrealized').textContent = "需输入市场卖价";
+      el('kpiUnrealized').className = "sub-val";
+    }
+
+    // Render List (Newest first)
+    const listEl = el('txList');
+    listEl.innerHTML = "";
+    
+    const sortedDesc = [...txs].sort((a,b) => {
+      if(a.date !== b.date) return a.date < b.date ? 1 : -1;
+      return b.ts - a.ts;
+    });
+
+    sortedDesc.forEach(t => {
+      const div = document.createElement('div');
+      const isBuy = t.type === 'buy';
+      div.className = `tx-item ${t.type}`;
+      div.innerHTML = `
+        <div class="tx-left">
+          <h4>${isBuy ? '买入' : '卖出'} <span style="font-weight:400; color:var(--sub); font-size:12px">@ RM${parseFloat(t.price).toFixed(2)}/g</span></h4>
+          <p>${t.date} ${t.note ? ' · '+t.note : ''}</p>
+        </div>
+        <div class="tx-right">
+          <div class="amt ${isBuy?'':'green'}">RM ${parseFloat(t.amount).toFixed(2)}</div>
+          <div class="grams">${parseFloat(t.grams).toFixed(4)} g</div>
+        </div>
+        <div class="del-btn" onclick="deleteTx(${t.ts})">×</div>
+      `;
+      listEl.appendChild(div);
+    });
+  }
+
+  // --- Actions ---
+  el('addBtn').onclick = () => {
+    const type = el('type').value;
+    const date = el('date').value;
+    const amount = parseFloat(el('amount').value);
+    const grams = parseFloat(el('grams').value);
+    const price = parseFloat(el('pricePerGram').value);
+
+    if(!amount || !grams || !date) { alert("请填写完整信息"); return; }
+    
+    // Check sell limit
+    if(type === 'sell'){
+      const currentData = loadData();
+      const m = getMetrics(currentData);
+      if(grams > m.holding + 0.000001){ // Tolerance
+        alert(`持仓不足！当前只有 ${m.holding.toFixed(4)}g`);
+        return;
+      }
+    }
+
+    const tx = {
+      ts: Date.now(),
+      type, date, amount, grams, price,
+      note: el('note').value
+    };
+
+    const data = loadData();
+    data.push(tx);
+    saveData(data);
+    
+    // Reset Form
+    el('amount').value = "";
+    el('grams').value = "";
+    el('note').value = "";
+    render();
+  }
+
+  function deleteTx(ts){
+    if(!confirm("确定删除这条记录吗？")) return;
+    let data = loadData();
+    data = data.filter(t => t.ts !== ts);
+    saveData(data);
+    render();
+  }
+
+  function updateFormColor(){
+    const isBuy = el('type').value === 'buy';
+    el('addBtn').style.background = isBuy ? 'var(--primary)' : 'var(--red)';
+    el('addBtn').textContent = isBuy ? '确认买入' : '确认卖出';
+  }
+
+  // --- Data Mgmt ---
+  function openMenu(){ el('menuModal').style.display = 'flex'; }
+  function closeMenu(){ el('menuModal').style.display = 'none'; }
+  
+  function clearData(){
+    if(confirm("确定清空所有数据？无法恢复！")){
+      localStorage.removeItem(LS_KEY);
+      render();
+      closeMenu();
+    }
+  }
+
+  function exportData(){
+    const data = loadData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type : 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `TNG_Gold_Backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+  }
+
+  function importData(input){
+    const file = input.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const json = JSON.parse(e.target.result);
+        if(Array.isArray(json)){
+          saveData(json);
+          render();
+          alert("导入成功");
+          closeMenu();
+        } else {
+          alert("文件格式错误");
+        }
+      } catch(err){
+        alert("JSON 解析失败");
+      }
+    };
+    reader.readAsText(file);
+    input.value = "";
+  }
+
+  // Run
   init();
+
 </script>
 </body>
 </html>
