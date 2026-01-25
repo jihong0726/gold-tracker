@@ -2,381 +2,451 @@
 <html lang="zh-Hans">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>TNG 黄金资产走势</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>TNG 黄金管家</title>
   <style>
     :root{
-      --bg: #f4f6f8; --card: #ffffff; --text: #111827; --sub: #6b7280;
-      --primary: #005eb8; /* TNG Blue */
-      --line: #e5e7eb;
-      --green: #10b981; --red: #ef4444;
-      --radius: 12px;
+      --bg: #f5f7fa; --card: #ffffff; --text: #1f2937; --sub: #9ca3af;
+      --primary: #005eb8; --primary-light: rgba(0,94,184,0.1);
+      --line: #e5e7eb; --green: #10b981; --red: #ef4444;
+      --nav-height: 60px;
     }
     @media (prefers-color-scheme: dark) {
       :root{
-        --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --sub: #94a3b8;
-        --line: #334155;
+        --bg: #111827; --card: #1f2937; --text: #f3f4f6; --sub: #6b7280;
+        --line: #374151;
       }
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; padding-bottom: 60px; }
-    .wrap { max-width: 500px; margin: 0 auto; padding: 12px; }
+    body { 
+      margin: 0; background: var(--bg); color: var(--text); 
+      font-family: -apple-system, sans-serif; 
+      padding-bottom: calc(var(--nav-height) + 20px); /* 给底部导航栏留空 */
+    }
+    .wrap { max-width: 500px; margin: 0 auto; padding: 16px; display: none; }
+    .wrap.active { display: block; animation: fadeIn 0.2s; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
 
-    /* Header */
-    header { display: flex; justify-content: space-between; align-items: center; padding: 4px 0 12px; }
-    h1 { font-size: 18px; margin: 0; font-weight: 800; color: var(--primary); }
-    .badge { font-size: 10px; background: rgba(0,94,184,0.1); color: var(--primary); padding: 2px 8px; border-radius: 99px; font-weight: 600; }
-
-    /* Market Input */
+    /* Header & Cards */
+    h2 { font-size: 18px; margin: 0 0 16px; color: var(--text); font-weight: 800; }
+    .card { background: var(--card); padding: 16px; border-radius: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    
+    /* Input Areas */
     .market-bar {
       background: linear-gradient(135deg, var(--primary), #004c9e);
-      color: white; padding: 14px; border-radius: var(--radius);
-      margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;
-      box-shadow: 0 4px 10px rgba(0,94,184,0.2);
+      color: white; padding: 16px; border-radius: 16px;
+      margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;
     }
     .market-bar input {
+      width: 100px; text-align: right; padding: 8px; border-radius: 8px;
       background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
-      color: white; width: 100px; text-align: right; padding: 8px; 
-      border-radius: 8px; font-weight: 700; font-size: 16px; outline: none;
+      color: white; font-weight: 700; font-size: 18px; outline: none;
     }
-    .market-bar input:focus { background: rgba(255,255,255,0.3); border-color: #fff; }
+    .market-bar input::placeholder { color: rgba(255,255,255,0.5); }
 
-    /* Chart Section */
-    .chart-card {
-      background: var(--card); padding: 16px; border-radius: var(--radius);
-      margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .chart-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
-    .chart-title { font-size: 13px; font-weight: 700; color: var(--text); }
-    .chart-val { font-size: 13px; font-weight: 700; color: var(--primary); }
-    
-    /* SVG Chart Container */
-    .chart-box {
-      width: 100%; height: 180px; position: relative;
-      border-bottom: 1px solid var(--line); border-left: 1px solid var(--line);
-    }
-    svg { width: 100%; height: 100%; overflow: visible; }
-    .tooltip {
-      position: absolute; background: rgba(0,0,0,0.8); color: white;
-      padding: 4px 8px; border-radius: 4px; font-size: 10px; pointer-events: none;
-      opacity: 0; transition: opacity 0.2s; top: 0; left: 0; transform: translate(-50%, -100%);
-    }
-    .chart-label { font-size: 10px; fill: var(--sub); }
-    .chart-line { fill: none; stroke: var(--primary); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
-    .chart-area { fill: rgba(0, 94, 184, 0.1); stroke: none; }
-    .chart-dot { fill: var(--card); stroke: var(--primary); stroke-width: 2; }
-
-    /* Dashboard */
-    .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .card { background: var(--card); padding: 14px; border-radius: var(--radius); }
-    .label { font-size: 11px; color: var(--sub); margin-bottom: 4px; text-transform: uppercase; }
-    .val { font-size: 18px; font-weight: 700; line-height: 1.2; }
-    .sub-text { font-size: 11px; margin-top: 4px; }
+    /* Dashboard Grid */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .kpi-label { font-size: 11px; color: var(--sub); text-transform: uppercase; margin-bottom: 4px; }
+    .kpi-val { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+    .kpi-sub { font-size: 11px; margin-top: 4px; }
     .green { color: var(--green); } .red { color: var(--red); }
 
-    /* Form & List (Simplified for brevity) */
-    .btn { width: 100%; padding: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; font-weight: 600; color: var(--primary); cursor: pointer; margin-top: 10px; }
-    .list-header { font-size: 12px; color: var(--sub); margin-bottom: 8px; display: flex; justify-content: space-between; }
-    .tx-item { background: var(--card); padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; border-left: 3px solid transparent; }
-    .tx-item.buy { border-left-color: var(--green); } .tx-item.sell { border-left-color: var(--red); }
-    
-    /* Input Modal */
+    /* List */
+    .tx-item { 
+      display: flex; justify-content: space-between; padding: 14px 0; 
+      border-bottom: 1px solid var(--line); 
+    }
+    .tx-item:last-child { border-bottom: none; }
+    .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-right: 6px; font-weight: 600; }
+    .tag.buy { background: rgba(16,185,129,0.1); color: var(--green); }
+    .tag.sell { background: rgba(239,68,68,0.1); color: var(--red); }
+
+    /* Chart Page Styles */
+    .chart-box { width: 100%; height: 250px; position: relative; margin-top: 10px; }
+    svg { width: 100%; height: 100%; overflow: visible; }
+    .chart-line { fill: none; stroke: var(--primary); stroke-width: 3; stroke-linejoin: round; }
+    .chart-area { fill: url(#gradient); stroke: none; }
+    .chart-dot { fill: var(--card); stroke: var(--primary); stroke-width: 2; }
+    .tooltip { 
+      position: absolute; background: #1f2937; color: #fff; 
+      padding: 6px 10px; border-radius: 6px; font-size: 11px; 
+      pointer-events: none; opacity: 0; transition: 0.2s; transform: translate(-50%, -120%);
+    }
+
+    /* Bottom Navigation */
+    .nav-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height);
+      background: var(--card); border-top: 1px solid var(--line);
+      display: flex; justify-content: space-around; align-items: center;
+      padding-bottom: env(safe-area-inset-bottom); /* iPhone X适配 */
+      z-index: 100;
+    }
+    .nav-item {
+      flex: 1; text-align: center; color: var(--sub); cursor: pointer;
+      font-size: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+      height: 100%;
+    }
+    .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
+    .nav-item.active { color: var(--primary); }
+
+    /* Modal & Form */
+    .btn-float {
+      position: fixed; bottom: calc(var(--nav-height) + 20px); right: 20px;
+      width: 56px; height: 56px; border-radius: 50%; background: var(--primary);
+      color: white; font-size: 28px; border: none; box-shadow: 0 4px 12px rgba(0,94,184,0.4);
+      display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 90;
+    }
     .modal {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99;
-      background: rgba(0,0,0,0.5); display: none; align-items: flex-end;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200;
+      background: rgba(0,0,0,0.6); display: none; align-items: flex-end;
     }
     .modal.show { display: flex; }
     .modal-content {
-      background: var(--card); width: 100%; padding: 20px 20px 40px;
-      border-radius: 20px 20px 0 0; animation: slideUp 0.3s;
+      background: var(--card); width: 100%; padding: 24px; 
+      border-radius: 24px 24px 0 0; animation: slideUp 0.25s;
     }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    
-    input, select { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 16px; background: var(--bg); color: var(--text); box-sizing: border-box; }
-    .btn-primary { background: var(--primary); color: white; border: none; }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    input, select { 
+      width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--line); 
+      border-radius: 12px; background: var(--bg); color: var(--text); font-size: 16px; box-sizing: border-box;
+    }
+    .btn-block { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 16px; }
+
   </style>
 </head>
 <body>
 
-<div class="wrap">
-  <header>
-    <h1>TNG 黄金资产</h1>
-    <span class="badge">V5.0 图表版</span>
-  </header>
-
+<div id="view-home" class="wrap active">
+  <h2>我的持仓</h2>
+  
   <div class="market-bar">
     <div>
       <div style="font-size:13px; font-weight:600">今日回收价 (We Buy)</div>
-      <div style="font-size:10px; opacity:0.8">输入即刻记录今日市值</div>
+      <div style="font-size:11px; opacity:0.8; margin-top:2px">输入价格更新市值</div>
     </div>
     <input type="number" id="marketPrice" placeholder="0.00" inputmode="decimal" step="0.01">
   </div>
 
-  <div class="chart-card">
-    <div class="chart-header">
-      <span class="chart-title">资产总值趋势 (RM)</span>
-      <span class="chart-val" id="chartCurrentVal">---</span>
+  <div class="grid">
+    <div class="card">
+      <div class="kpi-label">持有黄金 (g)</div>
+      <div class="kpi-val" id="kpiHolding">0.0000</div>
+    </div>
+    <div class="card">
+      <div class="kpi-label">平均成本 (RM)</div>
+      <div class="kpi-val" id="kpiAvg">0.00</div>
+    </div>
+    <div class="card" style="grid-column: span 2">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end">
+        <div>
+          <div class="kpi-label">浮动盈亏 (Unrealized)</div>
+          <div class="kpi-val" id="kpiProfit">RM 0.00</div>
+        </div>
+        <div class="kpi-sub" id="kpiRoi">---</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="kpi-label" style="margin-bottom:12px">最近交易</div>
+    <div id="txList"></div>
+  </div>
+
+  <button class="btn-float" onclick="openModal()">+</button>
+</div>
+
+<div id="view-chart" class="wrap">
+  <h2>资产走势</h2>
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-end">
+      <div>
+        <div class="kpi-label">总资产估值</div>
+        <div class="kpi-val" id="chartTotalVal" style="color:var(--primary)">RM 0.00</div>
+      </div>
+      <div class="kpi-sub" style="color:var(--sub)">每日更新</div>
     </div>
     <div class="chart-box" id="chartBox">
       <div class="tooltip" id="tooltip"></div>
     </div>
-    <div style="text-align: center; font-size: 10px; color: var(--sub); margin-top: 8px;">
-      * 每天记录一次，取当日最后输入的市场价
-    </div>
   </div>
 
-  <div class="dashboard">
-    <div class="card">
-      <div class="label">持有克数</div>
-      <div class="val" id="kpiHolding">0.000000</div>
-    </div>
-    <div class="card">
-      <div class="label">浮动盈亏 (RM)</div>
-      <div class="val" id="kpiUnrealized">0.00</div>
-      <div class="sub-text" id="kpiRoi">---</div>
-    </div>
+  <div class="card">
+    <div class="kpi-label" style="margin-bottom:10px">市值历史记录</div>
+    <div id="historyList" style="font-size:12px;"></div>
   </div>
-
-  <button class="btn btn-primary" onclick="openModal()">+ 记一笔交易</button>
-
-  <div class="list-header" style="margin-top:20px">
-    <span>最近交易</span>
-    <span style="color:var(--primary)" onclick="clearHistory()">重置图表</span>
+  
+  <div style="text-align:center; margin-top:20px">
+    <button onclick="clearHistory()" style="background:transparent; border:1px solid var(--line); color:var(--sub); padding:8px 16px; border-radius:99px; font-size:12px">重置图表数据</button>
   </div>
-  <div id="txList"></div>
-
 </div>
+
+<nav class="nav-bar">
+  <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
+    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    <span>记账</span>
+  </div>
+  <div class="nav-item" onclick="switchTab('chart')" id="nav-chart">
+    <svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
+    <span>趋势</span>
+  </div>
+</nav>
 
 <div class="modal" id="modal">
   <div class="modal-content">
-    <h3 style="margin:0 0 16px">新增记录</h3>
-    <select id="type"><option value="buy">买入</option><option value="sell">卖出</option></select>
-    <input type="date" id="date">
-    <input type="number" id="amount" placeholder="金额 (RM)" oninput="calcGrams()">
-    <input type="number" id="price" placeholder="单价 (RM/g)" oninput="calcGrams()">
-    <input type="number" id="grams" placeholder="克数 (g)">
+    <h3 style="margin:0 0 20px">记一笔</h3>
+    <div style="display:flex; gap:10px; margin-bottom:10px">
+      <select id="type" style="flex:1"><option value="buy">买入 (Buy)</option><option value="sell">卖出 (Sell)</option></select>
+      <input type="date" id="date" style="flex:1">
+    </div>
+    <input type="number" id="amount" placeholder="总金额 (RM)" oninput="calc()">
     <div style="display:flex; gap:10px">
-      <button class="btn" style="margin:0; background:var(--bg); color:var(--text)" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" style="margin:0" onclick="saveTx()">保存</button>
+      <input type="number" id="price" placeholder="单价 (RM/g)" oninput="calc()">
+      <input type="number" id="grams" placeholder="克数 (g)" disabled style="background:var(--bg)">
+    </div>
+    <input type="text" id="note" placeholder="备注 (选填)">
+    
+    <div style="display:flex; gap:10px; margin-top:10px">
+      <button class="btn-block" style="background:var(--bg); color:var(--text); flex:1" onclick="closeModal()">取消</button>
+      <button class="btn-block" style="flex:2" onclick="saveTx()">保存</button>
     </div>
   </div>
 </div>
 
 <script>
-  const LS_TX = "tng_tx_v5";
-  const LS_MARKET = "tng_market_v5";
-  const LS_HISTORY = "tng_asset_history_v5"; // 存储每天的市值记录
+  // --- 配置与状态 ---
+  const LS_TX = "tng_tx_v6";
+  const LS_MARKET = "tng_market_v6";
+  const LS_HIST = "tng_hist_v6";
 
   const el = (id) => document.getElementById(id);
 
+  // --- 页面切换逻辑 ---
+  function switchTab(tab){
+    // 切换内容显隐
+    document.querySelectorAll('.wrap').forEach(d => d.classList.remove('active'));
+    el('view-' + tab).classList.add('active');
+    
+    // 切换底部按钮高亮
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el('nav-' + tab).classList.add('active');
+
+    // 如果切换到图表页，立即重绘图表
+    if(tab === 'chart') {
+      renderChart();
+      renderHistoryList();
+    }
+  }
+
+  // --- 初始化 ---
   function init(){
     el('date').value = new Date().toISOString().split('T')[0];
     el('marketPrice').value = localStorage.getItem(LS_MARKET) || "";
     
-    // 监听市场价：不仅更新数字，还保存历史
+    // 监听市场价变动 -> 自动记录历史
     el('marketPrice').addEventListener('change', (e) => {
-      const price = parseFloat(e.target.value);
-      if(price > 0){
-        localStorage.setItem(LS_MARKET, price);
-        updateHistory(price); // 核心功能：更新今日市值
-        render();
+      const p = parseFloat(e.target.value);
+      if(p > 0){
+        localStorage.setItem(LS_MARKET, p);
+        recordHistory(p); // 核心：更新今日市值
+        renderHome(); // 刷新首页数据
       }
     });
 
-    render();
+    renderHome();
   }
 
-  // --- 核心业务逻辑 ---
-
+  // --- 数据处理 ---
   function loadTx() { return JSON.parse(localStorage.getItem(LS_TX) || "[]"); }
-  function loadHistory() { return JSON.parse(localStorage.getItem(LS_HISTORY) || "[]"); }
+  function loadHist() { return JSON.parse(localStorage.getItem(LS_HIST) || "[]"); }
 
-  function getMetrics(txs){
-    // 计算当前持仓
+  function getHolding(){
     let holding = 0, cost = 0;
-    txs.sort((a,b) => (a.date > b.date ? 1 : -1)).forEach(t => {
+    const txs = loadTx().sort((a,b) => a.date > b.date ? 1 : -1);
+    txs.forEach(t => {
       const g = parseFloat(t.grams), a = parseFloat(t.amount);
       if(t.type === 'buy') { holding += g; cost += a; }
       else { 
-        if(holding>0) cost -= (g * (cost/holding)); 
+        if(holding > 0) cost -= (g * (cost/holding));
         holding -= g; 
       }
     });
-    if(holding < 0.000001) { holding = 0; cost = 0; }
-    return { holding, cost };
+    return { holding: Math.max(0, holding), cost: Math.max(0, cost) };
   }
 
-  // 更新历史市值记录
-  function updateHistory(currentPrice){
-    const txs = loadTx();
-    const { holding } = getMetrics(txs);
+  // 记录市值历史
+  function recordHistory(price){
+    const { holding } = getHolding();
     if(holding <= 0) return;
-
+    
     const today = new Date().toISOString().split('T')[0];
-    const assetValue = holding * currentPrice;
+    const val = holding * price;
+    let hist = loadHist();
     
-    let history = loadHistory();
-    // 查找今天是否已经记录过
-    const idx = history.findIndex(h => h.date === today);
+    const idx = hist.findIndex(h => h.date === today);
+    if(idx >= 0) hist[idx].val = val;
+    else hist.push({ date: today, val });
     
-    if(idx >= 0){
-      history[idx].val = assetValue; // 更新今天的记录
-    } else {
-      history.push({ date: today, val: assetValue }); // 新增今天的记录
-    }
-    
-    // 只保留最近30天或全部，按需调整。这里保留全部。
-    history.sort((a,b) => (a.date > b.date ? 1 : -1));
-    localStorage.setItem(LS_HISTORY, JSON.stringify(history));
+    hist.sort((a,b) => a.date > b.date ? 1 : -1);
+    localStorage.setItem(LS_HIST, JSON.stringify(hist));
   }
 
-  // --- 图表绘制逻辑 (零依赖 SVG) ---
-  function drawChart(){
-    const history = loadHistory();
-    const box = el('chartBox');
-    box.innerHTML = '<div class="tooltip" id="tooltip"></div>'; // Reset, keep tooltip div
-    
-    if(history.length < 2) {
-      box.innerHTML += '<div style="position:absolute;top:45%;left:0;right:0;text-align:center;color:var(--sub);font-size:12px">暂无足够数据，请输入今日金价<br>积累两天以上数据后显示趋势</div>';
-      return;
-    }
-
-    // 1. 计算坐标轴范围
-    const values = history.map(h => h.val);
-    const minVal = Math.min(...values) * 0.98; // 底部留一点空隙
-    const maxVal = Math.max(...values) * 1.02; // 顶部留一点空隙
-    const range = maxVal - minVal || 1;
-
-    const w = box.offsetWidth;
-    const h = box.offsetHeight;
-    const pad = 10; // 内边距
-
-    // 2. 生成路径点
-    const points = history.map((d, i) => {
-      const x = pad + (i / (history.length - 1)) * (w - pad * 2);
-      const y = h - pad - ((d.val - minVal) / range) * (h - pad * 2);
-      return { x, y, val: d.val, date: d.date };
-    });
-
-    // 3. 构建 SVG
-    let pathD = `M ${points[0].x} ${points[0].y}`;
-    points.forEach(p => pathD += ` L ${p.x} ${p.y}`);
-
-    // 填充区域 (闭合路径)
-    let areaD = pathD + ` L ${points[points.length-1].x} ${h} L ${points[0].x} ${h} Z`;
-
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    
-    // 绘制填充
-    const area = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    area.setAttribute("d", areaD);
-    area.setAttribute("class", "chart-area");
-    svg.appendChild(area);
-
-    // 绘制线条
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    line.setAttribute("d", pathD);
-    line.setAttribute("class", "chart-line");
-    svg.appendChild(line);
-
-    // 绘制交互点
-    points.forEach(p => {
-      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      circle.setAttribute("cx", p.x);
-      circle.setAttribute("cy", p.y);
-      circle.setAttribute("r", 4);
-      circle.setAttribute("class", "chart-dot");
-      // 简单交互
-      circle.onclick = () => showTooltip(p.x, p.y, p.val, p.date);
-      svg.appendChild(circle);
-    });
-
-    box.appendChild(svg);
-    
-    // 显示最新的值
-    el('chartCurrentVal').innerText = "RM " + history[history.length-1].val.toFixed(2);
-  }
-
-  function showTooltip(x, y, val, date){
-    const t = el('tooltip');
-    t.innerHTML = `${date}<br>RM ${val.toFixed(2)}`;
-    t.style.left = x + 'px';
-    t.style.top = (y - 8) + 'px';
-    t.style.opacity = 1;
-    setTimeout(() => t.style.opacity = 0, 3000); // 3秒后消失
-  }
-
-  // --- 界面渲染 ---
-  function render(){
+  // --- 首页渲染 ---
+  function renderHome(){
     const txs = loadTx();
-    const m = getMetrics(txs);
+    const { holding, cost } = getHolding();
     const mp = parseFloat(el('marketPrice').value) || 0;
 
     // KPI
-    el('kpiHolding').innerText = m.holding.toFixed(6);
-    
-    if(mp > 0 && m.holding > 0){
-      const marketVal = m.holding * mp;
-      const profit = marketVal - m.cost;
-      const pct = (profit / m.cost) * 100;
-      const sign = profit >= 0 ? "+" : "";
-      const cls = profit >= 0 ? "green" : "red";
-      
-      el('kpiUnrealized').innerHTML = `<span class="${cls}">RM ${sign}${profit.toFixed(2)}</span>`;
-      el('kpiRoi').innerHTML = `<span class="${cls}">${sign}${pct.toFixed(2)}%</span> (总值 RM${marketVal.toFixed(2)})`;
+    el('kpiHolding').innerText = holding.toFixed(6);
+    const avg = holding > 0 ? cost/holding : 0;
+    el('kpiAvg').innerText = avg.toFixed(2);
+
+    // 盈亏
+    if(mp > 0 && holding > 0){
+      const marketVal = holding * mp;
+      const profit = marketVal - cost;
+      const pct = (profit / cost) * 100;
+      const cls = profit >= 0 ? 'green' : 'red';
+      el('kpiProfit').innerHTML = `<span class="${cls}">RM ${profit >= 0 ? '+':''}${profit.toFixed(2)}</span>`;
+      el('kpiRoi').innerHTML = `<span class="${cls}">${pct.toFixed(2)}%</span>`;
     }
 
-    // 列表
+    // 列表 (取最新的5条)
     const list = el('txList');
     list.innerHTML = "";
-    [...txs].reverse().forEach(t => {
-      const div = document.createElement('div');
-      div.className = `tx-item ${t.type}`;
-      div.innerHTML = `
-        <div><div style="font-weight:700;font-size:14px">${t.type==='buy'?'买入':'卖出'}</div><div style="font-size:11px;color:#888">${t.date}</div></div>
-        <div style="text-align:right"><div style="font-weight:700">RM ${t.amount}</div><div style="font-size:11px;color:#888">${Number(t.grams).toFixed(4)}g</div></div>
+    [...txs].reverse().slice(0, 5).forEach(t => {
+      const isBuy = t.type === 'buy';
+      list.innerHTML += `
+        <div class="tx-item">
+          <div>
+            <span class="tag ${t.type}">${isBuy?'买':'卖'}</span>
+            <span style="font-size:13px; font-weight:600">${t.date}</span>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:13px; font-weight:700">RM ${t.amount}</div>
+            <div style="font-size:11px; color:var(--sub)">${parseFloat(t.grams).toFixed(4)}g</div>
+          </div>
+        </div>
       `;
-      list.appendChild(div);
     });
-
-    // 绘制图表
-    drawChart();
+    if(txs.length === 0) list.innerHTML = "<div style='text-align:center; padding:20px; color:var(--sub); font-size:12px'>暂无记录</div>";
   }
 
-  // --- 交易操作 ---
+  // --- 图表渲染 (SVG) ---
+  function renderChart(){
+    const hist = loadHist();
+    const box = el('chartBox');
+    box.innerHTML = '<div class="tooltip" id="tooltip"></div><defs><linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--primary)" stop-opacity="0.2"/><stop offset="100%" stop-color="var(--primary)" stop-opacity="0"/></linearGradient></defs>';
+
+    if(hist.length < 1){
+      el('chartTotalVal').innerText = "暂无数据";
+      return;
+    }
+    
+    // 显示最新市值
+    const last = hist[hist.length-1];
+    el('chartTotalVal').innerText = "RM " + last.val.toFixed(2);
+    if(hist.length < 2) return; // 至少两个点才画线
+
+    // 坐标计算
+    const vals = hist.map(h => h.val);
+    const min = Math.min(...vals) * 0.99;
+    const max = Math.max(...vals) * 1.01;
+    const range = max - min || 1;
+    const w = box.offsetWidth;
+    const h = box.offsetHeight;
+    const pad = 10;
+
+    const points = hist.map((d, i) => ({
+      x: pad + (i / (hist.length - 1)) * (w - pad*2),
+      y: h - pad - ((d.val - min) / range) * (h - pad*2),
+      val: d.val, date: d.date
+    }));
+
+    // 绘制 Path
+    let dLine = `M ${points[0].x} ${points[0].y}`;
+    points.forEach(p => dLine += ` L ${p.x} ${p.y}`);
+    
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    box.appendChild(svg); // 先append再操作，虽然此处无所谓，但习惯好
+
+    // 区域填充
+    const dArea = dLine + ` L ${points[points.length-1].x} ${h} L ${points[0].x} ${h} Z`;
+    const areaPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    areaPath.setAttribute("d", dArea);
+    areaPath.setAttribute("class", "chart-area");
+    svg.appendChild(areaPath);
+
+    // 线条
+    const linePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    linePath.setAttribute("d", dLine);
+    linePath.setAttribute("class", "chart-line");
+    svg.appendChild(linePath);
+
+    // 交互点
+    points.forEach(p => {
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", p.x); c.setAttribute("cy", p.y); c.setAttribute("r", 5);
+      c.setAttribute("class", "chart-dot");
+      c.onclick = () => {
+        const t = el('tooltip');
+        t.innerHTML = `${p.date}<br>RM ${p.val.toFixed(2)}`;
+        t.style.left = p.x + 'px'; t.style.top = (p.y - 10) + 'px';
+        t.style.opacity = 1;
+        setTimeout(()=>t.style.opacity=0, 2000);
+      };
+      svg.appendChild(c);
+    });
+  }
+
+  function renderHistoryList(){
+    const hist = loadHist().reverse();
+    const div = el('historyList');
+    div.innerHTML = "";
+    hist.forEach(h => {
+      div.innerHTML += `
+        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line)">
+          <span style="color:var(--sub)">${h.date}</span>
+          <span style="font-weight:600">RM ${h.val.toFixed(2)}</span>
+        </div>
+      `;
+    });
+  }
+
+  // --- 交易逻辑 ---
   function openModal(){ el('modal').classList.add('show'); }
   function closeModal(){ el('modal').classList.remove('show'); }
-  
-  function calcGrams(){
+  function calc(){
     const a = parseFloat(el('amount').value), p = parseFloat(el('price').value);
     if(a && p) el('grams').value = (a/p).toFixed(6);
   }
-
   function saveTx(){
     const type = el('type').value;
     const date = el('date').value;
     const amount = el('amount').value;
     const grams = el('grams').value;
     const price = el('price').value;
-    
-    if(!amount || !grams){ alert("请填写完整"); return; }
+    const note = el('note').value;
+    if(!amount || !grams){ alert("数据不完整"); return; }
     
     const txs = loadTx();
-    txs.push({ id: Date.now(), type, date, amount, grams, price });
+    txs.push({ id: Date.now(), type, date, amount, grams, price, note });
     localStorage.setItem(LS_TX, JSON.stringify(txs));
     
-    closeModal();
-    // 交易变动后，如果当前有市场价，应该重新计算一下今日市值
+    // 更新历史
     const mp = parseFloat(el('marketPrice').value);
-    if(mp) updateHistory(mp);
-    
-    render();
+    if(mp) recordHistory(mp);
+
+    closeModal();
+    el('amount').value = ""; el('grams').value = ""; el('price').value = ""; el('note').value = "";
+    renderHome();
   }
 
   function clearHistory(){
-    if(confirm("确定清除图表历史数据？(交易记录保留)")){
-      localStorage.removeItem(LS_HISTORY);
-      render();
+    if(confirm("确定清空图表历史？交易记录不会被删除。")){
+      localStorage.removeItem(LS_HIST);
+      renderChart();
+      renderHistoryList();
     }
   }
 
