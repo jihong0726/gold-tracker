@@ -9,49 +9,30 @@
   <style>
     :root{
       --bg: #f4f5f9; --card: #ffffff; --text: #1f2937; --sub: #9ca3af;
-      --primary: #005eb8; /* TNG Blue */
-      --line: #e5e7eb; --green: #10b981; --red: #ef4444;
-      --nav-h: 60px; /* 底部导航高度 */
-      --safe-pb: env(safe-area-inset-bottom); /* iPhone底部安全区 */
+      --primary: #005eb8; --line: #e5e7eb; --green: #10b981; --red: #ef4444;
+      --nav-h: 60px; --safe-pb: env(safe-area-inset-bottom);
     }
     @media (prefers-color-scheme: dark) {
-      :root{
-        --bg: #000000; --card: #1c1c1e; --text: #f2f2f7; --sub: #8e8e93;
-        --line: #38383a;
-      }
+      :root{ --bg: #000000; --card: #1c1c1e; --text: #f2f2f7; --sub: #8e8e93; --line: #38383a; }
     }
-    
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       margin: 0; background: var(--bg); color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
       padding-bottom: calc(var(--nav-h) + 20px + var(--safe-pb));
-      user-select: none; /* 像App一样不可选中文字 */
+      user-select: none;
     }
-
-    /* 页面切换容器 */
     .view { display: none; padding: 16px; animation: fadeIn 0.2s ease; }
     .view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* 标题栏 */
-    header { 
-      display: flex; justify-content: space-between; align-items: center; 
-      padding: 10px 4px 20px; 
-    }
-    h1 { font-size: 22px; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
-    .badge { 
-      font-size: 11px; color: var(--primary); background: rgba(0,94,184,0.12); 
-      padding: 4px 10px; border-radius: 20px; font-weight: 600; 
-    }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 10px 4px 20px; }
+    h1 { font-size: 22px; font-weight: 800; margin: 0; }
+    .badge { font-size: 11px; color: var(--primary); background: rgba(0,94,184,0.12); padding: 4px 10px; border-radius: 20px; font-weight: 600; }
 
-    /* 卡片通用样式 */
-    .card {
-      background: var(--card); border-radius: 18px; padding: 18px;
-      margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    }
-
-    /* 顶部金价输入条 */
+    .card { background: var(--card); border-radius: 18px; padding: 18px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+    
+    /* 顶部金价条 */
     .market-bar {
       background: linear-gradient(135deg, #005eb8, #003f7f);
       color: white; padding: 20px; border-radius: 20px;
@@ -65,27 +46,21 @@
     }
     .market-bar input::placeholder { color: rgba(255,255,255,0.6); }
 
-    /* 核心数据网格 */
+    /* KPI Grid */
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .kpi-title { font-size: 11px; color: var(--sub); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .kpi-title { font-size: 11px; color: var(--sub); text-transform: uppercase; margin-bottom: 6px; }
     .kpi-val { font-size: 22px; font-weight: 700; }
     .kpi-sub { font-size: 12px; margin-top: 4px; opacity: 0.9; }
     .green { color: var(--green); } .red { color: var(--red); }
 
-    /* 列表样式 */
-    .list-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 16px 0; border-bottom: 0.5px solid var(--line);
-    }
+    /* List Item */
+    .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 0.5px solid var(--line); }
     .list-item:last-child { border-bottom: none; }
-    .tag { 
-      font-size: 10px; padding: 3px 6px; border-radius: 6px; margin-right: 8px; 
-      font-weight: 700; text-transform: uppercase; 
-    }
+    .tag { font-size: 10px; padding: 3px 6px; border-radius: 6px; margin-right: 8px; font-weight: 700; text-transform: uppercase; }
     .tag.buy { background: rgba(16,185,129,0.15); color: var(--green); }
     .tag.sell { background: rgba(239,68,68,0.15); color: var(--red); }
 
-    /* 图表容器 */
+    /* Chart */
     .chart-wrapper { width: 100%; height: 260px; position: relative; margin-top: 10px; }
     svg { width: 100%; height: 100%; overflow: visible; }
     .chart-line { fill: none; stroke: var(--primary); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
@@ -98,7 +73,7 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.2); white-space: nowrap;
     }
 
-    /* 底部导航栏 (Dock) */
+    /* Bottom Dock */
     .dock {
       position: fixed; bottom: 0; left: 0; right: 0; height: calc(var(--nav-h) + var(--safe-pb));
       background: rgba(255,255,255,0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -106,30 +81,24 @@
       padding-top: 8px; z-index: 100;
     }
     @media (prefers-color-scheme: dark) { .dock { background: rgba(28,28,30,0.9); } }
-    
-    .dock-item {
-      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
-      color: var(--sub); font-size: 10px; font-weight: 500; cursor: pointer;
-    }
+    .dock-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--sub); font-size: 10px; font-weight: 500; cursor: pointer; }
     .dock-item svg { width: 24px; height: 24px; fill: currentColor; }
     .dock-item.active { color: var(--primary); }
 
-    /* 悬浮添加按钮 (FAB) */
+    /* FAB */
     .fab {
       position: fixed; bottom: calc(var(--nav-h) + var(--safe-pb) + 16px); right: 16px;
       width: 56px; height: 56px; background: var(--primary); border-radius: 50%;
       color: white; display: flex; justify-content: center; align-items: center;
-      box-shadow: 0 4px 15px rgba(0,94,184,0.4); z-index: 90; cursor: pointer;
-      transition: transform 0.1s;
+      box-shadow: 0 4px 15px rgba(0,94,184,0.4); z-index: 90; cursor: pointer; transition: transform 0.1s;
     }
     .fab:active { transform: scale(0.92); }
     .fab svg { width: 28px; height: 28px; fill: white; }
 
-    /* 弹窗 (Modal) */
+    /* Modals */
     .modal-mask {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200;
-      background: rgba(0,0,0,0.6); display: none; align-items: flex-end;
-      backdrop-filter: blur(2px);
+      background: rgba(0,0,0,0.6); display: none; align-items: flex-end; backdrop-filter: blur(2px);
     }
     .modal-mask.show { display: flex; }
     .modal-panel {
@@ -138,24 +107,15 @@
     }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-    /* 输入框优化 */
+    /* Inputs */
     .form-group { margin-bottom: 16px; }
     .form-label { display: block; font-size: 12px; color: var(--sub); margin-bottom: 8px; font-weight: 600; }
-    input, select {
-      width: 100%; padding: 14px; background: var(--bg); border: none;
-      border-radius: 12px; font-size: 17px; color: var(--text); outline: none;
-      /* 关键：17px防止iOS缩放 */
-    }
-    .btn-save {
-      width: 100%; padding: 16px; background: var(--primary); color: white;
-      border: none; border-radius: 14px; font-size: 17px; font-weight: 700;
-      margin-top: 10px;
-    }
-    .btn-cancel {
-      width: 100%; padding: 14px; background: transparent; color: var(--sub);
-      border: none; margin-top: 8px; font-size: 15px;
-    }
-
+    input, select { width: 100%; padding: 14px; background: var(--bg); border: none; border-radius: 12px; font-size: 17px; color: var(--text); outline: none; }
+    .btn-save { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 14px; font-size: 17px; font-weight: 700; margin-top: 10px; }
+    .btn-cancel { width: 100%; padding: 14px; background: transparent; color: var(--sub); border: none; margin-top: 8px; font-size: 15px; }
+    
+    /* Utility Button */
+    .btn-sm-outline { font-size:12px; padding:6px 12px; border:1px solid var(--primary); color:var(--primary); border-radius:99px; background:transparent; font-weight:600; }
   </style>
 </head>
 <body>
@@ -163,13 +123,13 @@
 <div id="view-home" class="view active">
   <header>
     <h1>我的持仓</h1>
-    <span class="badge">V8.0 Pro</span>
+    <span class="badge">V9.0 时光机</span>
   </header>
 
   <div class="market-bar">
     <div>
       <div style="font-size:15px; font-weight:700; margin-bottom:4px">We Buy 价格</div>
-      <div style="font-size:12px; opacity:0.8">输入今日回购价更新盈亏</div>
+      <div style="font-size:12px; opacity:0.8">输入更新今日盈亏</div>
     </div>
     <input type="number" id="marketPrice" placeholder="0.00" inputmode="decimal">
   </div>
@@ -195,15 +155,16 @@
   </div>
 
   <div class="card" style="padding-top:0; padding-bottom:8px;">
-    <div style="padding:16px 0 8px; font-size:13px; font-weight:700; color:var(--text)">最近交易 (点击可修改)</div>
+    <div style="padding:16px 0 8px; font-size:13px; font-weight:700">最近交易</div>
     <div id="txList"></div>
   </div>
-  
-  <div style="height:60px"></div> </div>
+  <div style="height:60px"></div>
+</div>
 
 <div id="view-chart" class="view">
   <header>
     <h1>资产走势</h1>
+    <button class="btn-sm-outline" onclick="openHistoryModal()">+ 补录历史</button>
   </header>
 
   <div class="card">
@@ -215,12 +176,12 @@
   </div>
 
   <div class="card">
-    <div style="font-size:13px; font-weight:700; margin-bottom:12px">每日市值记录</div>
+    <div style="font-size:13px; font-weight:700; margin-bottom:12px">市值历史记录</div>
     <div id="historyList"></div>
   </div>
 
   <div style="text-align:center; padding:20px">
-    <span onclick="resetHistory()" style="font-size:12px; color:var(--sub); text-decoration:underline">重置图表历史</span>
+    <span onclick="resetHistory()" style="font-size:12px; color:var(--sub); text-decoration:underline">清空图表历史</span>
   </div>
 </div>
 
@@ -242,104 +203,76 @@
 <div class="modal-mask" id="modal">
   <div class="modal-panel">
     <h3 style="margin:0 0 24px; font-size:20px" id="modalTitle">记一笔交易</h3>
-    
     <div style="display:flex; gap:12px; margin-bottom:12px">
-      <div style="flex:1">
-        <label class="form-label">类型</label>
-        <select id="type">
-          <option value="buy">买入 (Buy)</option>
-          <option value="sell">卖出 (Sell)</option>
-        </select>
-      </div>
-      <div style="flex:1">
-        <label class="form-label">日期</label>
-        <input type="date" id="date">
-      </div>
+      <div style="flex:1"><label class="form-label">类型</label><select id="type"><option value="buy">买入</option><option value="sell">卖出</option></select></div>
+      <div style="flex:1"><label class="form-label">日期</label><input type="date" id="date"></div>
     </div>
-
-    <div class="form-group">
-      <label class="form-label">总金额 (RM)</label>
-      <input type="number" id="amount" placeholder="0.00" inputmode="decimal" oninput="autoCalc()">
-    </div>
-
+    <div class="form-group"><label class="form-label">总金额 (RM)</label><input type="number" id="amount" placeholder="0.00" inputmode="decimal" oninput="autoCalc()"></div>
     <div style="display:flex; gap:12px; margin-bottom:16px">
-      <div style="flex:1">
-        <label class="form-label">单价 (RM/g)</label>
-        <input type="number" id="price" placeholder="0.00" inputmode="decimal" oninput="autoCalc()">
-      </div>
-      <div style="flex:1">
-        <label class="form-label">克数 (g)</label>
-        <input type="number" id="grams" placeholder="自动计算" disabled style="background:var(--bg); opacity:0.7">
-      </div>
+      <div style="flex:1"><label class="form-label">单价 (RM/g)</label><input type="number" id="price" placeholder="0.00" inputmode="decimal" oninput="autoCalc()"></div>
+      <div style="flex:1"><label class="form-label">克数 (g)</label><input type="number" id="grams" placeholder="自动计算" disabled style="background:var(--bg); opacity:0.7"></div>
     </div>
-
     <input type="text" id="note" placeholder="备注 (选填)" style="margin-bottom:16px">
-
     <button class="btn-save" onclick="saveTx()" id="saveBtn">确认保存</button>
-    <div id="delBox" style="display:none; text-align:center; margin-top:16px">
-       <span style="color:var(--red); font-size:14px; font-weight:600" onclick="delTx()">删除此记录</span>
-    </div>
+    <div id="delBox" style="display:none; text-align:center; margin-top:16px"><span style="color:var(--red); font-weight:600" onclick="delTx()">删除</span></div>
     <button class="btn-cancel" onclick="closeModal()">取消</button>
   </div>
 </div>
 
+<div class="modal-mask" id="histModal">
+  <div class="modal-panel">
+    <h3 style="margin:0 0 10px; font-size:20px">补录历史数据</h3>
+    <p style="font-size:12px; color:var(--sub); margin-bottom:20px; line-height:1.5">输入历史日期和当天的金价。系统会自动根据交易记录，算出你在那一天的持仓，并补录市值。</p>
+    
+    <div class="form-group">
+      <label class="form-label">补录日期</label>
+      <input type="date" id="hDate">
+    </div>
+    <div class="form-group">
+      <label class="form-label">当时金价 (We Buy)</label>
+      <input type="number" id="hPrice" placeholder="例如: 580.50" inputmode="decimal">
+    </div>
+
+    <button class="btn-save" onclick="saveHistoryManual()">补录</button>
+    <button class="btn-cancel" onclick="closeHistoryModal()">取消</button>
+  </div>
+</div>
+
 <script>
-  // --- 数据与状态 ---
+  // 数据初始化
   const PRELOAD = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382,"note":""},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299,"note":""},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734,"note":""},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989,"note":""},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401,"note":""}];
-  
-  const LS_TX = "tng_tx_v8"; 
-  const LS_MK = "tng_market_v8";
-  const LS_HS = "tng_hist_v8";
+  const LS_TX = "tng_tx_v9"; const LS_MK = "tng_market_v9"; const LS_HS = "tng_hist_v9";
 
   let editingId = null;
   const el = id => document.getElementById(id);
 
-  // --- 初始化 ---
   function init(){
-    // 首次加载预设数据
-    if(!localStorage.getItem(LS_TX)){
-      localStorage.setItem(LS_TX, JSON.stringify(PRELOAD));
-    }
-    
-    // 恢复状态
+    if(!localStorage.getItem(LS_TX)) localStorage.setItem(LS_TX, JSON.stringify(PRELOAD));
     el('date').value = new Date().toISOString().split('T')[0];
     el('marketPrice').value = localStorage.getItem(LS_MK) || "";
-    
-    // 监听市场价
     el('marketPrice').addEventListener('change', (e) => {
       const p = parseFloat(e.target.value);
-      if(p > 0){
-        localStorage.setItem(LS_MK, p);
-        updateHistory(p);
-        renderHome();
-      }
+      if(p > 0){ localStorage.setItem(LS_MK, p); recordHistoryToday(p); renderHome(); }
     });
-
     renderHome();
   }
 
-  // --- 导航逻辑 ---
   function switchTab(tab){
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     el('view-'+tab).classList.add('active');
-    
     document.querySelectorAll('.dock-item').forEach(i => i.classList.remove('active'));
     el('nav-'+tab).classList.add('active');
-
-    // 切换FAB显示
     document.querySelector('.fab').style.display = tab === 'home' ? 'flex' : 'none';
-
     if(tab === 'chart') renderChart();
   }
 
-  // --- 核心业务 ---
+  // 核心计算
   function loadTx() { return JSON.parse(localStorage.getItem(LS_TX)||"[]"); }
   function loadHist() { return JSON.parse(localStorage.getItem(LS_HS)||"[]"); }
   
-  function getStats(){
+  function getStats(txList){
     let h=0, c=0;
-    const tx = loadTx().sort((a,b) => a.date>b.date?1:-1);
-    tx.forEach(t => {
+    txList.forEach(t => {
       const g=Number(t.grams), a=Number(t.amount);
       if(t.type==='buy'){ h+=g; c+=a; }
       else { if(h>0) c-=(g*(c/h)); h-=g; }
@@ -347,207 +280,134 @@
     return { h: Math.max(0,h), c: Math.max(0,c) };
   }
 
-  function updateHistory(price){
-    const { h } = getStats();
-    if(h <= 0) return;
-    const today = new Date().toISOString().split('T')[0];
-    let hist = loadHist();
-    const idx = hist.findIndex(x => x.date === today);
-    const val = h * price;
-    if(idx >= 0) hist[idx].val = val;
-    else hist.push({date:today, val});
+  // --- 历史市值逻辑 ---
+  function recordHistoryToday(price){
+    // 今天的记录，用全部交易计算
+    const tx = loadTx().sort((a,b) => a.date>b.date?1:-1);
+    const { h } = getStats(tx);
+    saveHistoryRecord(new Date().toISOString().split('T')[0], h, price);
+  }
+
+  function saveHistoryManual(){
+    const date = el('hDate').value;
+    const price = parseFloat(el('hPrice').value);
     
+    if(!date || !price) { alert("请填写完整"); return; }
+    
+    // 1. 算出“那个日期”结束时的持仓
+    const allTx = loadTx();
+    const txBeforeDate = allTx.filter(t => t.date <= date).sort((a,b) => a.date>b.date?1:-1);
+    
+    const { h } = getStats(txBeforeDate);
+    
+    if(h <= 0){
+      alert(`在 ${date} 之前没有持仓，无法补录。`);
+      return;
+    }
+    
+    // 2. 保存
+    saveHistoryRecord(date, h, price);
+    closeHistoryModal();
+    alert(`补录成功！\n日期: ${date}\n当时持仓: ${h.toFixed(4)}g\n当时市值: RM ${(h*price).toFixed(2)}`);
+    renderChart();
+  }
+
+  function saveHistoryRecord(date, holding, price){
+    let hist = loadHist();
+    const val = holding * price;
+    const idx = hist.findIndex(x => x.date === date);
+    if(idx >= 0) hist[idx].val = val;
+    else hist.push({date, val});
     hist.sort((a,b) => a.date>b.date?1:-1);
     localStorage.setItem(LS_HS, JSON.stringify(hist));
   }
 
-  // --- 渲染首页 ---
+  // --- 渲染 ---
   function renderHome(){
     const tx = loadTx();
-    const { h, c } = getStats();
+    const sortedTx = [...tx].sort((a,b) => a.date>b.date?1:-1);
+    const { h, c } = getStats(sortedTx);
     const mp = parseFloat(el('marketPrice').value) || 0;
 
     el('kpiHolding').textContent = h.toFixed(4);
     el('kpiAvg').textContent = h>0 ? (c/h).toFixed(2) : "0.00";
 
     if(mp > 0 && h > 0){
-      const val = h * mp;
-      const pl = val - c;
-      const pct = (pl/c)*100;
+      const pl = (h*mp) - c;
       const color = pl>=0 ? "green" : "red";
       el('kpiProfit').innerHTML = `<span class="${color}">RM ${pl>=0?'+':''}${pl.toFixed(2)}</span>`;
-      el('kpiRoi').innerHTML = `<span class="${color}">${pct.toFixed(2)}%</span>`;
+      el('kpiRoi').innerHTML = `<span class="${color}">${((pl/c)*100).toFixed(2)}%</span>`;
     }
 
     const list = el('txList');
     list.innerHTML = "";
-    // 倒序展示，最新的在最上面
-    const sorted = [...tx].sort((a,b) => b.ts - a.ts);
-    
-    sorted.forEach(t => {
-      const div = document.createElement('div');
-      div.className = "list-item";
-      div.onclick = () => editTx(t.ts);
-      div.innerHTML = `
-        <div>
-          <div style="display:flex; align-items:center; margin-bottom:2px">
-            <span class="tag ${t.type}">${t.type==='buy'?'买入':'卖出'}</span>
-            <span style="font-weight:600; font-size:15px">RM ${Number(t.amount).toFixed(2)}</span>
-          </div>
-          <div style="font-size:12px; color:var(--sub)">${t.date}</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:13px; font-weight:600; color:var(--text)">${Number(t.grams).toFixed(6)} g</div>
-          <div style="font-size:11px; color:var(--sub)">@ ${Number(t.price).toFixed(2)}</div>
-        </div>
-      `;
-      list.appendChild(div);
+    [...tx].sort((a,b) => b.ts - a.ts).forEach(t => {
+      list.innerHTML += `<div class="list-item" onclick="editTx(${t.ts})">
+        <div><div style="display:flex;align-items:center;margin-bottom:2px"><span class="tag ${t.type}">${t.type==='buy'?'买':'卖'}</span><span style="font-weight:600">RM ${Number(t.amount).toFixed(2)}</span></div><div style="font-size:12px;color:var(--sub)">${t.date}</div></div>
+        <div style="text-align:right"><div style="font-size:13px;font-weight:600">${Number(t.grams).toFixed(6)} g</div><div style="font-size:11px;color:var(--sub)">@ ${Number(t.price).toFixed(2)}</div></div></div>`;
     });
   }
 
-  // --- 渲染图表 ---
   function renderChart(){
     const hist = loadHist();
     const box = el('chartBox');
     box.innerHTML = '<div class="tooltip" id="tooltip"></div><defs><linearGradient id="grad" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--primary)" stop-opacity="0.2"/><stop offset="100%" stop-color="var(--primary)" stop-opacity="0"/></linearGradient></defs>';
 
-    if(hist.length === 0){
-      el('chartTotal').textContent = "暂无数据";
-      return;
-    }
-    
+    if(hist.length === 0){ el('chartTotal').textContent = "暂无数据"; return; }
     el('chartTotal').textContent = "RM " + hist[hist.length-1].val.toFixed(2);
     if(hist.length < 2) return;
 
-    // SVG 绘制
     const vals = hist.map(h => h.val);
-    const min = Math.min(...vals)*0.99, max = Math.max(...vals)*1.01;
-    const range = max - min || 1;
-    const w = box.offsetWidth, h = box.offsetHeight;
-    const pad = 10;
-
-    const points = hist.map((d,i) => ({
-      x: pad + (i/(hist.length-1))*(w-pad*2),
-      y: h - pad - ((d.val - min)/range)*(h-pad*2),
-      data: d
-    }));
+    const min = Math.min(...vals)*0.98, max = Math.max(...vals)*1.02, range = max-min||1;
+    const w = box.offsetWidth, h = box.offsetHeight, pad = 10;
+    const points = hist.map((d,i) => ({ x: pad+(i/(hist.length-1))*(w-pad*2), y: h-pad-((d.val-min)/range)*(h-pad*2), d }));
 
     let dPath = `M ${points[0].x} ${points[0].y}`;
     points.forEach(p => dPath += ` L ${p.x} ${p.y}`);
-
+    
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     box.appendChild(svg);
-
-    // 区域
+    
     const area = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    area.setAttribute("d", dPath + ` L ${points[points.length-1].x} ${h} L ${points[0].x} ${h} Z`);
-    area.setAttribute("class", "chart-area");
-    svg.appendChild(area);
-
-    // 线
+    area.setAttribute("d", dPath + ` L ${points[points.length-1].x} ${h} L ${points[0].x} ${h} Z`); area.setAttribute("class", "chart-area"); svg.appendChild(area);
+    
     const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    line.setAttribute("d", dPath);
-    line.setAttribute("class", "chart-line");
-    svg.appendChild(line);
+    line.setAttribute("d", dPath); line.setAttribute("class", "chart-line"); svg.appendChild(line);
 
-    // 点
     points.forEach(p => {
       const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      c.setAttribute("cx", p.x); c.setAttribute("cy", p.y); c.setAttribute("r", 4);
-      c.setAttribute("class", "chart-dot");
+      c.setAttribute("cx", p.x); c.setAttribute("cy", p.y); c.setAttribute("r", 4); c.setAttribute("class", "chart-dot");
       c.onclick = () => {
-        const t = el('tooltip');
-        t.innerText = `${p.data.date}: RM ${p.data.val.toFixed(2)}`;
-        t.style.left = p.x + 'px'; t.style.top = (p.y - 15) + 'px';
-        t.style.opacity = 1;
-        setTimeout(()=>t.style.opacity=0, 2500);
+        const t = el('tooltip'); t.innerText = `${p.d.date}\nRM ${p.d.val.toFixed(2)}`;
+        t.style.left = p.x+'px'; t.style.top = (p.y-15)+'px'; t.style.opacity = 1; setTimeout(()=>t.style.opacity=0,2500);
       };
       svg.appendChild(c);
     });
 
-    // 历史列表
-    const hList = el('historyList');
-    hList.innerHTML = "";
-    [...hist].reverse().forEach(h => {
-      hList.innerHTML += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px"><span style="color:var(--sub)">${h.date}</span><span style="font-weight:600">RM ${h.val.toFixed(2)}</span></div>`;
-    });
+    const hList = el('historyList'); hList.innerHTML = "";
+    [...hist].reverse().forEach(h => hList.innerHTML += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px"><span style="color:var(--sub)">${h.date}</span><span style="font-weight:600">RM ${h.val.toFixed(2)}</span></div>`);
   }
 
-  // --- 表单逻辑 ---
-  function openModal(){
-    editingId = null;
-    el('modalTitle').innerText = "记一笔";
-    el('saveBtn').innerText = "确认保存";
-    el('delBox').style.display = "none";
-    el('amount').value = ""; el('price').value = ""; el('grams').value = ""; el('note').value = "";
-    el('modal').classList.add('show');
-  }
-  
-  function editTx(ts){
-    const tx = loadTx().find(t => t.ts === ts);
-    if(!tx) return;
-    editingId = ts;
-    el('modalTitle').innerText = "修改记录";
-    el('saveBtn').innerText = "保存修改";
-    el('delBox').style.display = "block";
-    el('type').value = tx.type;
-    el('date').value = tx.date;
-    el('amount').value = tx.amount;
-    el('price').value = tx.price;
-    el('grams').value = tx.grams;
-    el('note').value = tx.note || "";
-    el('modal').classList.add('show');
-  }
-
+  // --- Modal Logic ---
+  function openModal(){ editingId=null; el('modalTitle').innerText="记一笔"; el('saveBtn').innerText="确认保存"; el('delBox').style.display="none"; el('amount').value=""; el('price').value=""; el('grams').value=""; el('note').value=""; el('modal').classList.add('show'); }
+  function editTx(ts){ const t=loadTx().find(x=>x.ts===ts); if(!t)return; editingId=ts; el('modalTitle').innerText="修改"; el('saveBtn').innerText="保存"; el('delBox').style.display="block"; el('type').value=t.type; el('date').value=t.date; el('amount').value=t.amount; el('price').value=t.price; el('grams').value=t.grams; el('note').value=t.note||""; el('modal').classList.add('show'); }
   function closeModal(){ el('modal').classList.remove('show'); }
+  function autoCalc(){ const a=parseFloat(el('amount').value), p=parseFloat(el('price').value); if(a&&p) el('grams').value=(a/p).toFixed(6); }
+  function saveTx(){ 
+    const type=el('type').value, date=el('date').value, amount=el('amount').value, grams=el('grams').value, price=el('price').value;
+    if(!amount||!grams){alert("请填写完整");return;}
+    let l=loadTx(), obj={ts:editingId||Date.now(), type, date, amount, grams, price, note:el('note').value};
+    if(editingId){ const i=l.findIndex(x=>x.ts===editingId); if(i>-1)l[i]=obj; } else l.push(obj);
+    localStorage.setItem(LS_TX, JSON.stringify(l));
+    const mp=parseFloat(el('marketPrice').value); if(mp) recordHistoryToday(mp);
+    closeModal(); renderHome();
+  }
+  function delTx(){ if(!editingId)return; if(confirm("删除？")){ localStorage.setItem(LS_TX, JSON.stringify(loadTx().filter(x=>x.ts!==editingId))); closeModal(); renderHome(); } }
   
-  function autoCalc(){
-    const a = parseFloat(el('amount').value), p = parseFloat(el('price').value);
-    if(a && p) el('grams').value = (a/p).toFixed(6);
-  }
-
-  function saveTx(){
-    const type = el('type').value, date = el('date').value;
-    const amount = el('amount').value, grams = el('grams').value, price = el('price').value;
-    
-    if(!amount || !grams){ alert("请填写完整"); return; }
-    
-    let list = loadTx();
-    const obj = { 
-      ts: editingId || Date.now(), 
-      type, date, amount, grams, price, note: el('note').value 
-    };
-
-    if(editingId) {
-      const idx = list.findIndex(t => t.ts === editingId);
-      if(idx > -1) list[idx] = obj;
-    } else {
-      list.push(obj);
-    }
-    
-    localStorage.setItem(LS_TX, JSON.stringify(list));
-    
-    // 更新历史
-    const mp = parseFloat(el('marketPrice').value);
-    if(mp) updateHistory(mp);
-
-    closeModal();
-    renderHome();
-  }
-
-  function delTx(){
-    if(!editingId) return;
-    if(confirm("确定删除？")){
-      const list = loadTx().filter(t => t.ts !== editingId);
-      localStorage.setItem(LS_TX, JSON.stringify(list));
-      closeModal();
-      renderHome();
-    }
-  }
-
-  function resetHistory(){
-    if(confirm("清空图表数据？")){ localStorage.removeItem(LS_HS); renderChart(); }
-  }
+  // History Modal
+  function openHistoryModal(){ el('histModal').classList.add('show'); }
+  function closeHistoryModal(){ el('histModal').classList.remove('show'); }
+  function resetHistory(){ if(confirm("清空历史市值？")){ localStorage.removeItem(LS_HS); renderChart(); } }
 
   init();
 </script>
