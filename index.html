@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V27</title>
+  <title>TNG 黄金管家 V28</title>
   <style>
     :root{
       --primary: #007aff; 
@@ -89,9 +89,15 @@
 
     /* Grid */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-    .stat-item { padding: 20px; display: flex; flex-direction: column; justify-content: center; }
+    .stat-item { padding: 20px; display: flex; flex-direction: column; justify-content: center; position: relative; }
     .stat-label { font-size: 12px; color: var(--sub); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
     .stat-val { font-size: 19px; font-weight: 700; letter-spacing: -0.5px; }
+    
+    .info-icon { 
+      position: absolute; top: 12px; right: 12px; width: 20px; height: 20px; 
+      border-radius: 50%; border: 1px solid var(--sub); color: var(--sub);
+      display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer;
+    }
 
     /* Lists */
     .list-row {
@@ -121,7 +127,7 @@
     .zoom-label { font-size: 11px; color: var(--sub); font-weight: 600; white-space: nowrap; }
     input[type=range] { width: 100%; accent-color: var(--primary); }
 
-    /* Dock */
+    /* Dock & FAB */
     .dock {
       position: fixed; bottom: calc(20px + var(--safe-pb)); left: 50%; transform: translateX(-50%);
       width: 90%; max-width: 320px; height: 70px;
@@ -134,7 +140,6 @@
     .dock-btn.active { color: var(--primary); transform: translateY(-5px); }
     .dock-btn svg { width: 28px; height: 28px; fill: currentColor; }
 
-    /* FAB */
     .fab {
       position: fixed; bottom: calc(110px + var(--safe-pb)); right: 24px;
       width: 60px; height: 60px; background: var(--primary); border-radius: 50%;
@@ -142,19 +147,27 @@
       box-shadow: 0 10px 25px rgba(0,122,255,0.4); z-index: 90; 
     }
 
-    /* Modals & Forms */
+    /* Modals */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; }
     .modal-overlay.show { display: flex; animation: fadeIn 0.2s; }
     .modal-card { width: 85%; max-width: 360px; background: var(--glass-bg); backdrop-filter: blur(40px); border-radius: 32px; padding: 28px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); border: var(--glass-border); transform: scale(0.95); transition: 0.3s; }
     .modal-overlay.show .modal-card { transform: scale(1); }
-    input.form-input { width: 100%; padding: 16px; background: rgba(120,120,128,0.08); border: none; border-radius: 16px; font-size: 18px; color: var(--text); outline: none; margin-bottom: 12px; font-weight: 600; }
+    
+    /* Improved Form Inputs with Labels */
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--sub); margin-bottom: 6px; margin-left: 4px; }
+    input.form-input { 
+      width: 100%; padding: 16px; background: rgba(120,120,128,0.08); border: none; border-radius: 16px; 
+      font-size: 18px; color: var(--text); outline: none; font-weight: 600;
+    }
     .btn-main { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; font-size: 16px; font-weight: 700; margin-top: 10px; }
     
-    /* Hist Item */
-    .hist-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 0.5px solid rgba(150,150,150,0.15); }
-    .hist-date { font-weight: 600; font-size: 16px; color: var(--text); }
-    .hist-val { font-weight: 700; font-size: 16px; color: var(--primary); }
-    .hist-detail { font-size: 11px; color: var(--sub); display: flex; gap: 8px; margin-top: 4px; }
+    /* Calc Detail Box */
+    .calc-detail-box {
+      background: rgba(120,120,128,0.05); padding: 16px; border-radius: 16px; font-size: 14px; line-height: 1.6;
+    }
+    .calc-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px; }
+    .calc-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; font-weight: 700; font-size: 16px; color: var(--primary); }
   </style>
 </head>
 <body>
@@ -190,6 +203,7 @@
     <div class="glass-card stat-item">
       <div class="stat-label">平均成本</div>
       <div class="stat-val" id="kpiAvg">RM 0.00 <span style="font-size:14px;font-weight:500">/g</span></div>
+      <div class="info-icon" onclick="showCalcDetail()">?</div>
     </div>
   </div>
 
@@ -200,35 +214,19 @@
 </div>
 
 <div id="view-chart" class="view">
-  
-  <div class="glass-card">
-    <div style="font-weight:700; font-size:15px; margin-bottom:12px; display:flex; align-items:center; gap:8px">
-      <span style="font-size:18px">🎯</span> 目标卖出计算器
-    </div>
-    <div style="font-size:13px; color:var(--sub); margin-bottom:12px">输入您的目标利润 (RM)，计算挂单价格</div>
-    <input type="number" id="calcInput" class="form-input" placeholder="想赚多少 RM ?" inputmode="decimal" oninput="calcTarget()">
-    <div style="background:rgba(0,122,255,0.08); padding:16px; border-radius:16px; text-align:center">
-      <div style="font-size:12px; color:var(--primary); opacity:0.8; margin-bottom:4px">建议卖出单价 (RM/g)</div>
-      <div style="font-size:28px; font-weight:800; color:var(--primary)" id="calcResult">0.00</div>
-    </div>
-  </div>
-
   <div class="glass-card" id="chartCard">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
       <div style="font-weight:700; font-size:16px">资产走势</div>
       <button style="font-size:12px; color:var(--primary); background:rgba(0,122,255,0.1); border:none; padding:6px 12px; border-radius:12px; font-weight:600" onclick="openHistModal()">+ 补录</button>
     </div>
-    
     <div class="zoom-ctrl">
       <div class="zoom-label">🔍 缩放</div>
       <input type="range" id="zoomSlider" min="1" max="5" step="0.1" value="1" oninput="updateZoom()">
     </div>
-
     <div class="chart-scroll-wrapper">
       <div class="chart-box" id="trendChart"></div>
     </div>
   </div>
-
   <div class="glass-card">
     <div style="font-weight:700; font-size:15px; margin-bottom:12px; color:var(--text)">历史回溯详情</div>
     <div id="histList"></div>
@@ -251,23 +249,52 @@
 <div class="modal-overlay" id="txModal">
   <div class="modal-card">
     <h3 style="text-align:center; margin-bottom:24px">记一笔交易</h3>
-    <input type="date" class="form-input" id="tDate">
-    <input type="number" class="form-input" id="tAmt" placeholder="总金额 (RM)" inputmode="decimal" step="any" oninput="calcG()">
-    <div style="display:flex; gap:12px">
-      <input type="number" class="form-input" id="tPrice" placeholder="单价 (RM/g)" inputmode="decimal" step="any" oninput="calcG()">
-      <input type="number" class="form-input" id="tGrams" placeholder="克数 (g)" disabled>
+    
+    <div class="form-group">
+      <label class="form-label">日期</label>
+      <input type="date" class="form-input" id="tDate">
     </div>
+
+    <div class="form-group">
+      <label class="form-label">总金额 (RM)</label>
+      <input type="number" class="form-input" id="tAmt" placeholder="0.00" inputmode="decimal" step="any" oninput="calcG()">
+    </div>
+
+    <div style="display:flex; gap:12px">
+      <div class="form-group" style="flex:1">
+        <label class="form-label">单价 (RM/g)</label>
+        <input type="number" class="form-input" id="tPrice" placeholder="0.00" inputmode="decimal" step="any" oninput="calcG()">
+      </div>
+      <div class="form-group" style="flex:1">
+        <label class="form-label">克数</label>
+        <input type="number" class="form-input" id="tGrams" placeholder="自动计算" disabled>
+      </div>
+    </div>
+
     <button class="btn-main" onclick="saveTx()">保存记录</button>
-    <div style="text-align:center; margin-top:16px; color:#ff3b30; font-size:14px; display:none" id="btnDelTx" onclick="delTx()">删除</div>
+    <div style="text-align:center; margin-top:16px; color:#ff3b30; font-size:14px; display:none" id="btnDelTx" onclick="delTx()">删除此记录</div>
     <div style="text-align:center; margin-top:16px; color:var(--sub); font-size:14px" onclick="closeModal('txModal')">取消</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="calcDetailModal">
+  <div class="modal-card">
+    <h3 style="text-align:center; margin-bottom:20px">平均成本计算</h3>
+    <div class="calc-detail-box">
+      <div class="calc-row"><span>总投入金额</span><span id="detailCost">0.00</span></div>
+      <div class="calc-row"><span>总持有克数</span><span id="detailGrams">0.000000</span></div>
+      <div class="calc-row"><span>平均成本</span><span id="detailAvg">0.00</span></div>
+    </div>
+    <div style="font-size:12px; color:var(--sub); margin-top:12px; text-align:center">计算公式：总投入 ÷ 总克数</div>
+    <button class="btn-main" onclick="closeModal('calcDetailModal')">我知道了</button>
   </div>
 </div>
 
 <div class="modal-overlay" id="histModal">
   <div class="modal-card">
     <h3 style="text-align:center; margin-bottom:24px">补录历史资产</h3>
-    <input type="date" class="form-input" id="hDate">
-    <input type="number" class="form-input" id="hTotalVal" placeholder="当日资产总值 (RM)" inputmode="decimal" step="any">
+    <div class="form-group"><label class="form-label">日期</label><input type="date" class="form-input" id="hDate"></div>
+    <div class="form-group"><label class="form-label">总市值 (RM)</label><input type="number" class="form-input" id="hTotalVal" placeholder="0.00" inputmode="decimal" step="any"></div>
     <button class="btn-main" onclick="saveHist()">保存</button>
     <div style="text-align:center; margin-top:16px; color:#ff3b30; font-size:14px; display:none" id="btnDelHist" onclick="delHist()">删除</div>
     <div style="text-align:center; margin-top:16px; color:var(--sub); font-size:14px" onclick="closeModal('histModal')">取消</div>
@@ -290,14 +317,13 @@
 </div>
 
 <script>
-  // 数据初始化
+  // Data Init
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401}];
   const PRELOAD_HIST = [{"date":"2026-01-22","val":558.05},{"date":"2026-01-23","val":1547.97},{"date":"2026-01-24","val":1559.44},{"date":"2026-01-25","val":1558.89}];
-  const KEY = { TX: 'tng_tx_v27', HS: 'tng_hs_v27', MK: 'tng_mk_v27' };
+  const KEY = { TX: 'tng_tx_v28', HS: 'tng_hs_v28', MK: 'tng_mk_v28' };
   const el = id => document.getElementById(id);
   
-  let editId = null, editHistDate = null, txType = 'buy';
-  let chartVis = { val: true, cost: true };
+  let editId = null, editHistDate = null;
   let currentZoom = 1.0;
 
   function init(){
@@ -311,40 +337,27 @@
 
   function getDB(){ return { tx: JSON.parse(localStorage.getItem(KEY.TX)||'[]'), hs: JSON.parse(localStorage.getItem(KEY.HS)||'[]') }; }
   
-  // 核心修复: 严格累加计算平均成本
+  // 核心计算: 严格累加
   function getHoldingAt(dateStr = null){
     const tx = getDB().tx.sort((a,b)=>a.date>b.date?1:-1);
     let h = 0, totalCost = 0;
-    
     for(let t of tx){
       if(dateStr && t.date > dateStr) break;
-      
       const g = Number(t.grams);
       const a = Number(t.amount);
-      
-      if(t.type === 'buy'){
-        h += g;
-        totalCost += a;
-      } else { 
-        // 卖出: 按当前平均成本减少总成本
-        if(h > 0){
-          const avg = totalCost / h;
-          totalCost -= (g * avg);
-        }
+      if(t.type === 'buy'){ h += g; totalCost += a; }
+      else { 
+        if(h > 0){ const avg = totalCost / h; totalCost -= (g * avg); }
         h -= g; 
       }
     }
-    // 精度修复
     if(h < 0.000001) { h = 0; totalCost = 0; }
-    
     return { h, c: totalCost };
   }
 
   function render(){
     const {h, c} = getHoldingAt();
     const mp = parseFloat(el('marketPrice').value)||0;
-
-    // 精度修复: 平均成本 = 总成本 / 总克数
     const avg = h > 0 ? (c / h) : 0;
 
     el('kpiHolding').innerHTML = h.toFixed(6) + ' <span style="font-size:14px;font-weight:500">g</span>';
@@ -376,8 +389,16 @@
       const impliedPrice = stats.h > 0 ? (h.val / stats.h) : 0;
       hList.innerHTML += `<div class="hist-item" onclick="editHist('${h.date}', ${h.val})"><div><div class="hist-date">${h.date}</div><div class="hist-detail"><span>持仓 ${stats.h.toFixed(6)}g</span><span>约 ${impliedPrice.toFixed(2)}/g</span></div></div><div class="hist-val">RM ${Number(h.val).toFixed(2)}</div></div>`;
     });
-    
-    calcTarget();
+  }
+
+  // --- Calc Detail Modal Logic ---
+  function showCalcDetail(){
+    const {h, c} = getHoldingAt();
+    const avg = h > 0 ? (c / h) : 0;
+    el('detailCost').innerText = "RM " + c.toFixed(2);
+    el('detailGrams').innerText = h.toFixed(6) + " g";
+    el('detailAvg').innerText = "RM " + avg.toFixed(2) + " /g";
+    openModal('calcDetailModal');
   }
 
   function updateZoom(){
@@ -423,15 +444,12 @@
     }
 
     let svg = `<svg style="min-width:100%">${grid}`;
-    if(chartVis.cost) svg += `<path d="${pCost}" class="line-cost"/>`;
-    if(chartVis.val) {
-      svg += `<path d="${pVal}" class="line-val"/>`;
-      // 修复：保留2位小数
-      svg += pts.map(p => 
-        `<text x="${p.x}" y="${p.yVal - 15}" class="val-label">${p.d.val.toFixed(2)}</text>` +
-        `<circle cx="${p.x}" cy="${p.yVal}" r="5" class="dot" onclick="alert('${p.d.date} 市值: ${p.d.val.toFixed(2)}')"/>`
-      ).join('');
-    }
+    svg += `<path d="${pCost}" class="line-cost"/>`;
+    svg += `<path d="${pVal}" class="line-val"/>`;
+    svg += pts.map(p => 
+      `<text x="${p.x}" y="${p.yVal - 15}" class="val-label">${p.d.val.toFixed(2)}</text>` +
+      `<circle cx="${p.x}" cy="${p.yVal}" r="5" class="dot" onclick="alert('${p.d.date} 市值: ${p.d.val.toFixed(2)}')"/>`
+    ).join('');
     svg += `${labels}</svg>`;
     box.innerHTML = svg;
   }
@@ -450,14 +468,6 @@
       localStorage.setItem(KEY.HS, JSON.stringify(hs));
     }
     render(); switchTab('chart');
-  }
-
-  function calcTarget(){
-    const input = parseFloat(el('calcInput').value);
-    const {h, c} = getHoldingAt();
-    if(!input || h<=0) { el('calcResult').innerText = "0.00"; return; }
-    const targetPrice = (c + input) / h;
-    el('calcResult').innerText = targetPrice.toFixed(2);
   }
 
   function saveTx(){
@@ -490,7 +500,6 @@
   function openHistModal(){ editHistDate = null; el('hDate').value = new Date().toISOString().split('T')[0]; el('hTotalVal').value = ''; el('btnDelHist').style.display = 'none'; openModal('histModal'); }
   function editHist(date, val){ editHistDate = date; el('hDate').value = date; el('hTotalVal').value = val; el('btnDelHist').style.display = 'block'; openModal('histModal'); }
   function openSettings(){ openModal('settingsModal'); }
-  
   function switchTab(t){ document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); el('view-'+t).classList.add('active'); el('nav-home').className = t==='home' ? 'dock-btn active' : 'dock-btn'; el('nav-chart').className = t==='chart' ? 'dock-btn active' : 'dock-btn'; el('fabBtn').style.display = t==='home' ? 'flex' : 'none'; if(t === 'chart') drawChart(); }
   function exportData(){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(getDB())],{type:'application/json'})); a.download='backup.json'; a.click(); }
   function importData(i){ const r=new FileReader(); r.onload=e=>{ try{const d=JSON.parse(e.target.result); if(d.tx)localStorage.setItem(KEY.TX,JSON.stringify(d.tx)); if(d.hs)localStorage.setItem(KEY.HS,JSON.stringify(d.hs)); location.reload();}catch{alert('Error');} }; r.readAsText(i.files[0]); }
