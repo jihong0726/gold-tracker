@@ -8,16 +8,15 @@
   <title>TNG 黄金管家</title>
   <style>
     :root{
-      /* 基础变量 */
-      --primary: #007aff; 
-      --text: #000; --sub: #8e8e93;
-      --card-bg: rgba(255, 255, 255, 0.65); /* 高透玻璃 */
+      --primary: #007aff; --text: #000; --sub: #8e8e93;
+      --card-bg: rgba(255, 255, 255, 0.65);
       --nav-bg: rgba(255, 255, 255, 0.8);
       --blur: blur(25px);
       --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
       --border: 1px solid rgba(255, 255, 255, 0.4);
       --safe-pb: env(safe-area-inset-bottom);
       --nav-h: 60px;
+      --cost-line: #8e8e93; /* 成本线颜色 */
     }
     @media (prefers-color-scheme: dark) {
       :root{
@@ -25,6 +24,7 @@
         --card-bg: rgba(30, 30, 30, 0.6);
         --nav-bg: rgba(20, 20, 20, 0.8);
         --border: 1px solid rgba(255, 255, 255, 0.1);
+        --cost-line: #636366;
       }
     }
 
@@ -32,25 +32,21 @@
     
     body {
       margin: 0; 
-      /* iOS 风格多彩动态背景 */
       background: radial-gradient(circle at 0% 0%, #e0f7fa 0%, #e1bee7 50%, #fff9c4 100%);
-      background-attachment: fixed;
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+      background-attachment: fixed; color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
       padding-bottom: calc(var(--nav-h) + 20px + var(--safe-pb));
-      user-select: none;
-      -webkit-font-smoothing: antialiased;
+      user-select: none; -webkit-font-smoothing: antialiased;
     }
     @media (prefers-color-scheme: dark) {
       body { background: radial-gradient(circle at 0% 0%, #1a2a6c 0%, #b21f1f 50%, #fdbb2d 100%); }
     }
 
-    /* 容器动画 */
     .view { display: none; padding: 20px; padding-top: 70px; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
     .view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-    /* 顶部导航 (Glass) */
+    /* Top Bar */
     .top-bar {
       position: fixed; top: 0; left: 0; right: 0; height: 60px; z-index: 90;
       background: var(--nav-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
@@ -60,27 +56,24 @@
     .app-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
     .settings-btn { font-size: 18px; padding: 4px; opacity: 0.8; }
 
-    /* 水滴卡片通用样式 */
+    /* Cards */
     .glass-card {
       background: var(--card-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
       border-radius: 24px; border: var(--border); box-shadow: var(--shadow);
       padding: 20px; margin-bottom: 16px; position: relative; overflow: hidden;
     }
 
-    /* 核心 KPI 卡片 (大水滴) */
     .hero-card {
       text-align: center; padding: 30px 20px;
       background: linear-gradient(135deg, rgba(0,122,255,0.85), rgba(0,198,255,0.85));
       color: white; border: none; box-shadow: 0 10px 30px rgba(0,122,255,0.35);
     }
-    .hero-label { font-size: 13px; opacity: 0.9; font-weight: 500; margin-bottom: 4px; }
     .hero-val { font-size: 40px; font-weight: 800; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     .hero-tag { 
       font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 12px; 
       border-radius: 20px; display: inline-block; margin-top: 8px; backdrop-filter: blur(5px);
     }
 
-    /* 输入条 */
     .input-row {
       display: flex; justify-content: space-between; align-items: center;
       background: var(--card-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
@@ -92,33 +85,46 @@
       font-size: 20px; font-weight: 700; color: var(--primary); width: 140px; outline: none;
     }
 
-    /* 数据网格 */
+    /* Grid */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
     .stat-item { padding: 16px; display: flex; flex-direction: column; justify-content: center; }
     .stat-label { font-size: 12px; color: var(--sub); margin-bottom: 4px; font-weight: 500; }
     .stat-val { font-size: 18px; font-weight: 700; }
 
-    /* 列表项 */
+    /* List */
     .list-row {
       display: flex; justify-content: space-between; align-items: center;
       padding: 16px 0; border-bottom: 0.5px solid rgba(150,150,150,0.1);
     }
     .list-row:last-child { border-bottom: none; }
-    .row-main { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
-    .row-sub { font-size: 12px; color: var(--sub); }
     .tag { font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 700; margin-right: 8px; vertical-align: middle; }
     .tag.buy { background: rgba(52,199,89,0.15); color: #34c759; }
     .tag.sell { background: rgba(255,59,48,0.15); color: #ff3b30; }
 
-    /* 图表 */
-    .chart-container { height: 240px; width: 100%; position: relative; }
+    /* Chart */
+    .chart-container { height: 260px; width: 100%; position: relative; margin-top: 10px; }
     svg { width: 100%; height: 100%; overflow: visible; }
     .chart-path-area { fill: url(#grad); opacity: 0.4; }
-    .chart-path-line { fill: none; stroke: var(--primary); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-    .chart-dot { fill: #fff; stroke: var(--primary); stroke-width: 2.5; }
+    .chart-line-val { fill: none; stroke: var(--primary); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .chart-line-cost { fill: none; stroke: var(--cost-line); stroke-width: 2; stroke-dasharray: 4,4; stroke-linecap: round; }
+    .chart-dot { fill: #fff; stroke: var(--primary); stroke-width: 2.5; cursor: pointer; }
     .axis-label { font-size: 10px; fill: var(--sub); }
+    .chart-legend { display: flex; gap: 12px; font-size: 11px; color: var(--sub); justify-content: center; margin-bottom: 8px; }
+    .legend-item { display: flex; align-items: center; gap: 4px; }
+    .dot-val { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; }
+    .dot-cost { width: 8px; height: 8px; border: 1px dashed var(--cost-line); border-radius: 50%; }
 
-    /* 底部导航 (Float) */
+    /* Tooltip */
+    .chart-tooltip {
+      position: absolute; background: rgba(0,0,0,0.8); color: white;
+      padding: 8px 12px; border-radius: 12px; font-size: 12px; pointer-events: none;
+      opacity: 0; transition: 0.2s; transform: translate(-50%, -120%); z-index: 10;
+      backdrop-filter: blur(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .tp-row { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 2px; }
+    .tp-val { font-weight: 700; }
+
+    /* Dock & FAB */
     .dock {
       position: fixed; bottom: calc(20px + var(--safe-pb)); left: 50%; transform: translateX(-50%);
       width: 90%; max-width: 320px; height: 60px;
@@ -127,15 +133,10 @@
       box-shadow: 0 10px 25px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.5); z-index: 100;
     }
     @media (prefers-color-scheme: dark) { .dock { background: rgba(40,40,40,0.85); border: 1px solid rgba(255,255,255,0.15); } }
-    
-    .dock-btn {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      width: 50px; height: 50px; color: var(--sub); border-radius: 50%; transition: 0.2s;
-    }
+    .dock-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 50px; height: 50px; color: var(--sub); border-radius: 50%; transition: 0.2s; }
     .dock-btn.active { color: var(--primary); background: rgba(0,122,255,0.1); }
     .dock-btn svg { width: 24px; height: 24px; fill: currentColor; }
 
-    /* FAB (记账按钮) */
     .fab {
       position: fixed; bottom: calc(90px + var(--safe-pb)); right: 20px;
       width: 56px; height: 56px; background: #007aff; border-radius: 50%;
@@ -144,45 +145,34 @@
     }
     .fab:active { transform: scale(0.9); }
 
-    /* 弹窗系统 */
+    /* Modals & Forms */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200;
-      background: rgba(0,0,0,0.3); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-      display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s;
+      background: rgba(0,0,0,0.3); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s;
     }
     .modal-overlay.show { display: flex; opacity: 1; }
     .modal-card {
       width: 85%; max-width: 340px; background: var(--nav-bg); backdrop-filter: blur(30px);
       border-radius: 24px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-      transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      border: var(--border);
+      transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: var(--border);
     }
     .modal-overlay.show .modal-card { transform: scale(1); }
 
-    /* 表单元素 */
     .form-group { margin-bottom: 16px; }
     .form-label { display: block; font-size: 12px; color: var(--sub); margin-bottom: 8px; margin-left: 4px; }
     input, select { 
       width: 100%; padding: 14px; background: rgba(120,120,128,0.1); border: none; border-radius: 12px;
       font-size: 17px; color: var(--text); outline: none; transition: 0.2s;
     }
-    input:focus { background: rgba(120,120,128,0.2); }
-    
     .btn-primary { width: 100%; padding: 14px; background: #007aff; color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 600; margin-top: 10px; }
     .btn-text { width: 100%; padding: 12px; background: transparent; color: var(--sub); border: none; font-size: 14px; margin-top: 4px; }
-    
     .segment-control { display: flex; background: rgba(120,120,128,0.1); padding: 3px; border-radius: 10px; margin-bottom: 16px; }
     .segment-opt { flex: 1; text-align: center; padding: 8px; font-size: 13px; border-radius: 8px; font-weight: 500; color: var(--sub); }
     .segment-opt.active { background: var(--card-bg); color: var(--text); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-    /* 历史详情行优化 */
-    .hist-detail-row {
-      display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 0.5px solid rgba(150,150,150,0.1);
-    }
-    .hist-date { font-weight: 600; font-size: 15px; }
-    .hist-val { font-weight: 700; font-size: 15px; color: var(--primary); }
+    /* History List Detail */
+    .hist-detail-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 0.5px solid rgba(150,150,150,0.1); }
     .hist-meta { font-size: 11px; color: var(--sub); margin-top: 2px; }
-    .hist-right { text-align: right; }
   </style>
 </head>
 <body>
@@ -210,7 +200,7 @@
       <div class="stat-val" id="kpiHolding">0.0000</div>
     </div>
     <div class="glass-card stat-item">
-      <div class="stat-label">平均成本 (RM)</div>
+      <div class="stat-label">平均成本 (RM/g)</div>
       <div class="stat-val" id="kpiAvg">0.00</div>
     </div>
   </div>
@@ -227,7 +217,15 @@
       <div style="font-weight:700; font-size:16px">资产走势</div>
       <div style="font-size:12px; color:var(--primary); background:rgba(0,122,255,0.1); padding:4px 10px; border-radius:12px" onclick="openHistModal()">+ 补录</div>
     </div>
-    <div class="chart-container" id="chartBox"></div>
+    
+    <div class="chart-legend">
+      <div class="legend-item"><div class="dot-val"></div>市值 (Value)</div>
+      <div class="legend-item"><div class="dot-cost"></div>成本 (Cost)</div>
+    </div>
+
+    <div class="chart-container" id="chartBox">
+      <div class="chart-tooltip" id="tooltip"></div>
+    </div>
   </div>
 
   <div class="glass-card">
@@ -262,7 +260,7 @@
     <div class="form-group"><label class="form-label">日期</label><input type="date" id="tDate"></div>
     <div class="form-group"><label class="form-label">总金额 (RM)</label><input type="number" id="tAmt" placeholder="0.00" inputmode="decimal" oninput="calcG()"></div>
     <div class="grid-2">
-      <div><label class="form-label">单价</label><input type="number" id="tPrice" placeholder="0.00" oninput="calcG()"></div>
+      <div><label class="form-label">单价 (RM/g)</label><input type="number" id="tPrice" placeholder="0.00" oninput="calcG()"></div>
       <div><label class="form-label">克数</label><input type="number" id="tGrams" disabled></div>
     </div>
     <button class="btn-primary" onclick="saveTx()">保存</button>
@@ -274,23 +272,19 @@
 <div class="modal-overlay" id="histModal">
   <div class="modal-card">
     <h3 style="margin:0 0 20px; text-align:center" id="histTitle">补录资产</h3>
-    
     <div class="segment-control" id="histSeg">
       <div class="segment-opt active" id="mode-val" onclick="setHistMode('val')">按总值</div>
       <div class="segment-opt" id="mode-price" onclick="setHistMode('price')">按金价</div>
     </div>
-
     <div class="form-group"><label class="form-label">日期</label><input type="date" id="hDate"></div>
-    
     <div id="box-val">
       <div class="form-group"><label class="form-label">资产总值 (RM)</label><input type="number" id="hTotalVal" placeholder="例如 1500.00"></div>
     </div>
     <div id="box-price" style="display:none">
       <div class="form-group"><label class="form-label">当时金价 (RM/g)</label><input type="number" id="hUnitPrice" placeholder="例如 580.00"></div>
     </div>
-
     <button class="btn-primary" onclick="saveHist()">保存</button>
-    <button class="btn-text" id="btnDelHist" style="display:none; color:#ff3b30" onclick="delHist()">删除此记录</button>
+    <button class="btn-text" id="btnDelHist" style="display:none; color:#ff3b30" onclick="delHist()">删除</button>
     <button class="btn-text" onclick="closeModal('histModal')">取消</button>
   </div>
 </div>
@@ -298,63 +292,44 @@
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-card">
     <h3 style="text-align:center; margin-bottom:20px">设置</h3>
-    <button class="btn-text" onclick="exportData()" style="text-align:left; border-bottom:1px solid #eee">📤 备份数据 (JSON)</button>
+    <button class="btn-text" onclick="exportData()" style="text-align:left; border-bottom:1px solid #eee">📤 备份数据</button>
     <div style="position:relative">
       <button class="btn-text" style="text-align:left; border-bottom:1px solid #eee">📥 恢复备份</button>
       <input type="file" onchange="importData(this)" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0">
     </div>
-    <button class="btn-text" onclick="resetAll()" style="text-align:left; color:#ff3b30">🗑️ 清空所有数据</button>
+    <button class="btn-text" onclick="resetAll()" style="text-align:left; color:#ff3b30">🗑️ 清空数据</button>
     <button class="btn-primary" style="margin-top:20px" onclick="closeModal('settingsModal')">关闭</button>
   </div>
 </div>
 
 <script>
-  // --- 数据初始化 ---
-  const PRELOAD_TX = [
-    {"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},
-    {"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},
-    {"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},
-    {"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},
-    {"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401}
-  ];
-  const PRELOAD_HIST = [
-    {"date":"2026-01-22","val":558.05},
-    {"date":"2026-01-23","val":1547.97},
-    {"date":"2026-01-24","val":1559.44},
-    {"date":"2026-01-25","val":1558.89}
-  ];
-
-  const KEY = { TX: 'tng_tx_v16', HS: 'tng_hs_v16', MK: 'tng_mk_v16' };
+  // 数据初始化
+  const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401}];
+  const PRELOAD_HIST = [{"date":"2026-01-22","val":558.05},{"date":"2026-01-23","val":1547.97},{"date":"2026-01-24","val":1559.44},{"date":"2026-01-25","val":1558.89}];
+  const KEY = { TX: 'tng_tx_v17', HS: 'tng_hs_v17', MK: 'tng_mk_v17' };
   const el = id => document.getElementById(id);
   let editId = null, editHistDate = null, histMode = 'val', txType = 'buy';
 
   function init(){
     if(!localStorage.getItem(KEY.TX)) localStorage.setItem(KEY.TX, JSON.stringify(PRELOAD_TX));
     if(!localStorage.getItem(KEY.HS)) localStorage.setItem(KEY.HS, JSON.stringify(PRELOAD_HIST));
-    
     el('tDate').value = new Date().toISOString().split('T')[0];
     const savedP = localStorage.getItem(KEY.MK);
     if(savedP) el('marketPrice').value = savedP;
-
     el('marketPrice').addEventListener('change', e => {
       const p = parseFloat(e.target.value);
       if(p){ localStorage.setItem(KEY.MK, p); autoRecHist(p); render(); }
     });
-
     render();
   }
 
   function getDB(){ return { tx: JSON.parse(localStorage.getItem(KEY.TX)||'[]'), hs: JSON.parse(localStorage.getItem(KEY.HS)||'[]') }; }
   
-  // 计算截至某日期的持仓 (如果 date 为 null 则计算所有)
   function getHoldingAt(dateStr = null){
-    const tx = getDB().tx;
+    const tx = getDB().tx.sort((a,b)=>a.date>b.date?1:-1);
     let h=0, c=0;
-    // 排序保证计算顺序
-    const sorted = tx.sort((a,b)=>a.date>b.date?1:-1);
-    
-    for(let t of sorted){
-      if(dateStr && t.date > dateStr) break; // 超过日期停止
+    for(let t of tx){
+      if(dateStr && t.date > dateStr) break;
       const g=Number(t.grams), a=Number(t.amount);
       if(t.type=='buy'){ h+=g; c+=a; }
       else { if(h>0)c-=(g*(c/h)); h-=g; }
@@ -363,185 +338,126 @@
   }
 
   function render(){
-    const {h, c} = getHoldingAt(); // Current Stats
+    const {h, c} = getHoldingAt();
     const mp = parseFloat(el('marketPrice').value)||0;
 
-    // 1. Home KPI
+    // Home KPI
     el('kpiHolding').innerText = h.toFixed(4);
     el('kpiAvg').innerText = h>0 ? (c/h).toFixed(2) : '0.00';
     if(mp && h){
       const v = h*mp, pl = v-c, pct = (pl/c)*100;
       el('kpiVal').innerText = v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-      el('kpiProfit').innerHTML = `盈亏: <span style="color:${pl>=0?'#fff':'#ffcccc'}">RM ${pl>=0?'+':''}${pl.toFixed(2)} (${pct.toFixed(2)}%)</span>`;
+      el('kpiProfit').innerHTML = `盈亏: RM ${pl>=0?'+':''}${pl.toFixed(2)} (${pct.toFixed(2)}%)`;
     } else {
       el('kpiVal').innerText = '0.00';
       el('kpiProfit').innerText = '输入金价查看盈亏';
     }
 
-    // 2. Transaction List
+    // Tx List
     const list = el('txList'); list.innerHTML = '';
-    const tx = getDB().tx.sort((a,b)=>b.ts-a.ts);
-    tx.slice(0,10).forEach(t=>{
-      list.innerHTML += `
-        <div class="list-row" onclick="editT(${t.ts})">
-          <div>
-            <div class="row-main"><span class="tag ${t.type}">${t.type=='buy'?'买':'卖'}</span>RM ${Number(t.amount).toFixed(2)}</div>
-            <div class="row-sub">${t.date}</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-size:14px; font-weight:600">${Number(t.grams).toFixed(4)}g</div>
-            <div class="row-sub">@ ${Number(t.price).toFixed(2)}</div>
-          </div>
-        </div>`;
+    getDB().tx.sort((a,b)=>b.ts-a.ts).slice(0,10).forEach(t=>{
+      list.innerHTML += `<div class="list-row" onclick="editT(${t.ts})"><div><div class="row-main"><span class="tag ${t.type}">${t.type=='buy'?'买':'卖'}</span>RM ${Number(t.amount).toFixed(2)}</div><div class="row-sub">${t.date}</div></div><div style="text-align:right"><div style="font-size:14px;font-weight:600">${Number(t.grams).toFixed(4)}g</div><div class="row-sub">@ ${Number(t.price).toFixed(2)}</div></div></div>`;
     });
 
-    // 3. History Detailed List (Backfill Logic)
+    // History List
     const hList = el('histList'); hList.innerHTML = '';
-    const hs = getDB().hs.sort((a,b)=>b.date>a.date?1:-1); // Newest first
-    
+    const hs = getDB().hs.sort((a,b)=>b.date>a.date?1:-1);
     hs.forEach(h => {
-      // Back-calculate holding at that date
       const stats = getHoldingAt(h.date);
-      const holdingThen = stats.h;
-      const priceThen = holdingThen > 0 ? (h.val / holdingThen) : 0;
-      
-      hList.innerHTML += `
-        <div class="hist-detail-row" onclick="editHist('${h.date}', ${h.val})">
-          <div>
-            <div class="hist-date">${h.date}</div>
-            <div class="hist-meta">持有: ${holdingThen.toFixed(4)} g</div>
-          </div>
-          <div class="hist-right">
-            <div class="hist-val">RM ${Number(h.val).toFixed(2)}</div>
-            <div class="hist-meta">市价: ${priceThen.toFixed(2)}/g</div>
-          </div>
-        </div>`;
+      const priceThen = stats.h > 0 ? (h.val / stats.h) : 0;
+      hList.innerHTML += `<div class="hist-detail-row" onclick="editHist('${h.date}', ${h.val})"><div><div class="hist-date">${h.date}</div><div class="hist-meta">当时持有: ${stats.h.toFixed(4)} g</div></div><div class="hist-right"><div class="hist-val">RM ${Number(h.val).toFixed(2)}</div><div class="hist-meta">约合金价: ${priceThen.toFixed(2)}</div></div></div>`;
     });
   }
 
   function drawChart(){
     const {hs} = getDB();
-    const box = el('chartBox'); box.innerHTML = '';
-    if(hs.length<2) { box.innerHTML='<div style="text-align:center;padding-top:100px;font-size:12px;color:var(--sub)">暂无足够数据</div>'; return; }
+    const box = el('chartBox'); box.innerHTML = '<div class="chart-tooltip" id="tooltip"></div>';
+    if(hs.length<2) { box.innerHTML+='<div style="text-align:center;padding-top:100px;font-size:12px;color:var(--sub)">暂无足够数据</div>'; return; }
     
-    const vals = hs.map(x=>x.val);
-    const min=Math.min(...vals)*0.99, max=Math.max(...vals)*1.01, h=240, w=box.offsetWidth;
-    const pts = hs.sort((a,b)=>a.date>b.date?1:-1).map((d,i)=>({ x: (i/(hs.length-1))*w, y: h-20 - ((d.val-min)/(max-min))*(h-40), v:d.val, d:d.date }));
+    // Prepare Data
+    const data = hs.sort((a,b)=>a.date>b.date?1:-1).map(h => {
+      const stats = getHoldingAt(h.date);
+      return { date: h.date, val: h.val, cost: stats.c, profit: h.val - stats.c };
+    });
 
-    let pStr = `M ${pts[0].x} ${pts[0].y}`;
-    pts.forEach(p => pStr += ` L ${p.x} ${p.y}`);
+    const allVals = data.map(d => d.val).concat(data.map(d => d.cost));
+    const min=Math.min(...allVals)*0.95, max=Math.max(...allVals)*1.05, h=220, w=box.offsetWidth;
+    const pts = data.map((d,i) => ({
+      x: (i/(data.length-1))*w, 
+      yVal: h-20 - ((d.val-min)/(max-min))*(h-40),
+      yCost: h-20 - ((d.cost-min)/(max-min))*(h-40),
+      d: d
+    }));
 
-    // Generate Date Labels (Start, End, Middle)
+    let pVal = `M ${pts[0].x} ${pts[0].yVal}`, pCost = `M ${pts[0].x} ${pts[0].yCost}`;
+    pts.forEach(p => { pVal += ` L ${p.x} ${p.yVal}`; pCost += ` L ${p.x} ${p.yCost}`; });
+
     let labels = '';
     if(pts.length > 0) {
-       labels += `<text x="${pts[0].x+5}" y="${h-5}" class="axis-label" style="text-anchor:start">${pts[0].d.slice(5)}</text>`;
-       labels += `<text x="${pts[pts.length-1].x-5}" y="${h-5}" class="axis-label" style="text-anchor:end">${pts[pts.length-1].d.slice(5)}</text>`;
-       if(pts.length > 4) {
-         let mid = Math.floor(pts.length/2);
-         labels += `<text x="${pts[mid].x}" y="${h-5}" class="axis-label">${pts[mid].d.slice(5)}</text>`;
-       }
+       labels += `<text x="${pts[0].x+5}" y="${h-5}" class="axis-label" style="text-anchor:start">${pts[0].d.d.slice(5)}</text>`;
+       labels += `<text x="${pts[pts.length-1].x-5}" y="${h-5}" class="axis-label" style="text-anchor:end">${pts[pts.length-1].d.d.slice(5)}</text>`;
     }
 
-    box.innerHTML = `<svg><defs><linearGradient id="grad" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#007aff" stop-opacity="0.3"/><stop offset="100%" stop-color="#007aff" stop-opacity="0"/></linearGradient></defs>
-      <path d="${pStr} L ${w} ${h-20} L 0 ${h-20} Z" class="chart-path-area"/>
-      <path d="${pStr}" class="chart-path-line"/>
-      ${pts.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="4" class="chart-dot" onclick="alert('${p.d}: RM ${p.v}')"/>`).join('')}
+    const svgContent = `<svg><defs><linearGradient id="grad" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#007aff" stop-opacity="0.3"/><stop offset="100%" stop-color="#007aff" stop-opacity="0"/></linearGradient></defs>
+      <path d="${pVal} L ${w} ${h-20} L 0 ${h-20} Z" class="chart-path-area"/>
+      <path d="${pVal}" class="chart-line-val"/>
+      <path d="${pCost}" class="chart-line-cost"/>
+      ${pts.map(p=>`<circle cx="${p.x}" cy="${p.yVal}" r="5" class="chart-dot" onclick="showTp(this, '${p.d.date}', ${p.d.val}, ${p.d.cost})"/>`).join('')}
       ${labels}
     </svg>`;
+    box.innerHTML += svgContent;
   }
 
-  // --- Modal & Form Actions ---
-  function openTxModal(){ 
-    editId=null; el('txTitle').innerText="记一笔"; el('btnDelTx').style.display='none'; 
-    el('tAmt').value=''; el('tPrice').value=''; el('tGrams').value=''; 
-    openModal('txModal'); 
-  }
-  
-  function editT(ts){ 
-    const t=getDB().tx.find(x=>x.ts==ts); if(!t)return; editId=ts; 
-    el('txTitle').innerText="修改记录"; el('btnDelTx').style.display='block'; 
-    setTxType(t.type); el('tDate').value=t.date; el('tAmt').value=t.amount; 
-    el('tPrice').value=t.price; el('tGrams').value=t.grams; 
-    openModal('txModal'); 
-  }
-  
-  function openHistModal(){ 
-    editHistDate=null; el('histTitle').innerText="补录资产"; 
-    el('hDate').value=new Date().toISOString().split('T')[0]; el('hDate').disabled=false;
-    el('btnDelHist').style.display='none'; el('histSeg').style.display='flex';
-    setHistMode('val'); openModal('histModal'); 
+  function showTp(el, date, val, cost){
+    const tp = document.getElementById('tooltip');
+    const pl = val - cost;
+    tp.innerHTML = `<div style="margin-bottom:4px;opacity:0.8">${date}</div>
+      <div class="tp-row"><span>市值</span><span class="tp-val">RM ${val.toFixed(0)}</span></div>
+      <div class="tp-row"><span>成本</span><span class="tp-val">RM ${cost.toFixed(0)}</span></div>
+      <div class="tp-row" style="color:${pl>=0?'#4cd964':'#ff3b30'}"><span>收益</span><span class="tp-val">${pl>0?'+':''}${pl.toFixed(0)}</span></div>`;
+    const rect = el.getBoundingClientRect();
+    const boxRect = document.getElementById('chartBox').getBoundingClientRect();
+    tp.style.left = (rect.left - boxRect.left + 5) + 'px';
+    tp.style.top = (rect.top - boxRect.top - 10) + 'px';
+    tp.style.opacity = 1;
+    setTimeout(() => tp.style.opacity = 0, 3000);
   }
 
-  function editHist(date, val){
-    editHistDate = date; 
-    el('histTitle').innerText = "修改历史 (日期不可变)";
-    el('hDate').value = date; el('hDate').disabled = true;
-    el('hTotalVal').value = val;
-    el('btnDelHist').style.display = 'block'; 
-    el('histSeg').style.display = 'none'; // Force value edit mode for simplicity
-    setHistMode('val');
-    openModal('histModal');
-  }
+  // --- Actions ---
+  function openTxModal(){ editId=null; el('txTitle').innerText="记一笔"; el('btnDelTx').style.display='none'; el('tAmt').value=''; el('tPrice').value=''; el('tGrams').value=''; openModal('txModal'); }
+  function editT(ts){ const t=getDB().tx.find(x=>x.ts==ts); if(!t)return; editId=ts; el('txTitle').innerText="修改记录"; el('btnDelTx').style.display='block'; setTxType(t.type); el('tDate').value=t.date; el('tAmt').value=t.amount; el('tPrice').value=t.price; el('tGrams').value=t.grams; openModal('txModal'); }
+  function openHistModal(){ editHistDate=null; el('histTitle').innerText="补录资产"; el('hDate').value=new Date().toISOString().split('T')[0]; el('hDate').disabled=false; el('btnDelHist').style.display='none'; el('histSeg').style.display='flex'; setHistMode('val'); openModal('histModal'); }
+  function editHist(date, val){ editHistDate=date; el('histTitle').innerText="修改历史"; el('hDate').value=date; el('hDate').disabled=true; el('hTotalVal').value=val; el('btnDelHist').style.display='block'; el('histSeg').style.display='none'; setHistMode('val'); openModal('histModal'); }
 
-  function setHistMode(m){ 
-    histMode = m;
-    el('mode-val').className=m=='val'?'segment-opt active':'segment-opt';
-    el('mode-price').className=m=='price'?'segment-opt active':'segment-opt';
-    el('box-val').style.display=m=='val'?'block':'none';
-    el('box-price').style.display=m=='price'?'block':'none';
-  }
-
-  function setTxType(t){
-    txType = t;
-    el('type-buy').className=t=='buy'?'segment-opt active':'segment-opt';
-    el('type-sell').className=t=='sell'?'segment-opt active':'segment-opt';
-  }
-
+  function setTxType(t){ txType=t; el('type-buy').className=t=='buy'?'segment-opt active':'segment-opt'; el('type-sell').className=t=='sell'?'segment-opt active':'segment-opt'; }
+  function setHistMode(m){ histMode=m; el('mode-val').className=m=='val'?'segment-opt active':'segment-opt'; el('mode-price').className=m=='price'?'segment-opt active':'segment-opt'; el('box-val').style.display=m=='val'?'block':'none'; el('box-price').style.display=m=='price'?'block':'none'; }
   function calcG(){ const a=el('tAmt').value, p=el('tPrice').value; if(a&&p)el('tGrams').value=(a/p).toFixed(6); }
 
   function saveTx(){
     const date=el('tDate').value, amt=el('tAmt').value, price=el('tPrice').value, grams=el('tGrams').value;
-    if(!amt||!grams)return alert("请填写完整");
-    let tx = getDB().tx;
-    const rec = { ts: editId||Date.now(), type: txType, date, amount: amt, grams, price };
+    if(!amt||!grams)return alert("完整填写");
+    let tx = getDB().tx; const rec = { ts: editId||Date.now(), type: txType, date, amount: amt, grams, price };
     if(editId){ const i=tx.findIndex(x=>x.ts==editId); if(i>-1)tx[i]=rec; } else tx.push(rec);
-    localStorage.setItem(KEY.TX, JSON.stringify(tx));
-    closeModal('txModal'); render();
+    localStorage.setItem(KEY.TX, JSON.stringify(tx)); closeModal('txModal'); render();
   }
-
   function saveHist(){
     const d=el('hDate').value; let val=0;
-    if(histMode=='val'){
-      val=parseFloat(el('hTotalVal').value); if(!val)return alert("输入金额");
-    } else {
-      const p=parseFloat(el('hUnitPrice').value); if(!p)return alert("输入单价");
-      const s=getHoldingAt(d); if(s.h<=0)return alert("当时无持仓"); val=s.h*p;
-    }
-    let hs=getDB().hs; const i=hs.findIndex(x=>x.date==d);
-    if(i>-1) hs[i].val=val; else hs.push({date:d, val});
-    localStorage.setItem(KEY.HS, JSON.stringify(hs));
-    closeModal('histModal'); render(); drawChart();
+    if(histMode=='val'){ val=parseFloat(el('hTotalVal').value); if(!val)return alert("输入金额"); }
+    else { const p=parseFloat(el('hUnitPrice').value); if(!p)return alert("输入单价"); const s=getHoldingAt(d); if(s.h<=0)return alert("无持仓"); val=s.h*p; }
+    let hs=getDB().hs; const i=hs.findIndex(x=>x.date==d); if(i>-1)hs[i].val=val; else hs.push({date:d, val});
+    localStorage.setItem(KEY.HS, JSON.stringify(hs)); closeModal('histModal'); render(); drawChart();
   }
-  
   function delTx(){ if(confirm("删除?")){ localStorage.setItem(KEY.TX, JSON.stringify(getDB().tx.filter(x=>x.ts!=editId))); closeModal('txModal'); render(); } }
   function delHist(){ if(confirm("删除?")){ localStorage.setItem(KEY.HS, JSON.stringify(getDB().hs.filter(x=>x.date!=editHistDate))); closeModal('histModal'); render(); drawChart(); } }
   function autoRecHist(p){ const {h}=getHoldingAt(); if(h>0) { let hs=getDB().hs; const d=new Date().toISOString().split('T')[0]; const i=hs.findIndex(x=>x.date==d); if(i>-1)hs[i].val=h*p; else hs.push({date:d, val:h*p}); localStorage.setItem(KEY.HS,JSON.stringify(hs)); } }
 
-  // --- UI Utils ---
   function openModal(id){ el(id).classList.add('show'); }
   function closeModal(id){ el(id).classList.remove('show'); }
   function openSettings(){ openModal('settingsModal'); }
-  function switchTab(t){
-    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); el('view-'+t).classList.add('active');
-    el('nav-home').className=t=='home'?'dock-btn active':'dock-btn'; el('nav-chart').className=t=='chart'?'dock-btn active':'dock-btn';
-    el('fabBtn').style.display=t=='home'?'flex':'none';
-    if(t=='chart') drawChart();
-  }
-  
+  function switchTab(t){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); el('view-'+t).classList.add('active'); el('nav-home').className=t=='home'?'dock-btn active':'dock-btn'; el('nav-chart').className=t=='chart'?'dock-btn active':'dock-btn'; el('fabBtn').style.display=t=='home'?'flex':'none'; if(t=='chart') drawChart(); }
   function exportData(){ const b=new Blob([JSON.stringify(getDB())],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='backup.json'; a.click(); }
   function importData(i){ const r=new FileReader(); r.onload=e=>{ try{const d=JSON.parse(e.target.result); if(d.tx)localStorage.setItem(KEY.TX,JSON.stringify(d.tx)); if(d.hs)localStorage.setItem(KEY.HS,JSON.stringify(d.hs)); location.reload();}catch{alert('Error');} }; r.readAsText(i.files[0]); }
   function resetAll(){ if(confirm("清空?")){ localStorage.clear(); location.reload(); } }
-
   init();
 </script>
 </body>
