@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V22</title>
+  <title>TNG 黄金管家 V23</title>
   <style>
     :root{
-      --primary: #007aff; --text: #000; --sub: #8e8e93;
-      --card-bg: rgba(255, 255, 255, 0.85); /* 增加不透明度，提升对比 */
+      --primary: #007aff; 
+      --cost-color: #ff9500; /* 橙色成本线 */
+      --text: #000; --sub: #8e8e93;
+      --card-bg: rgba(255, 255, 255, 0.85);
       --nav-bg: rgba(255, 255, 255, 0.95);
       --blur: blur(20px);
       --shadow: 0 4px 20px rgba(0,0,0,0.08);
@@ -32,9 +34,7 @@
     
     body {
       margin: 0; 
-      /* 背景调淡，突出图表 */
-      background: #f2f2f7;
-      color: var(--text);
+      background: #f2f2f7; color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
       padding-bottom: calc(var(--nav-h) + 20px + var(--safe-pb));
       user-select: none; -webkit-font-smoothing: antialiased;
@@ -69,16 +69,25 @@
     }
     .hero-val { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin: 4px 0; }
     
-    /* Inputs */
-    .input-row {
-      display: flex; justify-content: space-between; align-items: center;
-      background: var(--card-bg); padding: 16px 20px; border-radius: 20px; margin-bottom: 20px;
+    /* Inputs with Button */
+    .input-group-row {
+      display: flex; gap: 10px; align-items: center; margin-bottom: 20px;
+    }
+    .input-box {
+      flex: 1; display: flex; justify-content: space-between; align-items: center;
+      background: var(--card-bg); padding: 16px 20px; border-radius: 20px;
       box-shadow: var(--shadow); border: var(--border);
     }
-    .input-row input {
+    .input-box input {
       border: none; background: transparent; text-align: right; 
-      font-size: 22px; font-weight: 700; color: var(--primary); width: 140px; outline: none;
+      font-size: 22px; font-weight: 700; color: var(--primary); width: 120px; outline: none;
     }
+    .save-btn-icon {
+      width: 56px; height: 56px; border-radius: 18px; background: var(--primary);
+      color: white; border: none; display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow); font-size: 24px; cursor: pointer;
+    }
+    .save-btn-icon:active { transform: scale(0.95); }
 
     /* Grid & Lists */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
@@ -94,19 +103,16 @@
     .buy { background: rgba(52,199,89,0.15); color: #34c759; }
     .sell { background: rgba(255,59,48,0.15); color: #ff3b30; }
 
-    /* Chart Area (优化版) */
+    /* Chart Area */
     .chart-box { height: 280px; width: 100%; position: relative; margin-top: 20px; }
     svg { width: 100%; height: 100%; overflow: visible; }
     
-    /* 线条加粗 */
-    .line-val { fill: none; stroke: #007aff; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 4px 6px rgba(0,122,255,0.2)); }
-    .line-cost { fill: none; stroke: var(--sub); stroke-width: 2; stroke-dasharray: 6,6; opacity: 0.6; }
+    /* 线条样式更新 */
+    .line-val { fill: none; stroke: var(--primary); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 4px 6px rgba(0,122,255,0.2)); }
+    .line-cost { fill: none; stroke: var(--cost-color); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; } /* 实线 */
     
-    /* 数据点 */
-    .dot { fill: #fff; stroke: #007aff; stroke-width: 3; cursor: pointer; }
-    
-    /* 文字标签 */
-    .val-label { font-size: 11px; font-weight: 800; fill: #007aff; text-anchor: middle; }
+    .dot { fill: #fff; stroke: var(--primary); stroke-width: 3; cursor: pointer; }
+    .val-label { font-size: 11px; font-weight: 800; fill: var(--primary); text-anchor: middle; }
     .axis-label { font-size: 10px; fill: var(--sub); font-weight: 500; }
     .grid-line { stroke: var(--grid-line); stroke-width: 1; }
 
@@ -177,9 +183,12 @@
     <div style="font-size:13px; background:rgba(255,255,255,0.25); padding:4px 12px; border-radius:20px; display:inline-block" id="kpiProfit">盈亏: ---</div>
   </div>
 
-  <div class="input-row">
-    <div style="font-weight:600; font-size:16px">今日金价 (We Buy)</div>
-    <input type="number" id="marketPrice" placeholder="0.00" inputmode="decimal">
+  <div class="input-group-row">
+    <div class="input-box">
+      <div style="font-weight:600; font-size:16px">今日金价</div>
+      <input type="number" id="marketPrice" placeholder="0.00" inputmode="decimal" step="0.01">
+    </div>
+    <button class="save-btn-icon" onclick="saveAndChart()">➔</button>
   </div>
 
   <div class="grid-2">
@@ -222,10 +231,10 @@
     
     <div class="chart-legend">
       <div class="legend-item" id="lg-val" onclick="toggleChart('val')">
-        <div style="width:16px;height:4px;background:#007aff;border-radius:2px"></div> 市值
+        <div style="width:16px;height:4px;background:var(--primary);border-radius:2px"></div> 市值
       </div>
       <div class="legend-item" id="lg-cost" onclick="toggleChart('cost')">
-        <div style="width:16px;height:2px;background:var(--sub);opacity:0.5;border-radius:1px;border:1px dashed var(--sub)"></div> 成本
+        <div style="width:16px;height:4px;background:var(--cost-color);border-radius:2px"></div> 成本
       </div>
     </div>
 
@@ -295,10 +304,10 @@
 </div>
 
 <script>
-  // 数据初始化
+  // Data Init
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401}];
   const PRELOAD_HIST = [{"date":"2026-01-22","val":558.05},{"date":"2026-01-23","val":1547.97},{"date":"2026-01-24","val":1559.44},{"date":"2026-01-25","val":1558.89}];
-  const KEY = { TX: 'tng_tx_v22', HS: 'tng_hs_v22', MK: 'tng_mk_v22' };
+  const KEY = { TX: 'tng_tx_v23', HS: 'tng_hs_v23', MK: 'tng_mk_v23' };
   const el = id => document.getElementById(id);
   let editId = null, editHistDate = null, calcMode = 'profit', txType = 'buy', chartVis = { val: true, cost: true };
 
@@ -308,10 +317,7 @@
     el('tDate').value = new Date().toISOString().split('T')[0];
     const savedP = localStorage.getItem(KEY.MK);
     if(savedP) el('marketPrice').value = savedP;
-    el('marketPrice').addEventListener('change', e => {
-      const p = parseFloat(e.target.value);
-      if(p){ localStorage.setItem(KEY.MK, p); autoRecHist(p); render(); }
-    });
+    // Input listener removed, now manual save
     render();
   }
 
@@ -408,9 +414,7 @@
 
     if(chartVis.val){
       svgContent += `<path d="${pVal}" class="line-val"/>`;
-      // Direct Number Labels (New!)
       svgContent += pts.map(p=>`<text x="${p.x}" y="${p.yVal - 12}" class="val-label">${p.d.val.toFixed(0)}</text>`).join('');
-      // Dots
       svgContent += pts.map(p=>`<circle cx="${p.x}" cy="${p.yVal}" r="5" class="dot" onclick="alert('${p.d.date}\\n市值: ${p.d.val.toFixed(2)}\\n成本: ${p.d.cost.toFixed(2)}')"/>`).join('');
     }
 
@@ -419,6 +423,15 @@
   }
 
   // --- Logic ---
+  function saveAndChart(){
+    const p = parseFloat(el('marketPrice').value);
+    if(!p || p <= 0){ alert("请输入有效的金价"); return; }
+    localStorage.setItem(KEY.MK, p);
+    autoRecHist(p);
+    render();
+    switchTab('chart'); // Jump to chart
+  }
+
   function setCalcMode(m){ 
     calcMode = m; el('calc-mode-profit').className=m=='profit'?'calc-opt active':'calc-opt'; el('calc-mode-roi').className=m=='roi'?'calc-opt active':'calc-opt'; 
     el('calcInput').placeholder = m=='profit' ? "目标赚多少 (RM)?" : "目标收益率 (%)?";
@@ -441,7 +454,7 @@
   function delTx(){ if(confirm("删除?")){ localStorage.setItem(KEY.TX, JSON.stringify(getDB().tx.filter(x=>x.ts!=editId))); closeModal('txModal'); render(); } }
   function delHist(){ if(confirm("删除?")){ localStorage.setItem(KEY.HS, JSON.stringify(getDB().hs.filter(x=>x.date!=editHistDate))); closeModal('histModal'); render(); drawChart(); } }
   function calcG(){ const a=el('tAmt').value, p=el('tPrice').value; if(a&&p)el('tGrams').value=(a/p).toFixed(6); }
-  function setTxType(t){ txType=t; } // Simplified
+  function setTxType(t){ txType=t; }
 
   function openTxModal(){ editId=null; el('btnDelTx').style.display='none'; el('tAmt').value=''; el('tPrice').value=''; el('tGrams').value=''; openModal('txModal'); }
   function editT(ts){ const t=getDB().tx.find(x=>x.ts==ts); if(!t)return; editId=ts; el('btnDelTx').style.display='block'; setTxType(t.type); el('tDate').value=t.date; el('tAmt').value=t.amount; el('tPrice').value=t.price; el('tGrams').value=t.grams; openModal('txModal'); }
