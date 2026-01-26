@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V20</title>
+  <title>TNG 黄金管家 V21</title>
   <style>
     :root{
       --primary: #007aff; --text: #000; --sub: #8e8e93;
@@ -106,7 +106,7 @@
     svg { width: 100%; height: 100%; overflow: visible; }
     .line-val { fill: none; stroke: #007aff; stroke-width: 3; stroke-linecap: round; transition: opacity 0.3s; }
     .line-cost { fill: none; stroke: var(--sub); stroke-width: 2; stroke-dasharray: 4,4; stroke-linecap: round; opacity: 0.5; transition: opacity 0.3s; }
-    .area-val { fill: url(#grad); opacity: 0.4; transition: opacity 0.3s; }
+    /* REMOVED: .area-val */
     .dot { fill: var(--card-bg); stroke: #007aff; stroke-width: 2.5; cursor: pointer; transition: opacity 0.3s; }
     
     /* Legend Toggle */
@@ -236,10 +236,10 @@
     
     <div class="chart-legend">
       <div class="legend-item" id="lg-val" onclick="toggleChart('val')">
-        <div style="width:8px;height:8px;background:#007aff;border-radius:50%"></div> 市值
+        <div style="width:20px;height:3px;background:#007aff;border-radius:2px"></div> 市值
       </div>
       <div class="legend-item" id="lg-cost" onclick="toggleChart('cost')">
-        <div style="width:8px;height:8px;border:1px dashed var(--sub);border-radius:50%"></div> 成本
+        <div style="width:20px;height:2px;background:var(--sub);opacity:0.5;border-radius:1px"></div> 成本
       </div>
     </div>
 
@@ -315,7 +315,7 @@
   // Data Init
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401}];
   const PRELOAD_HIST = [{"date":"2026-01-22","val":558.05},{"date":"2026-01-23","val":1547.97},{"date":"2026-01-24","val":1559.44},{"date":"2026-01-25","val":1558.89}];
-  const KEY = { TX: 'tng_tx_v20', HS: 'tng_hs_v20', MK: 'tng_mk_v20' };
+  const KEY = { TX: 'tng_tx_v21', HS: 'tng_hs_v21', MK: 'tng_mk_v21' };
   const el = id => document.getElementById(id);
   let editId = null, editHistDate = null, calcMode = 'profit', txType = 'buy';
   
@@ -415,22 +415,17 @@
        labels += `<text x="${pts[pts.length-1].x-5}" y="${h-5}" class="axis-label" style="text-anchor:end">${pts[pts.length-1].d.date.slice(5)}</text>`;
     }
 
-    // Conditional rendering based on toggle state
     let svgContent = `<svg><defs><linearGradient id="grad" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#007aff" stop-opacity="0.2"/><stop offset="100%" stop-color="#007aff" stop-opacity="0"/></linearGradient></defs>`;
     
-    // Value Area & Line
-    if(chartVis.val){
-      svgContent += `<path d="${pVal} L ${w} ${h-20} L 0 ${h-20} Z" class="chart-path-area"/>
-                     <path d="${pVal}" class="line-val"/>`;
-    }
-    
-    // Cost Line
+    // Cost Line (No Fill)
     if(chartVis.cost){
       svgContent += `<path d="${pCost}" class="line-cost"/>`;
     }
 
-    // Dots (only for Value if enabled)
+    // Value Line (No Fill)
     if(chartVis.val){
+      svgContent += `<path d="${pVal}" class="line-val"/>`;
+      // Dots
       svgContent += pts.map(p=>`<circle cx="${p.x}" cy="${p.yVal}" r="5" class="dot" onclick="alert('${p.d.date}\\n市值: ${p.d.val.toFixed(2)}\\n成本: ${p.d.cost.toFixed(2)}\\n收益: ${(p.d.val-p.d.cost).toFixed(2)}')"/>`).join('');
     }
 
