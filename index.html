@@ -5,23 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V29</title>
+  <title>TNG 黄金管家 V30</title>
   <style>
     :root{
       --primary: #007aff; 
       --cost-color: #ff9f0a;
       --text: #1c1c1e; --sub: #8e8e93;
-      --glass-bg: rgba(255, 255, 255, 0.75);
-      --glass-border: 1px solid rgba(255, 255, 255, 0.6);
-      --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
-      --blur: blur(25px);
+      --glass-bg: #ffffff; /* 纯白背景，不再半透明，提升对比度 */
+      --glass-border: 1px solid rgba(0,0,0,0.05);
+      --glass-shadow: 0 4px 12px rgba(0,0,0,0.05);
       --nav-h: 65px; --safe-pb: env(safe-area-inset-bottom);
     }
     @media (prefers-color-scheme: dark) {
       :root{
         --text: #f2f2f7; --sub: #98989d;
-        --glass-bg: rgba(30, 30, 30, 0.7);
-        --glass-border: 1px solid rgba(255, 255, 255, 0.12);
+        --glass-bg: #1c1c1e;
+        --glass-border: 1px solid rgba(255, 255, 255, 0.1);
       }
     }
 
@@ -29,58 +28,49 @@
     
     body {
       margin: 0; 
-      background: radial-gradient(circle at 0% 0%, #e3f2fd 0%, #f3e5f5 50%, #fffde7 100%);
-      background-attachment: fixed; color: var(--text);
+      background: #f2f2f7; /* 纯色背景 */
+      color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
       padding-bottom: calc(var(--nav-h) + 20px + var(--safe-pb));
       user-select: none; -webkit-font-smoothing: antialiased;
     }
-    @media (prefers-color-scheme: dark) {
-      body { background: radial-gradient(circle at 0% 0%, #0f2027 0%, #203a43 50%, #2c5364 100%); }
-    }
+    @media (prefers-color-scheme: dark) { body { background: #000; } }
 
-    .view { display: none; padding: 20px; padding-top: 60px; animation: fadeIn 0.4s ease; }
+    .view { display: none; padding: 20px; padding-top: 60px; animation: fadeIn 0.3s; }
     .view.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.99); } to { opacity: 1; transform: scale(1); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* Glass Cards */
+    /* Cards */
     .glass-card {
-      background: var(--glass-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-      border-radius: 24px; border: var(--glass-border); box-shadow: var(--glass-shadow);
+      background: var(--glass-bg); border-radius: 20px; border: var(--glass-border); box-shadow: var(--glass-shadow);
       padding: 24px; margin-bottom: 20px; position: relative; overflow: hidden;
     }
 
     /* Top Bar */
     .top-bar {
       position: fixed; top: 0; left: 0; right: 0; height: 60px; z-index: 90;
-      background: rgba(255,255,255,0.01); backdrop-filter: blur(10px);
+      background: var(--glass-bg); border-bottom: var(--glass-border);
       display: flex; justify-content: space-between; align-items: flex-end; padding: 0 24px 12px;
     }
-    .app-title { font-size: 22px; font-weight: 700; opacity: 0.9; }
+    .app-title { font-size: 20px; font-weight: 700; }
 
-    /* Hero Card */
+    /* Hero */
     .hero-card {
-      text-align: center; padding: 40px 20px;
-      background: linear-gradient(145deg, rgba(0,122,255,0.85), rgba(90,200,250,0.85));
-      border: 1px solid rgba(255,255,255,0.3); color: white; box-shadow: 0 15px 35px rgba(0,122,255,0.3);
+      text-align: center; padding: 32px 20px;
+      background: linear-gradient(135deg, #007aff, #0055ff);
+      color: white; border: none; box-shadow: 0 8px 25px rgba(0,122,255,0.3);
     }
-    .hero-label { font-size: 13px; opacity: 0.9; font-weight: 500; margin-bottom: 8px; }
-    .hero-val { font-size: 46px; font-weight: 800; letter-spacing: -1.5px; }
-    .hero-pill { 
-      font-size: 13px; background: rgba(255,255,255,0.25); padding: 6px 16px; 
-      border-radius: 99px; display: inline-flex; align-items: center; gap: 6px; 
-      backdrop-filter: blur(10px); margin-top: 12px; font-weight: 600;
-    }
-
+    .hero-val { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin: 4px 0; }
+    
     /* Inputs */
     .input-row {
       display: flex; justify-content: space-between; align-items: center;
-      background: var(--glass-bg); padding: 4px 6px 4px 20px; border-radius: 20px;
+      background: var(--glass-bg); padding: 16px 20px; border-radius: 20px;
       box-shadow: var(--glass-shadow); border: var(--glass-border); margin-bottom: 20px;
     }
     .input-row input {
       border: none; background: transparent; text-align: right; 
-      font-size: 20px; font-weight: 700; color: var(--primary); width: 120px; outline: none; margin-right: 10px;
+      font-size: 22px; font-weight: 700; color: var(--primary); width: 120px; outline: none; margin-right: 10px;
     }
     .save-btn {
       width: 48px; height: 48px; background: var(--primary); color: white; border-radius: 16px;
@@ -91,76 +81,47 @@
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
     .stat-item { padding: 20px; display: flex; flex-direction: column; justify-content: center; position: relative; }
     .stat-label { font-size: 12px; color: var(--sub); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
-    .stat-val { font-size: 19px; font-weight: 700; letter-spacing: -0.5px; }
-    
-    .info-icon { 
-      position: absolute; top: 12px; right: 12px; width: 20px; height: 20px; 
-      border-radius: 50%; border: 1px solid var(--sub); color: var(--sub);
-      display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer;
-    }
+    .stat-val { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+    .info-icon { position: absolute; top: 16px; right: 16px; opacity: 0.3; }
 
-    /* List Header with Sort */
-    .list-header {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
-    }
-    .list-title { font-weight: 700; font-size: 15px; color: var(--text); }
-    .sort-select {
-      appearance: none; border: none; background: rgba(120,120,128,0.1); 
-      color: var(--primary); font-size: 12px; padding: 4px 10px; border-radius: 8px; font-weight: 600; outline: none;
-    }
-
-    /* Lists Rows */
+    /* Lists */
     .list-row {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 16px 0; border-bottom: 0.5px solid rgba(150,150,150,0.15);
+      padding: 16px 0; border-bottom: 0.5px solid rgba(0,0,0,0.05);
     }
     .list-row:last-child { border-bottom: none; }
-    .row-l { display: flex; flex-direction: column; gap: 4px; }
-    .row-r { text-align: right; display: flex; flex-direction: column; gap: 4px; }
     .tag { font-size: 10px; padding: 4px 8px; border-radius: 6px; font-weight: 700; margin-right: 8px; }
     .buy { background: rgba(52,199,89,0.15); color: #32ae50; }
     .sell { background: rgba(255,59,48,0.15); color: #ff3b30; }
-
-    /* New History Layout */
-    .hist-item {
-      padding: 14px 0; border-bottom: 0.5px solid rgba(150,150,150,0.15);
-    }
-    .hist-row-top { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: center; }
-    .hist-date { font-weight: 600; font-size: 16px; color: var(--text); }
-    .hist-val { font-weight: 700; font-size: 16px; color: var(--primary); }
-    
-    .hist-row-btm { display: flex; justify-content: space-between; font-size: 12px; color: var(--sub); }
-    .hist-sub-val { font-family: monospace; }
 
     /* Chart */
     .chart-scroll-wrapper { overflow-x: auto; padding-bottom: 10px; }
     .chart-box { height: 280px; position: relative; margin-top: 10px; width: 100%; }
     svg { width: 100%; height: 100%; overflow: visible; }
-    .line-val { fill: none; stroke: var(--primary); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 4px 8px rgba(0,122,255,0.25)); }
-    .line-cost { fill: none; stroke: var(--cost-color); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; } 
-    .dot { fill: #fff; stroke: var(--primary); stroke-width: 3; cursor: pointer; }
-    .val-label { font-size: 11px; font-weight: 800; fill: var(--primary); text-anchor: middle; }
-    .axis-label { font-size: 10px; fill: var(--sub); font-weight: 500; }
-    .grid-line { stroke: var(--text); stroke-opacity: 0.05; stroke-width: 1; stroke-dasharray: 4,4; }
+    .line-val { fill: none; stroke: var(--primary); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .line-cost { fill: none; stroke: var(--cost-color); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; } 
+    .dot { fill: #fff; stroke: var(--primary); stroke-width: 2.5; cursor: pointer; }
+    .val-label { font-size: 10px; font-weight: 700; fill: var(--primary); text-anchor: middle; }
+    .axis-label { font-size: 10px; fill: var(--sub); }
+    .grid-line { stroke: var(--text); stroke-opacity: 0.05; stroke-width: 1; }
 
     /* Zoom */
     .zoom-ctrl { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.03); padding: 8px 12px; border-radius: 12px; }
     .zoom-label { font-size: 11px; color: var(--sub); font-weight: 600; white-space: nowrap; }
     input[type=range] { width: 100%; accent-color: var(--primary); }
 
-    /* Dock & FAB */
+    /* Dock */
     .dock {
       position: fixed; bottom: calc(20px + var(--safe-pb)); left: 50%; transform: translateX(-50%);
       width: 90%; max-width: 320px; height: 70px;
-      background: rgba(255,255,255,0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-      border-radius: 35px; display: flex; justify-content: space-around; align-items: center;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.5); z-index: 100;
+      background: var(--glass-bg); border-radius: 35px; display: flex; justify-content: space-around; align-items: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: var(--glass-border); z-index: 100;
     }
-    @media (prefers-color-scheme: dark) { .dock { background: rgba(30,30,30,0.85); border: 1px solid rgba(255,255,255,0.1); } }
     .dock-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 50px; height: 50px; color: var(--sub); border-radius: 50%; transition: 0.3s; position: relative; }
     .dock-btn.active { color: var(--primary); transform: translateY(-5px); }
     .dock-btn svg { width: 28px; height: 28px; fill: currentColor; }
 
+    /* FAB */
     .fab {
       position: fixed; bottom: calc(110px + var(--safe-pb)); right: 24px;
       width: 60px; height: 60px; background: var(--primary); border-radius: 50%;
@@ -169,15 +130,19 @@
     }
 
     /* Modals & Forms */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; }
     .modal-overlay.show { display: flex; animation: fadeIn 0.2s; }
-    .modal-card { width: 85%; max-width: 360px; background: var(--glass-bg); backdrop-filter: blur(40px); border-radius: 32px; padding: 28px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); border: var(--glass-border); transform: scale(0.95); transition: 0.3s; }
+    .modal-card { width: 85%; max-width: 360px; background: var(--glass-bg); border-radius: 32px; padding: 28px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); border: var(--glass-border); transform: scale(0.95); transition: 0.3s; }
     .modal-overlay.show .modal-card { transform: scale(1); }
-    input.form-input { width: 100%; padding: 16px; background: rgba(120,120,128,0.08); border: none; border-radius: 16px; font-size: 18px; color: var(--text); outline: none; margin-bottom: 12px; font-weight: 600; }
-    .btn-main { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; font-size: 16px; font-weight: 700; margin-top: 10px; }
     
     .form-group { margin-bottom: 16px; }
     .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--sub); margin-bottom: 6px; margin-left: 4px; }
+    /* 关键修复： step=any 允许输入任意小数 */
+    input.form-input { 
+      width: 100%; padding: 16px; background: rgba(120,120,128,0.08); border: none; border-radius: 16px; 
+      font-size: 18px; color: var(--text); outline: none; font-weight: 600;
+    }
+    .btn-main { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; font-size: 16px; font-weight: 700; margin-top: 10px; }
     
     /* Calc Detail Box */
     .calc-detail-box { background: rgba(120,120,128,0.05); padding: 16px; border-radius: 16px; font-size: 14px; line-height: 1.6; }
@@ -223,15 +188,7 @@
   </div>
 
   <div class="glass-card">
-    <div class="list-header">
-      <div class="list-title">最近交易</div>
-      <select id="sortSelect" class="sort-select" onchange="changeSort()">
-        <option value="date-desc">时间 ↓ (新到旧)</option>
-        <option value="date-asc">时间 ↑ (旧到新)</option>
-        <option value="price-desc">单价 ↓ (高到低)</option>
-        <option value="price-asc">单价 ↑ (低到高)</option>
-      </select>
-    </div>
+    <div style="font-weight:700; margin-bottom:16px; color:var(--text); font-size:15px">最近交易</div>
     <div id="txList"></div>
   </div>
 </div>
@@ -250,7 +207,6 @@
       <div class="chart-box" id="trendChart"></div>
     </div>
   </div>
-  
   <div class="glass-card">
     <div style="font-weight:700; font-size:15px; margin-bottom:12px; color:var(--text)">历史回溯详情</div>
     <div id="histList"></div>
@@ -325,13 +281,14 @@
 </div>
 
 <script>
+  // Data Init
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401}];
   const PRELOAD_HIST = [{"date":"2026-01-22","val":558.05},{"date":"2026-01-23","val":1547.97},{"date":"2026-01-24","val":1559.44},{"date":"2026-01-25","val":1558.89}];
-  const KEY = { TX: 'tng_tx_v29', HS: 'tng_hs_v29', MK: 'tng_mk_v29' };
+  const KEY = { TX: 'tng_tx_v30', HS: 'tng_hs_v30', MK: 'tng_mk_v30' };
   const el = id => document.getElementById(id);
   
-  let editId = null, editHistDate = null, currentZoom = 1.0;
-  let sortMode = 'date-desc';
+  let editId = null, editHistDate = null;
+  let currentZoom = 1.0;
 
   function init(){
     if(!localStorage.getItem(KEY.TX)) localStorage.setItem(KEY.TX, JSON.stringify(PRELOAD_TX));
@@ -344,19 +301,32 @@
 
   function getDB(){ return { tx: JSON.parse(localStorage.getItem(KEY.TX)||'[]'), hs: JSON.parse(localStorage.getItem(KEY.HS)||'[]') }; }
   
+  // 核心计算: 严格按照买入累加成本，卖出按比例减少成本
   function getHoldingAt(dateStr = null){
     const tx = getDB().tx.sort((a,b)=>a.date>b.date?1:-1);
     let h = 0, totalCost = 0;
+    
     for(let t of tx){
       if(dateStr && t.date > dateStr) break;
-      const g = Number(t.grams), a = Number(t.amount);
-      if(t.type === 'buy'){ h += g; totalCost += a; }
-      else { 
-        if(h > 0){ const avg = totalCost / h; totalCost -= (g * avg); }
+      
+      const g = Number(t.grams);
+      const a = Number(t.amount);
+      
+      if(t.type === 'buy'){
+        h += g;
+        totalCost += a;
+      } else { 
+        // 卖出逻辑: 平均成本不变，总成本按比例减少
+        if(h > 0){
+          const avg = totalCost / h;
+          totalCost -= (g * avg);
+        }
         h -= g; 
       }
     }
+    // 精度归零
     if(h < 0.000001) { h = 0; totalCost = 0; }
+    
     return { h, c: totalCost };
   }
 
@@ -381,15 +351,8 @@
       el('kpiProfit').innerText = '盈亏: ---';
     }
 
-    // Sort Logic
-    let txs = getDB().tx;
-    if(sortMode === 'date-desc') txs.sort((a,b) => b.ts - a.ts);
-    else if(sortMode === 'date-asc') txs.sort((a,b) => a.ts - b.ts);
-    else if(sortMode === 'price-desc') txs.sort((a,b) => b.price - a.price);
-    else if(sortMode === 'price-asc') txs.sort((a,b) => a.price - b.price);
-
     const list = el('txList'); list.innerHTML = '';
-    txs.slice(0, 10).forEach(t => {
+    getDB().tx.sort((a,b)=>b.ts - a.ts).slice(0, 10).forEach(t => {
       list.innerHTML += `<div class="list-row" onclick="editT(${t.ts})">
           <div class="row-l"><div style="font-weight:600;font-size:16px;color:var(--text)"><span class="tag ${t.type}">${t.type==='buy'?'买':'卖'}</span>RM ${Number(t.amount).toFixed(2)}</div><div style="font-size:12px;color:var(--sub)">${t.date}</div></div>
           <div class="row-r"><div style="font-weight:700;font-size:15px;color:var(--text)">${Number(t.grams).toFixed(6)} g</div><div style="font-size:12px;color:var(--sub)">@ ${Number(t.price).toFixed(2)}</div></div></div>`;
@@ -399,25 +362,11 @@
     getDB().hs.sort((a,b)=>b.date > a.date ? 1 : -1).forEach(h => {
       const stats = getHoldingAt(h.date);
       const impliedPrice = stats.h > 0 ? (h.val / stats.h) : 0;
-      hList.innerHTML += `
-        <div class="hist-item" onclick="editHist('${h.date}', ${h.val})">
-          <div class="hist-row-top">
-            <div class="hist-date">${h.date}</div>
-            <div class="hist-val">RM ${Number(h.val).toFixed(2)}</div>
-          </div>
-          <div class="hist-row-btm">
-            <span class="hist-sub-val">持仓 ${stats.h.toFixed(4)}g</span>
-            <span class="hist-sub-val">约 ${impliedPrice.toFixed(2)}/g</span>
-          </div>
-        </div>`;
+      hList.innerHTML += `<div class="hist-item" onclick="editHist('${h.date}', ${h.val})"><div><div class="hist-date">${h.date}</div><div class="hist-detail"><span>持仓 ${stats.h.toFixed(6)}g</span><span>约 ${impliedPrice.toFixed(2)}/g</span></div></div><div class="hist-val">RM ${Number(h.val).toFixed(2)}</div></div>`;
     });
   }
 
-  function changeSort(){
-    sortMode = el('sortSelect').value;
-    render();
-  }
-
+  // --- Calc Detail Modal Logic ---
   function showCalcDetail(){
     const {h, c} = getHoldingAt();
     const avg = h > 0 ? (c / h) : 0;
@@ -526,7 +475,6 @@
   function openHistModal(){ editHistDate = null; el('hDate').value = new Date().toISOString().split('T')[0]; el('hTotalVal').value = ''; el('btnDelHist').style.display = 'none'; openModal('histModal'); }
   function editHist(date, val){ editHistDate = date; el('hDate').value = date; el('hTotalVal').value = val; el('btnDelHist').style.display = 'block'; openModal('histModal'); }
   function openSettings(){ openModal('settingsModal'); }
-  
   function switchTab(t){ document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); el('view-'+t).classList.add('active'); el('nav-home').className = t==='home' ? 'dock-btn active' : 'dock-btn'; el('nav-chart').className = t==='chart' ? 'dock-btn active' : 'dock-btn'; el('fabBtn').style.display = t==='home' ? 'flex' : 'none'; if(t === 'chart') drawChart(); }
   function exportData(){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(getDB())],{type:'application/json'})); a.download='backup.json'; a.click(); }
   function importData(i){ const r=new FileReader(); r.onload=e=>{ try{const d=JSON.parse(e.target.result); if(d.tx)localStorage.setItem(KEY.TX,JSON.stringify(d.tx)); if(d.hs)localStorage.setItem(KEY.HS,JSON.stringify(d.hs)); location.reload();}catch{alert('Error');} }; r.readAsText(i.files[0]); }
