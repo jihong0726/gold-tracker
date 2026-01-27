@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V30</title>
+  <title>TNG 黄金管家 V31</title>
   <style>
     :root{
       --primary: #007aff; 
       --cost-color: #ff9f0a;
       --text: #1c1c1e; --sub: #8e8e93;
-      --glass-bg: #ffffff; /* 纯白背景，不再半透明，提升对比度 */
+      --glass-bg: #ffffff; 
       --glass-border: 1px solid rgba(0,0,0,0.05);
       --glass-shadow: 0 4px 12px rgba(0,0,0,0.05);
       --nav-h: 65px; --safe-pb: env(safe-area-inset-bottom);
@@ -28,7 +28,7 @@
     
     body {
       margin: 0; 
-      background: #f2f2f7; /* 纯色背景 */
+      background: #f2f2f7; 
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
       padding-bottom: calc(var(--nav-h) + 20px + var(--safe-pb));
@@ -94,6 +94,13 @@
     .buy { background: rgba(52,199,89,0.15); color: #32ae50; }
     .sell { background: rgba(255,59,48,0.15); color: #ff3b30; }
 
+    /* Hist Item (New Layout) */
+    .hist-item { padding: 16px 0; border-bottom: 0.5px solid rgba(0,0,0,0.05); }
+    .hist-top { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: center; }
+    .hist-date { font-weight: 600; font-size: 16px; color: var(--text); }
+    .hist-val { font-weight: 700; font-size: 16px; color: var(--primary); }
+    .hist-btm { display: flex; justify-content: space-between; font-size: 12px; color: var(--sub); }
+
     /* Chart */
     .chart-scroll-wrapper { overflow-x: auto; padding-bottom: 10px; }
     .chart-box { height: 280px; position: relative; margin-top: 10px; width: 100%; }
@@ -137,7 +144,6 @@
     
     .form-group { margin-bottom: 16px; }
     .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--sub); margin-bottom: 6px; margin-left: 4px; }
-    /* 关键修复： step=any 允许输入任意小数 */
     input.form-input { 
       width: 100%; padding: 16px; background: rgba(120,120,128,0.08); border: none; border-radius: 16px; 
       font-size: 18px; color: var(--text); outline: none; font-weight: 600;
@@ -207,6 +213,7 @@
       <div class="chart-box" id="trendChart"></div>
     </div>
   </div>
+  
   <div class="glass-card">
     <div style="font-weight:700; font-size:15px; margin-bottom:12px; color:var(--text)">历史回溯详情</div>
     <div id="histList"></div>
@@ -284,7 +291,7 @@
   // Data Init
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401}];
   const PRELOAD_HIST = [{"date":"2026-01-22","val":558.05},{"date":"2026-01-23","val":1547.97},{"date":"2026-01-24","val":1559.44},{"date":"2026-01-25","val":1558.89}];
-  const KEY = { TX: 'tng_tx_v30', HS: 'tng_hs_v30', MK: 'tng_mk_v30' };
+  const KEY = { TX: 'tng_tx_v31', HS: 'tng_hs_v31', MK: 'tng_mk_v31' };
   const el = id => document.getElementById(id);
   
   let editId = null, editHistDate = null;
@@ -301,12 +308,19 @@
 
   function getDB(){ return { tx: JSON.parse(localStorage.getItem(KEY.TX)||'[]'), hs: JSON.parse(localStorage.getItem(KEY.HS)||'[]') }; }
   
-  // 核心计算: 严格按照买入累加成本，卖出按比例减少成本
+  // 核心计算修复：历史持仓精确回溯
+  // 逻辑：只统计 dateStr 当天及之前的交易
   function getHoldingAt(dateStr = null){
-    const tx = getDB().tx.sort((a,b)=>a.date>b.date?1:-1);
+    // 按时间升序排列，模拟历史进程
+    const tx = getDB().tx.sort((a,b)=> {
+      if(a.date !== b.date) return a.date > b.date ? 1 : -1;
+      return a.ts - b.ts;
+    });
+    
     let h = 0, totalCost = 0;
     
     for(let t of tx){
+      // 关键修正：严格判断日期
       if(dateStr && t.date > dateStr) break;
       
       const g = Number(t.grams);
@@ -316,7 +330,6 @@
         h += g;
         totalCost += a;
       } else { 
-        // 卖出逻辑: 平均成本不变，总成本按比例减少
         if(h > 0){
           const avg = totalCost / h;
           totalCost -= (g * avg);
@@ -324,13 +337,12 @@
         h -= g; 
       }
     }
-    // 精度归零
     if(h < 0.000001) { h = 0; totalCost = 0; }
-    
     return { h, c: totalCost };
   }
 
   function render(){
+    // 渲染首页当前状态（无日期参数，计算所有）
     const {h, c} = getHoldingAt();
     const mp = parseFloat(el('marketPrice').value)||0;
     const avg = h > 0 ? (c / h) : 0;
@@ -342,7 +354,7 @@
       const val = h * mp;
       const profit = val - c;
       const pct = c > 0 ? (profit / c) * 100 : 0;
-      const color = profit >= 0 ? '#ffffff' : '#ffcccc';
+      const color = profit >= 0 ? '#007aff' : '#ff3b30';
       const sign = profit >= 0 ? '+' : '';
       el('kpiVal').innerText = val.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
       el('kpiProfit').innerHTML = `盈亏 <strong style="color:${color}; margin-left:4px">RM ${sign}${profit.toFixed(2)} (${pct.toFixed(2)}%)</strong>`;
@@ -359,10 +371,22 @@
     });
 
     const hList = el('histList'); hList.innerHTML = '';
+    // 历史列表：每一项都要独立调用 getHoldingAt(h.date) 来计算当天的持仓
     getDB().hs.sort((a,b)=>b.date > a.date ? 1 : -1).forEach(h => {
-      const stats = getHoldingAt(h.date);
+      const stats = getHoldingAt(h.date); 
       const impliedPrice = stats.h > 0 ? (h.val / stats.h) : 0;
-      hList.innerHTML += `<div class="hist-item" onclick="editHist('${h.date}', ${h.val})"><div><div class="hist-date">${h.date}</div><div class="hist-detail"><span>持仓 ${stats.h.toFixed(6)}g</span><span>约 ${impliedPrice.toFixed(2)}/g</span></div></div><div class="hist-val">RM ${Number(h.val).toFixed(2)}</div></div>`;
+      
+      hList.innerHTML += `
+        <div class="hist-item" onclick="editHist('${h.date}', ${h.val})">
+          <div class="hist-top">
+            <div class="hist-date">${h.date}</div>
+            <div class="hist-val">RM ${Number(h.val).toFixed(2)}</div>
+          </div>
+          <div class="hist-btm">
+            <span>持仓 ${stats.h.toFixed(6)}g</span>
+            <span>约 ${impliedPrice.toFixed(2)}/g</span>
+          </div>
+        </div>`;
     });
   }
 
@@ -387,6 +411,7 @@
     const box = el('trendChart'); box.innerHTML = '';
     if(hs.length < 2) { box.innerHTML = '<div style="text-align:center;padding-top:120px;font-size:12px;color:var(--sub)">暂无足够数据</div>'; return; }
     
+    // 图表数据准备：每一个历史点，都要算出当时的 Cost
     const data = hs.sort((a,b) => a.date > b.date ? 1 : -1).map(h => {
       const stats = getHoldingAt(h.date);
       return { date: h.date, val: h.val, cost: stats.c };
