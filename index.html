@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V35</title>
+  <title>TNG 黄金管家 V38</title>
   <style>
     :root{
       --primary: #007aff; 
@@ -71,6 +71,8 @@
       border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; 
       box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-weight: 600; color: #333;
     }
+    .eye-btn { font-size: 16px; cursor: pointer; opacity: 0.8; margin-left: 5px; }
+    .blur-mode { filter: blur(8px); opacity: 0.5; }
 
     /* Inputs */
     .input-row {
@@ -97,21 +99,30 @@
     /* Lists */
     .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .list-title { font-weight: 700; font-size: 15px; color: var(--text); }
+    .sort-select {
+      appearance: none; border: none; background: rgba(120,120,128,0.1); 
+      color: var(--primary); font-size: 12px; padding: 6px 12px; border-radius: 8px; font-weight: 600; outline: none;
+    }
     .list-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 0.5px solid rgba(0,0,0,0.05); }
     .list-row:last-child { border-bottom: none; }
-    .row-l { display: flex; flex-direction: column; gap: 4px; }
-    .row-r { text-align: right; display: flex; flex-direction: column; gap: 4px; }
     .tag { font-size: 10px; padding: 4px 8px; border-radius: 6px; font-weight: 700; margin-right: 8px; }
     .buy { background: rgba(52,199,89,0.15); color: #32ae50; }
     .sell { background: rgba(255,59,48,0.15); color: #ff3b30; }
+
+    /* Hist Item */
+    .hist-item { padding: 16px 0; border-bottom: 0.5px solid rgba(0,0,0,0.05); }
+    .hist-top { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: center; }
+    .hist-date { font-weight: 600; font-size: 16px; color: var(--text); }
+    .hist-time { font-size: 12px; color: var(--sub); margin-left: 6px; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; }
+    .hist-val { font-weight: 700; font-size: 16px; color: var(--primary); }
+    .hist-btm { display: flex; justify-content: space-between; font-size: 12px; color: var(--sub); }
 
     /* Chart */
     .chart-scroll-wrapper { overflow-x: auto; padding-bottom: 10px; }
     .chart-box { height: 280px; position: relative; margin-top: 10px; width: 100%; }
     svg { width: 100%; height: 100%; overflow: visible; }
-    .line-val { fill: none; stroke: var(--primary); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-    .line-cost { fill: none; stroke: var(--cost-color); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; } 
-    .bar-val { fill: var(--primary); opacity: 0.8; rx: 4; }
+    .bar-val { fill: var(--primary); opacity: 0.9; rx: 3; }
+    .bar-cost { fill: var(--cost-color); opacity: 0.9; rx: 3; }
     .val-label { font-size: 10px; font-weight: 700; fill: var(--primary); text-anchor: middle; }
     .axis-label { font-size: 10px; fill: var(--sub); }
     .grid-line { stroke: var(--text); stroke-opacity: 0.05; stroke-width: 1; stroke-dasharray: 4,4; }
@@ -119,41 +130,39 @@
     .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--sub); cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: 0.2s; }
     .legend-item.hidden { opacity: 0.4; filter: grayscale(1); }
 
-    /* CALENDAR STYLES (NEW) */
+    /* Zoom */
+    .zoom-ctrl { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.03); padding: 8px 12px; border-radius: 12px; }
+    .zoom-label { font-size: 11px; color: var(--sub); font-weight: 600; white-space: nowrap; }
+    input[type=range] { width: 100%; accent-color: var(--primary); }
+
+    /* Calendar (Improved) */
     .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-weight: 700; font-size: 16px; }
     .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
     .cal-head-day { font-size: 11px; color: var(--sub); font-weight: 600; margin-bottom: 8px; }
     .cal-cell { 
         height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-        font-size: 14px; font-weight: 500; border-radius: 10px; position: relative; transition: 0.2s;
+        font-size: 14px; font-weight: 500; border-radius: 10px; position: relative; transition: 0.2s; cursor: pointer;
     }
-    .cal-cell.today { background: rgba(0,122,255,0.1); color: var(--primary); font-weight: 700; }
+    .cal-cell:active { transform: scale(0.9); background: rgba(0,0,0,0.05); }
+    .cal-cell.today { border: 1px solid var(--primary); color: var(--primary); font-weight: 700; }
     .cal-cell.has-tx { background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
-    .cal-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 4px; }
+    .cal-cell.selected { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(0,122,255,0.4); border:none; }
+    .cal-dot { width: 5px; height: 5px; border-radius: 50%; margin-top: 4px; }
     .cal-dot.green { background: var(--green); }
     .cal-dot.red { background: var(--red); }
-    .cal-detail-box { margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.03); border-radius: 16px; display: none; }
+    /* Invert dots on selection */
+    .cal-cell.selected .cal-dot { background: white; }
+    
+    .cal-detail-box { margin-top: 20px; padding: 16px; background: rgba(120,120,128,0.05); border-radius: 16px; }
 
-    /* Dock */
-    .dock {
-      position: fixed; bottom: calc(20px + var(--safe-pb)); left: 50%; transform: translateX(-50%);
-      width: 90%; max-width: 320px; height: 70px;
-      background: var(--glass-bg); border-radius: 35px; display: flex; justify-content: space-around; align-items: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: var(--glass-border); z-index: 100;
-    }
+    /* Dock & FAB */
+    .dock { position: fixed; bottom: calc(20px + var(--safe-pb)); left: 50%; transform: translateX(-50%); width: 90%; max-width: 320px; height: 70px; background: var(--glass-bg); border-radius: 35px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: var(--glass-border); z-index: 100; }
     .dock-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 50px; height: 50px; color: var(--sub); border-radius: 50%; transition: 0.3s; position: relative; }
     .dock-btn.active { color: var(--primary); transform: translateY(-5px); }
     .dock-btn svg { width: 26px; height: 26px; fill: currentColor; }
+    .fab { position: fixed; bottom: calc(110px + var(--safe-pb)); right: 24px; width: 60px; height: 60px; background: var(--primary); border-radius: 50%; color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 25px rgba(0,122,255,0.4); z-index: 90; }
 
-    /* FAB */
-    .fab {
-      position: fixed; bottom: calc(110px + var(--safe-pb)); right: 24px;
-      width: 60px; height: 60px; background: var(--primary); border-radius: 50%;
-      color: white; display: flex; justify-content: center; align-items: center;
-      box-shadow: 0 10px 25px rgba(0,122,255,0.4); z-index: 90; 
-    }
-
-    /* Modals & Forms */
+    /* Modals */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
     .modal-overlay.show { display: flex; animation: fadeIn 0.2s; }
     .modal-card { width: 85%; max-width: 360px; background: var(--glass-bg); border-radius: 32px; padding: 28px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); border: var(--glass-border); transform: scale(0.95); transition: 0.3s; }
@@ -163,12 +172,8 @@
     input.form-input { width: 100%; padding: 16px; background: rgba(120,120,128,0.08); border: none; border-radius: 16px; font-size: 18px; color: var(--text); outline: none; font-weight: 600; }
     .btn-main { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; font-size: 16px; font-weight: 700; margin-top: 10px; }
     
-    /* Share Card Style */
-    .share-card-container {
-        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-        border-radius: 24px; padding: 30px; color: #fff; text-align: center;
-        box-shadow: 0 20px 50px rgba(255, 165, 0, 0.4); margin-bottom: 20px;
-    }
+    /* Share Card */
+    .share-card-container { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); border-radius: 24px; padding: 30px; color: #fff; text-align: center; box-shadow: 0 20px 50px rgba(255, 165, 0, 0.4); margin-bottom: 20px; }
     .share-title { font-size: 16px; font-weight: 600; opacity: 0.9; margin-bottom: 10px; letter-spacing: 2px; }
     .share-amount { font-size: 48px; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -176,6 +181,17 @@
     .share-label { font-size: 12px; opacity: 0.8; margin-bottom: 4px; }
     .share-val { font-size: 18px; font-weight: 700; }
     .share-footer { margin-top: 20px; font-size: 12px; opacity: 0.7; }
+
+    /* Calc Detail Box */
+    .calc-detail-box { background: rgba(120,120,128,0.05); padding: 16px; border-radius: 16px; font-size: 14px; line-height: 1.6; }
+    .calc-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px; }
+    .calc-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; font-weight: 700; font-size: 16px; color: var(--primary); }
+
+    /* Settings List */
+    .settings-list { display: flex; flex-direction: column; gap: 0; border-radius: 16px; overflow: hidden; background: rgba(120,120,128,0.08); }
+    .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: transparent; border: none; width: 100%; text-align: left; font-size: 16px; color: var(--text); border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer; }
+    .settings-item:last-child { border-bottom: none; }
+    .settings-item:active { background: rgba(0,0,0,0.05); }
   </style>
 </head>
 <body>
@@ -234,7 +250,7 @@
 <div id="view-chart" class="view">
   <div class="glass-card" id="chartCard">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
-      <div style="font-weight:700; font-size:16px">资产走势 (柱状)</div>
+      <div style="font-weight:700; font-size:16px">资产走势 (双柱对比)</div>
       <button style="font-size:12px; color:var(--primary); background:rgba(0,122,255,0.1); border:none; padding:6px 12px; border-radius:12px; font-weight:600" onclick="openHistModal()">+ 补录</button>
     </div>
     <div class="chart-legend">
@@ -249,9 +265,8 @@
       <div class="chart-box" id="trendChart"></div>
     </div>
   </div>
-  
   <div class="glass-card">
-    <div style="font-weight:700; font-size:15px; margin-bottom:12px; color:var(--text)">历史回溯详情</div>
+    <div style="font-weight:700; font-size:15px; margin-bottom:12px; color:var(--text)">历史回溯详情 (日内记录)</div>
     <div id="histList"></div>
   </div>
 </div>
@@ -260,7 +275,7 @@
   <div class="glass-card">
     <div class="cal-header">
       <div onclick="changeMonth(-1)" style="cursor:pointer;padding:10px">❮</div>
-      <div id="calTitle">2026年 01月</div>
+      <div id="calTitle"></div>
       <div onclick="changeMonth(1)" style="cursor:pointer;padding:10px">❯</div>
     </div>
     <div class="cal-grid">
@@ -269,9 +284,9 @@
     </div>
     <div id="calDays" class="cal-grid"></div>
     
-    <div id="calDetail" class="cal-detail-box">
-      <div style="font-weight:700;margin-bottom:8px" id="calDetailDate"></div>
-      <div id="calDetailContent"></div>
+    <div id="calDetail" class="cal-detail-box" style="display:block">
+      <div style="font-weight:700;margin-bottom:8px" id="calDetailDate">请点击日期查看</div>
+      <div id="calDetailContent" style="font-size:13px;color:var(--sub)">点击日历上的日期，查看当天的买卖记录。</div>
     </div>
   </div>
 </div>
@@ -329,6 +344,7 @@
   <div class="modal-card">
     <h3 style="text-align:center; margin-bottom:24px">补录历史资产</h3>
     <div class="form-group"><label class="form-label">日期</label><input type="date" class="form-input" id="hDate"></div>
+    <div class="form-group"><label class="form-label">时间</label><input type="time" class="form-input" id="hTime"></div>
     <div class="form-group"><label class="form-label">总市值 (RM)</label><input type="number" class="form-input" id="hTotalVal" placeholder="0.00" inputmode="decimal" step="any"></div>
     <button class="btn-main" onclick="saveHist()">保存</button>
     <div style="text-align:center; margin-top:16px; color:#ff3b30; font-size:14px; display:none" id="btnDelHist" onclick="delHist()">删除</div>
@@ -338,26 +354,38 @@
 
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-card">
-    <h3 style="text-align:center; margin-bottom:20px">数据管理</h3>
-    <button class="form-input" style="text-align:left; background:white; margin-bottom:10px" onclick="exportData()">📤 备份数据</button>
-    <div style="position:relative; margin-bottom:10px">
-      <button class="form-input" style="text-align:left; background:white">📥 恢复备份</button>
-      <input type="file" onchange="importData(this)" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0">
+    <h3 style="text-align:center; margin-bottom:24px">数据管理</h3>
+    <div class="settings-list">
+      <button class="settings-item" onclick="exportData()"><span>📤 备份数据</span></button>
+      <div style="position:relative"><button class="settings-item"><span>📥 恢复备份</span></button><input type="file" onchange="importData(this)" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer"></div>
+      <button class="settings-item" onclick="resetAll()"><span style="color:var(--red)">🗑️ 清空所有数据</span></button>
     </div>
-    <button class="form-input" style="text-align:left; color:#ff3b30; background:white" onclick="resetAll()">🗑️ 清空所有数据</button>
-    <button class="btn-main" onclick="closeModal('settingsModal')">关闭</button>
+    <button class="btn-main" onclick="closeModal('settingsModal')" style="background:#eee; color:#333; margin-top:20px">关闭</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="calcDetailModal">
+  <div class="modal-card">
+    <h3 style="text-align:center; margin-bottom:20px">平均成本计算</h3>
+    <div class="calc-detail-box">
+      <div class="calc-row"><span>总投入金额</span><span id="detailCost">0.00</span></div>
+      <div class="calc-row"><span>总持有克数</span><span id="detailGrams">0.000000</span></div>
+      <div class="calc-row"><span>平均成本</span><span id="detailAvg">0.00</span></div>
+    </div>
+    <button class="btn-main" onclick="closeModal('calcDetailModal')">我知道了</button>
   </div>
 </div>
 
 <script>
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401}];
-  const PRELOAD_HIST = [{"date":"2026-01-22","val":558.05},{"date":"2026-01-23","val":1547.97},{"date":"2026-01-24","val":1559.44},{"date":"2026-01-25","val":1558.89}];
-  const KEY = { TX: 'tng_tx_v35', HS: 'tng_hs_v35', MK: 'tng_mk_v35' };
+  const PRELOAD_HIST = [{"ts":1770000000000,"date":"2026-01-22","time":"00:00","val":558.05},{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89}];
+  const KEY = { TX: 'tng_tx_v38', HS: 'tng_hs_v38', MK: 'tng_mk_v38' };
   const el = id => document.getElementById(id);
   
-  let editId = null, editHistDate = null, currentZoom = 1.0;
+  let editId = null, editHistId = null, currentZoom = 1.0;
   let sortMode = 'date-desc', chartVis = { val: true, cost: true }, privacyMode = false;
   let curCalYear = new Date().getFullYear(), curCalMonth = new Date().getMonth();
+  let selectedDate = null;
 
   function init(){
     if(!localStorage.getItem(KEY.TX)) localStorage.setItem(KEY.TX, JSON.stringify(PRELOAD_TX));
@@ -371,7 +399,7 @@
   function getDB(){ return { tx: JSON.parse(localStorage.getItem(KEY.TX)||'[]'), hs: JSON.parse(localStorage.getItem(KEY.HS)||'[]') }; }
   
   function getHoldingAt(dateStr = null){
-    const tx = getDB().tx.sort((a,b)=>a.date>b.date?1:-1);
+    const tx = getDB().tx.sort((a,b)=> a.date.localeCompare(b.date) || a.ts - b.ts);
     let h = 0, totalCost = 0;
     for(let t of tx){
       if(dateStr && t.date > dateStr) break;
@@ -391,7 +419,6 @@
     const mp = parseFloat(el('marketPrice').value)||0;
     const avg = h > 0 ? (c / h) : 0;
     
-    // Privacy
     const blurClass = privacyMode ? 'blur-mode' : '';
     el('kpiHolding').className = blurClass; el('kpiHolding').innerText = h.toFixed(6);
     el('kpiAvg').className = blurClass; el('kpiAvg').innerText = "RM " + avg.toFixed(2);
@@ -403,10 +430,10 @@
       const pct = c > 0 ? (profit / c) * 100 : 0;
       const color = profit >= 0 ? 'var(--green)' : 'var(--red)';
       const sign = profit >= 0 ? '+' : '';
-      el('kpiVal').innerText = val.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+      if(!privacyMode) el('kpiVal').innerText = val.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
       el('kpiProfit').innerHTML = `盈亏 <strong style="color:${color}; margin-left:4px">RM ${sign}${profit.toFixed(2)} (${pct.toFixed(2)}%)</strong>`;
     } else {
-      el('kpiVal').innerText = '0.00';
+      if(!privacyMode) el('kpiVal').innerText = '0.00';
       el('kpiProfit').innerText = '盈亏: ---';
     }
 
@@ -424,17 +451,17 @@
         });
 
         const hList = el('histList'); hList.innerHTML = '';
-        getDB().hs.sort((a,b)=>b.date > a.date ? 1 : -1).forEach(h => {
-        const stats = getHoldingAt(h.date);
-        const impliedPrice = stats.h > 0 ? (h.val / stats.h) : 0;
-        hList.innerHTML += `<div class="hist-item" onclick="editHist('${h.date}', ${h.val})">
-            <div class="hist-top"><div class="hist-date">${h.date}</div><div class="hist-val">RM ${Number(h.val).toFixed(2)}</div></div>
-            <div class="hist-btm"><span>持仓 ${stats.h.toFixed(6)}g</span><span>约 ${impliedPrice.toFixed(2)}/g</span></div></div>`;
+        const hs = getDB().hs.sort((a,b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
+        hs.forEach(h => {
+            const stats = getHoldingAt(h.date);
+            const impliedPrice = stats.h > 0 ? (h.val / stats.h) : 0;
+            hList.innerHTML += `<div class="hist-item" onclick="editHist('${h.ts}')">
+                <div class="hist-top"><div class="hist-date">${h.date} <span class="hist-time">${h.time || '00:00'}</span></div><div class="hist-val">RM ${Number(h.val).toFixed(2)}</div></div>
+                <div class="hist-btm"><span>持仓 ${stats.h.toFixed(6)}g</span><span>约 ${impliedPrice.toFixed(2)}/g</span></div></div>`;
         });
     }
   }
 
-  // --- Calendar Logic ---
   function changeMonth(delta){
     curCalMonth += delta;
     if(curCalMonth > 11) { curCalMonth=0; curCalYear++; }
@@ -448,14 +475,13 @@
     const firstDay = new Date(y, m, 1).getDay();
     const daysInMonth = new Date(y, m+1, 0).getDate();
     
-    // Get Tx Data for this month
     const tx = getDB().tx;
     const dayMap = {};
     tx.forEach(t => {
       const d = new Date(t.date);
       if(d.getFullYear() === y && d.getMonth() === m){
         const day = d.getDate();
-        if(!dayMap[day]) dayMap[day] = {buy:0, sell:0, total:0};
+        if(!dayMap[day]) dayMap[day] = {buy:0, sell:0};
         if(t.type==='buy') dayMap[day].buy += Number(t.amount);
         else dayMap[day].sell += Number(t.amount);
       }
@@ -470,40 +496,47 @@
         if(hasData.buy > 0) dots += '<div class="cal-dot green"></div>';
         if(hasData.sell > 0) dots += '<div class="cal-dot red"></div>';
       }
-      // Check if today
       const today = new Date();
       const isToday = (today.getFullYear()===y && today.getMonth()===m && today.getDate()===i);
       
-      html += `<div class="cal-cell ${isToday?'today':''} ${hasData?'has-tx':''}" onclick="showCalDetail(${i})">
-        ${i} ${dots}
-      </div>`;
+      const dateStr = `${y}-${(m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`;
+      const isSelected = selectedDate === dateStr;
+
+      html += `<div class="cal-cell ${isToday?'today':''} ${hasData?'has-tx':''} ${isSelected?'selected':''}" onclick="showCalDetail(${i}, this)">${i} ${dots}</div>`;
     }
     el('calDays').innerHTML = html;
-    el('calDetail').style.display = 'none';
   }
 
-  function showCalDetail(day){
+  function showCalDetail(day, cell){
+    // Update visual selection
+    document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('selected'));
+    if(cell) cell.classList.add('selected');
+
     const tx = getDB().tx;
     const y = curCalYear, m = curCalMonth;
-    const dateStr = `${y}-${m+1<10?'0'+(m+1):m+1}-${day<10?'0'+day:day}`;
+    const dateStr = `${y}-${(m+1).toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}`;
+    selectedDate = dateStr; // Store selection
+
     const dayTxs = tx.filter(t => t.date === dateStr);
     
-    if(dayTxs.length === 0) return;
+    el('calDetailDate').innerText = dateStr;
+    
+    if(dayTxs.length === 0) {
+        el('calDetailContent').innerHTML = '<div style="text-align:center;color:var(--sub);padding:10px">当日无交易记录</div>';
+        return;
+    }
     
     let html = '';
     dayTxs.forEach(t => {
-      const color = t.type==='buy' ? '#32ae50' : '#ff3b30';
-      html += `<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px">
-        <span style="color:${color};font-weight:700">${t.type==='buy'?'买入':'卖出'} RM ${t.amount}</span>
-        <span style="color:var(--sub)">${Number(t.grams).toFixed(4)}g</span>
+      const color = t.type==='buy' ? 'var(--green)' : 'var(--red)';
+      html += `<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.05)">
+        <span style="color:${color};font-weight:700">${t.type==='buy'?'买入':'卖出'} RM ${Number(t.amount).toFixed(2)}</span>
+        <span style="color:var(--text)">${Number(t.grams).toFixed(4)}g</span>
       </div>`;
     });
-    el('calDetailDate').innerText = dateStr;
     el('calDetailContent').innerHTML = html;
-    el('calDetail').style.display = 'block';
   }
 
-  // --- Share Logic ---
   function openShareModal(){
     const {h, c} = getHoldingAt();
     const mp = parseFloat(el('marketPrice').value)||0;
@@ -528,50 +561,66 @@
   // --- Common Logic ---
   function togglePrivacy(){ privacyMode = !privacyMode; render(true); }
   function confirmSave(){ const p=parseFloat(el('marketPrice').value); if(!p||p<=0)return alert("请输入有效金价"); if(confirm(`确认写入今日金价 RM ${p.toFixed(2)}?`)) saveAndChart(p); }
-  function saveAndChart(p){ localStorage.setItem(KEY.MK,p); const {h}=getHoldingAt(); if(h>0){ const d=new Date().toISOString().split('T')[0]; let hs=getDB().hs; const i=hs.findIndex(x=>x.date==d); if(i>-1)hs[i].val=h*p; else hs.push({date:d,val:h*p}); localStorage.setItem(KEY.HS,JSON.stringify(hs)); } render(); switchTab('chart'); }
+  function saveAndChart(p){ 
+      localStorage.setItem(KEY.MK,p); 
+      const {h}=getHoldingAt(); 
+      if(h>0){ 
+          const now = new Date();
+          const d = now.toISOString().split('T')[0];
+          const time = now.toTimeString().slice(0,5);
+          let hs=getDB().hs; 
+          hs.push({ts: Date.now(), date:d, time:time, val:h*p}); 
+          localStorage.setItem(KEY.HS,JSON.stringify(hs)); 
+      } 
+      render(); switchTab('chart'); 
+  }
   function toggleChart(t){ chartVis[t]=!chartVis[t]; el('lg-'+t).className=chartVis[t]?'legend-item':'legend-item hidden'; drawChart(); }
   function updateZoom(){ currentZoom=parseFloat(el('zoomSlider').value); drawChart(); }
   function changeSort(){ sortMode=el('sortSelect').value; render(); }
-  
+  function showCalcDetail(){ const {h,c}=getHoldingAt(); const avg=h>0?(c/h):0; el('detailCost').innerText="RM "+c.toFixed(2); el('detailGrams').innerText=h.toFixed(6)+" g"; el('detailAvg').innerText="RM "+avg.toFixed(2)+" /g"; openModal('calcDetailModal'); }
+
   function drawChart(){
     const {hs} = getDB();
     const box = el('trendChart'); box.innerHTML = '';
     if(hs.length<2) { box.innerHTML='<div style="text-align:center;padding-top:120px;color:var(--sub)">暂无数据</div>'; return; }
     
-    const data = hs.sort((a,b)=>a.date>b.date?1:-1).map(h=>{ const s=getHoldingAt(h.date); return {date:h.date, val:h.val, cost:s.c}; });
+    const data = hs.sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)).map(h=>{ 
+        const s=getHoldingAt(h.date); 
+        return {date:h.date, time:h.time, val:h.val, cost:s.c}; 
+    });
+    
     const vals = data.map(d=>d.val).concat(data.map(d=>d.cost));
     const min=Math.min(...vals)*0.98, max=Math.max(...vals)*1.02, h=280, w=box.offsetWidth*currentZoom;
     
     let svg = `<svg style="width:${w}px;height:${h}px">`;
-    const pts = data.map((d,i)=>({ x: (i/(data.length-1))*(w-40)+20, yVal: h-30-((d.val-min)/(max-min))*(h-60), yCost: h-30-((d.cost-min)/(max-min))*(h-60), d }));
+    const groupW = w / data.length;
+    const barW = Math.max(4, groupW * 0.35); 
     
-    // Cost Line
-    if(chartVis.cost){
-        let pCost = `M ${pts[0].x} ${pts[0].yCost}`; pts.forEach(p=>pCost+=` L ${p.x} ${p.yCost}`);
-        svg += `<path d="${pCost}" class="line-cost"/>`;
-    }
-    // Bar Val
-    if(chartVis.val){
-        const barW = Math.max(4, (w/data.length)*0.5);
-        svg += pts.map(p=>`<rect x="${p.x-barW/2}" y="${p.yVal}" width="${barW}" height="${h-30-p.yVal}" class="bar-val" onclick="alert('${p.d.date} 市值: ${p.d.val.toFixed(2)}')"></rect>`).join('');
-    }
-    // Labels
-    svg += pts.map((p,i)=> (i%Math.ceil(data.length/5)===0) ? `<text x="${p.x}" y="${h-10}" class="axis-label" style="text-anchor:middle">${p.d.date.slice(5)}</text>` : '').join('');
+    const pts = data.map((d,i)=>({ 
+        x: i * groupW + groupW/2, 
+        yVal: h-30-((d.val-min)/(max-min))*(h-60), 
+        yCost: h-30-((d.cost-min)/(max-min))*(h-60), 
+        d 
+    }));
+    
+    if(chartVis.cost) svg += pts.map(p=>`<rect x="${p.x - barW}" y="${p.yCost}" width="${barW}" height="${h-30-p.yCost}" class="bar-cost" onclick="alert('${p.d.date} ${p.d.time} 成本: ${p.d.cost.toFixed(2)}')"></rect>`).join('');
+    if(chartVis.val) svg += pts.map(p=>`<rect x="${p.x}" y="${p.yVal}" width="${barW}" height="${h-30-p.yVal}" class="bar-val" onclick="alert('${p.d.date} ${p.d.time} 市值: ${p.d.val.toFixed(2)}')"></rect>`).join('');
+    svg += pts.map((p,i)=> (i%Math.ceil(data.length/(5*currentZoom))===0) ? `<text x="${p.x}" y="${h-10}" class="axis-label" style="text-anchor:middle">${p.d.date.slice(5)}</text>` : '').join('');
     box.innerHTML = svg + '</svg>';
   }
 
   function saveTx(){ const d=el('tDate').value, a=el('tAmt').value, p=el('tPrice').value, g=el('tGrams').value; if(!a||!g)return alert("完整填写"); let tx=getDB().tx; const rec={ts:editId||Date.now(), type:'buy', date:d, amount:a, grams:g, price:p}; if(editId){const i=tx.findIndex(x=>x.ts==editId);if(i>-1)tx[i]=rec;}else tx.push(rec); localStorage.setItem(KEY.TX,JSON.stringify(tx)); closeModal('txModal'); render(); }
-  function saveHist(){ const d=el('hDate').value, v=parseFloat(el('hTotalVal').value); if(!v)return alert("输入金额"); let hs=getDB().hs; const i=hs.findIndex(x=>x.date==d); if(i>-1)hs[i].val=v; else hs.push({date:d, val:v}); localStorage.setItem(KEY.HS,JSON.stringify(hs)); closeModal('histModal'); render(); drawChart(); }
+  function saveHist(){ const d=el('hDate').value, time=el('hTime').value, v=parseFloat(el('hTotalVal').value); if(!v)return alert("输入金额"); let hs=getDB().hs; if(editHistId){ const i=hs.findIndex(x=>x.ts==editHistId); if(i>-1)hs[i]={...hs[i], date:d, time:time, val:v}; } else { hs.push({ts:Date.now(), date:d, time:time||"00:00", val:v}); } localStorage.setItem(KEY.HS,JSON.stringify(hs)); closeModal('histModal'); render(); drawChart(); }
   function delTx(){ if(confirm("删除?")){ localStorage.setItem(KEY.TX,JSON.stringify(getDB().tx.filter(x=>x.ts!=editId))); closeModal('txModal'); render(); } }
-  function delHist(){ if(confirm("删除?")){ localStorage.setItem(KEY.HS,JSON.stringify(getDB().hs.filter(x=>x.date!=editHistDate))); closeModal('histModal'); render(); drawChart(); } }
+  function delHist(){ if(confirm("删除?")){ localStorage.setItem(KEY.HS,JSON.stringify(getDB().hs.filter(x=>x.ts!=editHistId))); closeModal('histModal'); render(); drawChart(); } }
   function calcG(){ const a=parseFloat(el('tAmt').value), p=parseFloat(el('tPrice').value); if(a&&p)el('tGrams').value=(a/p).toFixed(6); }
   
   function openModal(id){ el(id).classList.add('show'); }
   function closeModal(id){ el(id).classList.remove('show'); }
   function openTxModal(){ editId=null; el('tAmt').value=''; el('tPrice').value=''; el('tGrams').value=''; el('btnDelTx').style.display='none'; openModal('txModal'); }
   function editT(ts){ const t=getDB().tx.find(x=>x.ts==ts); if(!t)return; editId=ts; el('tDate').value=t.date; el('tAmt').value=t.amount; el('tPrice').value=t.price; el('tGrams').value=t.grams; el('btnDelTx').style.display='block'; openModal('txModal'); }
-  function openHistModal(){ editHistDate=null; el('hDate').value=new Date().toISOString().split('T')[0]; el('hTotalVal').value=''; el('btnDelHist').style.display='none'; openModal('histModal'); }
-  function editHist(d,v){ editHistDate=d; el('hDate').value=d; el('hTotalVal').value=v; el('btnDelHist').style.display='block'; openModal('histModal'); }
+  function openHistModal(){ editHistId=null; el('hDate').value=new Date().toISOString().split('T')[0]; el('hTime').value="10:00"; el('hTotalVal').value=''; el('btnDelHist').style.display='none'; openModal('histModal'); }
+  function editHist(ts){ const h=getDB().hs.find(x=>x.ts==ts); if(!h)return; editHistId=ts; el('hDate').value=h.date; el('hTime').value=h.time||"00:00"; el('hTotalVal').value=h.val; el('btnDelHist').style.display='block'; openModal('histModal'); }
   function openSettings(){ openModal('settingsModal'); }
   function switchTab(t){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); el('view-'+t).classList.add('active'); el('nav-home').className=t=='home'?'dock-btn active':'dock-btn'; el('nav-chart').className=t=='chart'?'dock-btn active':'dock-btn'; el('nav-cal').className=t=='cal'?'dock-btn active':'dock-btn'; el('fabBtn').style.display=t=='home'?'flex':'none'; if(t=='chart')drawChart(); if(t=='cal')renderCalendar(); }
   function exportData(){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(getDB())],{type:'application/json'})); a.download='backup.json'; a.click(); }
