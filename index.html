@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V39</title>
+  <title>TNG 黄金管家 V40</title>
   <style>
     :root{
       --primary: #007aff; 
@@ -96,15 +96,13 @@
     .stat-val { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
     .info-icon { position: absolute; top: 16px; right: 16px; opacity: 0.3; }
 
-    /* List Header */
+    /* Lists */
     .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .list-title { font-weight: 700; font-size: 15px; color: var(--text); }
     .sort-select {
       appearance: none; border: none; background: rgba(120,120,128,0.1); 
       color: var(--primary); font-size: 12px; padding: 6px 12px; border-radius: 8px; font-weight: 600; outline: none;
     }
-
-    /* Lists */
     .list-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 0.5px solid rgba(0,0,0,0.05); }
     .list-row:last-child { border-bottom: none; }
     .row-l { display: flex; flex-direction: column; gap: 4px; }
@@ -123,16 +121,18 @@
 
     /* Chart */
     .chart-scroll-wrapper { overflow-x: auto; padding-bottom: 10px; }
-    .chart-box { height: 300px; position: relative; margin-top: 10px; width: 100%; } /* Increased height for labels */
+    .chart-box { height: 320px; position: relative; margin-top: 10px; width: 100%; } /* Increased height */
     svg { width: 100%; height: 100%; overflow: visible; }
     
     .bar-val { fill: var(--primary); opacity: 0.9; rx: 3; }
     .bar-cost { fill: var(--cost-color); opacity: 0.9; rx: 3; }
     
-    /* New Label Styles */
-    .bar-label-text { font-size: 9px; font-weight: 700; text-anchor: middle; fill: var(--text); opacity: 0.8; }
+    /* Chart Labels */
+    .bar-label-text { font-size: 9px; font-weight: 700; text-anchor: middle; }
     .val-text { fill: var(--primary); }
     .cost-text { fill: var(--cost-color); }
+    .diff-text-pos { fill: var(--green); font-weight: 800; font-size: 10px; }
+    .diff-text-neg { fill: var(--red); font-weight: 800; font-size: 10px; }
 
     .axis-label { font-size: 10px; fill: var(--sub); }
     .grid-line { stroke: var(--text); stroke-opacity: 0.05; stroke-width: 1; stroke-dasharray: 4,4; }
@@ -254,7 +254,7 @@
 <div id="view-chart" class="view">
   <div class="glass-card" id="chartCard">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
-      <div style="font-weight:700; font-size:16px">资产走势 (数值直显)</div>
+      <div style="font-weight:700; font-size:16px">资产走势 (全透视)</div>
       <button style="font-size:12px; color:var(--primary); background:rgba(0,122,255,0.1); border:none; padding:6px 12px; border-radius:12px; font-weight:600" onclick="openHistModal()">+ 补录</button>
     </div>
     <div class="chart-legend">
@@ -382,7 +382,7 @@
 <script>
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401}];
   const PRELOAD_HIST = [{"ts":1770000000000,"date":"2026-01-22","time":"00:00","val":558.05},{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89}];
-  const KEY = { TX: 'tng_tx_v39', HS: 'tng_hs_v39', MK: 'tng_mk_v39' };
+  const KEY = { TX: 'tng_tx_v40', HS: 'tng_hs_v40', MK: 'tng_mk_v40' };
   const el = id => document.getElementById(id);
   
   let editId = null, editHistId = null, currentZoom = 1.0;
@@ -392,12 +392,7 @@
 
   function init(){
     if(!localStorage.getItem(KEY.TX)) localStorage.setItem(KEY.TX, JSON.stringify(PRELOAD_TX));
-    if(!localStorage.getItem(KEY.HS)) {
-        // Upgrade old history format to include ID and Time
-        const oldHs = JSON.parse(JSON.stringify(PRELOAD_HIST));
-        const newHs = oldHs.map((h,i) => ({...h, ts: Date.now()+i, time: "00:00"}));
-        localStorage.setItem(KEY.HS, JSON.stringify(newHs));
-    }
+    if(!localStorage.getItem(KEY.HS)) localStorage.setItem(KEY.HS, JSON.stringify(PRELOAD_HIST));
     el('tDate').value = new Date().toISOString().split('T')[0];
     const savedP = localStorage.getItem(KEY.MK);
     if(savedP) el('marketPrice').value = savedP;
@@ -507,10 +502,8 @@
       }
       const today = new Date();
       const isToday = (today.getFullYear()===y && today.getMonth()===m && today.getDate()===i);
-      
       const dateStr = `${y}-${(m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`;
       const isSelected = selectedDate === dateStr;
-
       html += `<div class="cal-cell ${isToday?'today':''} ${hasData?'has-tx':''} ${isSelected?'selected':''}" onclick="showCalDetail(${i}, this)">${i} ${dots}</div>`;
     }
     el('calDays').innerHTML = html;
@@ -519,21 +512,16 @@
   function showCalDetail(day, cell){
     document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('selected'));
     if(cell) cell.classList.add('selected');
-
     const tx = getDB().tx;
     const y = curCalYear, m = curCalMonth;
     const dateStr = `${y}-${(m+1).toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}`;
     selectedDate = dateStr;
-
     const dayTxs = tx.filter(t => t.date === dateStr);
-    
     el('calDetailDate').innerText = dateStr;
-    
     if(dayTxs.length === 0) {
         el('calDetailContent').innerHTML = '<div style="text-align:center;color:var(--sub);padding:10px">当日无交易记录</div>';
         return;
     }
-    
     let html = '';
     dayTxs.forEach(t => {
       const color = t.type==='buy' ? 'var(--green)' : 'var(--red)';
@@ -545,7 +533,6 @@
     el('calDetailContent').innerHTML = html;
   }
 
-  // --- Logic ---
   function openShareModal(){
     const {h, c} = getHoldingAt();
     const mp = parseFloat(el('marketPrice').value)||0;
@@ -596,9 +583,12 @@
     });
     
     const vals = data.map(d=>d.val).concat(data.map(d=>d.cost));
-    const min=Math.min(...vals)*0.98, max=Math.max(...vals)*1.02, h=300, w=box.offsetWidth*currentZoom;
+    const min=Math.min(...vals)*0.98, max=Math.max(...vals)*1.02, h=280, w=box.offsetWidth*currentZoom;
     
     let svg = `<svg style="width:${w}px;height:${h}px">`;
+    // Dual Bar Logic
+    // Step to avoid overcrowding labels
+    const step = Math.ceil(data.length / (5 * currentZoom));
     const groupW = w / data.length;
     const barW = Math.max(4, groupW * 0.35); 
     
@@ -609,23 +599,36 @@
         d 
     }));
     
+    // Cost Bar (Left)
     if(chartVis.cost){
-        svg += pts.map(p=>`<rect x="${p.x - barW}" y="${p.yCost}" width="${barW}" height="${h-30-p.yCost}" class="bar-cost" onclick="alert('${p.d.date} ${p.d.time} 成本: ${p.d.cost.toFixed(2)}')"></rect>`).join('');
+        svg += pts.map((p,i)=> {
+            let bar = `<rect x="${p.x - barW}" y="${p.yCost}" width="${barW}" height="${h-30-p.yCost}" class="bar-cost" onclick="alert('${p.d.date} ${p.d.time} 成本: ${p.d.cost.toFixed(2)}')"></rect>`;
+            // Cost Label
+            if(i % step === 0) bar += `<text x="${p.x - barW/2}" y="${p.yCost - 5}" class="bar-label-text cost-text">${p.d.cost.toFixed(0)}</text>`;
+            return bar;
+        }).join('');
     }
-    
-    // Improved Labels for Bar Chart (New Feature: Show Text on Bars)
+    // Value Bar (Right)
     if(chartVis.val){
-        // Calculate step to show labels to avoid overlap
-        const step = Math.ceil(data.length / (5 * currentZoom));
-        svg += pts.map((p, i) => {
-            const bar = `<rect x="${p.x}" y="${p.yVal}" width="${barW}" height="${h-30-p.yVal}" class="bar-val" onclick="alert('${p.d.date} ${p.d.time} 市值: ${p.d.val.toFixed(2)}')"></rect>`;
-            const label = (i % step === 0) ? `<text x="${p.x + barW/2}" y="${p.yVal - 5}" class="bar-label-text val-text">${p.d.val.toFixed(0)}</text>` : '';
-            return bar + label;
+        svg += pts.map((p,i)=> {
+            let bar = `<rect x="${p.x}" y="${p.yVal}" width="${barW}" height="${h-30-p.yVal}" class="bar-val" onclick="alert('${p.d.date} ${p.d.time} 市值: ${p.d.val.toFixed(2)}')"></rect>`;
+            // Value Label
+            if(i % step === 0) bar += `<text x="${p.x + barW/2}" y="${p.yVal - 5}" class="bar-label-text val-text">${p.d.val.toFixed(0)}</text>`;
+            
+            // Diff Label (Green/Red) on top of Value bar
+            if(i % step === 0) {
+                const diff = p.d.val - p.d.cost;
+                const diffY = Math.min(p.yVal, p.yCost) - 15; // Place above higher bar
+                const colorClass = diff >= 0 ? 'diff-text-pos' : 'diff-text-neg';
+                const sign = diff >= 0 ? '+' : '';
+                bar += `<text x="${p.x}" y="${diffY}" class="bar-label-text ${colorClass}" style="font-size:8px">${sign}${diff.toFixed(0)}</text>`;
+            }
+            return bar;
         }).join('');
     }
     
-    // X Axis Labels
-    svg += pts.map((p,i)=> (i%Math.ceil(data.length/(5*currentZoom))===0) ? `<text x="${p.x}" y="${h-10}" class="axis-label" style="text-anchor:middle">${p.d.date.slice(5)}</text>` : '').join('');
+    // Labels (X Axis)
+    svg += pts.map((p,i)=> (i%Math.ceil(data.length/(5*currentZoom))===0) ? `<text x="${p.x}" y="${h-5}" class="axis-label" style="text-anchor:middle">${p.d.date.slice(5)}</text>` : '').join('');
     
     box.innerHTML = svg + '</svg>';
   }
