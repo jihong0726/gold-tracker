@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V31</title>
+  <title>TNG 黄金管家 V33</title>
   <style>
     :root{
       --primary: #007aff; 
@@ -15,6 +15,7 @@
       --glass-border: 1px solid rgba(0,0,0,0.05);
       --glass-shadow: 0 4px 12px rgba(0,0,0,0.05);
       --nav-h: 65px; --safe-pb: env(safe-area-inset-bottom);
+      --green: #34c759; --red: #ff3b30;
     }
     @media (prefers-color-scheme: dark) {
       :root{
@@ -54,14 +55,23 @@
     }
     .app-title { font-size: 20px; font-weight: 700; }
 
-    /* Hero */
+    /* Hero - Updated for Profit Visibility */
     .hero-card {
       text-align: center; padding: 32px 20px;
       background: linear-gradient(135deg, #007aff, #0055ff);
       color: white; border: none; box-shadow: 0 8px 25px rgba(0,122,255,0.3);
+      position: relative;
     }
-    .hero-val { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin: 4px 0; }
+    .hero-label { font-size: 13px; opacity: 0.9; font-weight: 500; margin-bottom: 8px; }
+    .hero-val { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin: 4px 0 16px 0; }
     
+    /* New Profit Capsule */
+    .hero-pill { 
+      font-size: 13px; background: rgba(255,255,255,0.9); padding: 6px 14px; 
+      border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-weight: 600; color: #333;
+    }
+
     /* Inputs */
     .input-row {
       display: flex; justify-content: space-between; align-items: center;
@@ -84,17 +94,29 @@
     .stat-val { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
     .info-icon { position: absolute; top: 16px; right: 16px; opacity: 0.3; }
 
+    /* List Header */
+    .list-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+    }
+    .list-title { font-weight: 700; font-size: 15px; color: var(--text); }
+    .sort-select {
+      appearance: none; border: none; background: rgba(120,120,128,0.1); 
+      color: var(--primary); font-size: 12px; padding: 6px 12px; border-radius: 8px; font-weight: 600; outline: none;
+    }
+
     /* Lists */
     .list-row {
       display: flex; justify-content: space-between; align-items: center;
       padding: 16px 0; border-bottom: 0.5px solid rgba(0,0,0,0.05);
     }
     .list-row:last-child { border-bottom: none; }
+    .row-l { display: flex; flex-direction: column; gap: 4px; }
+    .row-r { text-align: right; display: flex; flex-direction: column; gap: 4px; }
     .tag { font-size: 10px; padding: 4px 8px; border-radius: 6px; font-weight: 700; margin-right: 8px; }
     .buy { background: rgba(52,199,89,0.15); color: #32ae50; }
     .sell { background: rgba(255,59,48,0.15); color: #ff3b30; }
 
-    /* Hist Item (New Layout) */
+    /* Hist Item */
     .hist-item { padding: 16px 0; border-bottom: 0.5px solid rgba(0,0,0,0.05); }
     .hist-top { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: center; }
     .hist-date { font-weight: 600; font-size: 16px; color: var(--text); }
@@ -110,7 +132,7 @@
     .dot { fill: #fff; stroke: var(--primary); stroke-width: 2.5; cursor: pointer; }
     .val-label { font-size: 10px; font-weight: 700; fill: var(--primary); text-anchor: middle; }
     .axis-label { font-size: 10px; fill: var(--sub); }
-    .grid-line { stroke: var(--text); stroke-opacity: 0.05; stroke-width: 1; }
+    .grid-line { stroke: var(--text); stroke-opacity: 0.05; stroke-width: 1; stroke-dasharray: 4,4; }
 
     /* Zoom */
     .zoom-ctrl { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.03); padding: 8px 12px; border-radius: 12px; }
@@ -154,6 +176,17 @@
     .calc-detail-box { background: rgba(120,120,128,0.05); padding: 16px; border-radius: 16px; font-size: 14px; line-height: 1.6; }
     .calc-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px; }
     .calc-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; font-weight: 700; font-size: 16px; color: var(--primary); }
+
+    /* Settings List Style (New) */
+    .settings-list { display: flex; flex-direction: column; gap: 0; border-radius: 16px; overflow: hidden; background: rgba(120,120,128,0.08); }
+    .settings-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px; background: transparent; border: none; width: 100%; text-align: left;
+      font-size: 16px; color: var(--text); border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer;
+    }
+    .settings-item:last-child { border-bottom: none; }
+    .settings-item:active { background: rgba(0,0,0,0.05); }
+    .settings-icon { font-size: 18px; margin-right: 12px; }
   </style>
 </head>
 <body>
@@ -167,7 +200,9 @@
   <div class="glass-card hero-card">
     <div class="hero-label">当前持仓总值 (RM)</div>
     <div class="hero-val" id="kpiVal">0.00</div>
-    <div class="hero-pill" id="kpiProfit">盈亏: ---</div>
+    <div class="hero-pill" id="kpiProfit">
+      盈亏: ---
+    </div>
   </div>
 
   <div class="input-row">
@@ -194,7 +229,15 @@
   </div>
 
   <div class="glass-card">
-    <div style="font-weight:700; margin-bottom:16px; color:var(--text); font-size:15px">最近交易</div>
+    <div class="list-header">
+      <div class="list-title">最近交易</div>
+      <select id="sortSelect" class="sort-select" onchange="changeSort()">
+        <option value="date-desc">时间 ↓ (新到旧)</option>
+        <option value="date-asc">时间 ↑ (旧到新)</option>
+        <option value="price-desc">单价 ↓ (高到低)</option>
+        <option value="price-asc">单价 ↑ (低到高)</option>
+      </select>
+    </div>
     <div id="txList"></div>
   </div>
 </div>
@@ -213,7 +256,6 @@
       <div class="chart-box" id="trendChart"></div>
     </div>
   </div>
-  
   <div class="glass-card">
     <div style="font-weight:700; font-size:15px; margin-bottom:12px; color:var(--text)">历史回溯详情</div>
     <div id="histList"></div>
@@ -274,16 +316,22 @@
 
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-card">
-    <h3 style="text-align:center; margin-bottom:20px">数据管理</h3>
-    <div style="display:flex; flex-direction:column; gap:10px">
-      <button class="form-input" style="text-align:left; background:white" onclick="exportData()">📤 备份数据</button>
+    <h3 style="text-align:center; margin-bottom:24px">数据管理</h3>
+    <div class="settings-list">
+      <button class="settings-item" onclick="exportData()">
+        <span>📤 备份数据 (导出 JSON)</span>
+      </button>
       <div style="position:relative">
-        <button class="form-input" style="text-align:left; background:white">📥 恢复备份</button>
-        <input type="file" onchange="importData(this)" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0">
+        <button class="settings-item">
+          <span>📥 恢复备份 (导入 JSON)</span>
+        </button>
+        <input type="file" onchange="importData(this)" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer">
       </div>
-      <button class="form-input" style="text-align:left; color:#ff3b30; background:white" onclick="resetAll()">🗑️ 清空所有数据</button>
+      <button class="settings-item" onclick="resetAll()">
+        <span style="color:var(--red)">🗑️ 清空所有数据</span>
+      </button>
     </div>
-    <button class="btn-main" onclick="closeModal('settingsModal')">关闭</button>
+    <button class="btn-main" onclick="closeModal('settingsModal')" style="background:#eee; color:#333; margin-top:20px">关闭</button>
   </div>
 </div>
 
@@ -291,11 +339,12 @@
   // Data Init
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401}];
   const PRELOAD_HIST = [{"date":"2026-01-22","val":558.05},{"date":"2026-01-23","val":1547.97},{"date":"2026-01-24","val":1559.44},{"date":"2026-01-25","val":1558.89}];
-  const KEY = { TX: 'tng_tx_v31', HS: 'tng_hs_v31', MK: 'tng_mk_v31' };
+  const KEY = { TX: 'tng_tx_v33', HS: 'tng_hs_v33', MK: 'tng_mk_v33' };
   const el = id => document.getElementById(id);
   
   let editId = null, editHistDate = null;
   let currentZoom = 1.0;
+  let sortMode = 'date-desc';
 
   function init(){
     if(!localStorage.getItem(KEY.TX)) localStorage.setItem(KEY.TX, JSON.stringify(PRELOAD_TX));
@@ -308,32 +357,16 @@
 
   function getDB(){ return { tx: JSON.parse(localStorage.getItem(KEY.TX)||'[]'), hs: JSON.parse(localStorage.getItem(KEY.HS)||'[]') }; }
   
-  // 核心计算修复：历史持仓精确回溯
-  // 逻辑：只统计 dateStr 当天及之前的交易
   function getHoldingAt(dateStr = null){
-    // 按时间升序排列，模拟历史进程
-    const tx = getDB().tx.sort((a,b)=> {
-      if(a.date !== b.date) return a.date > b.date ? 1 : -1;
-      return a.ts - b.ts;
-    });
-    
+    const tx = getDB().tx.sort((a,b)=>a.date>b.date?1:-1);
     let h = 0, totalCost = 0;
-    
     for(let t of tx){
-      // 关键修正：严格判断日期
       if(dateStr && t.date > dateStr) break;
-      
       const g = Number(t.grams);
       const a = Number(t.amount);
-      
-      if(t.type === 'buy'){
-        h += g;
-        totalCost += a;
-      } else { 
-        if(h > 0){
-          const avg = totalCost / h;
-          totalCost -= (g * avg);
-        }
+      if(t.type === 'buy'){ h += g; totalCost += a; }
+      else { 
+        if(h > 0){ const avg = totalCost / h; totalCost -= (g * avg); }
         h -= g; 
       }
     }
@@ -342,7 +375,6 @@
   }
 
   function render(){
-    // 渲染首页当前状态（无日期参数，计算所有）
     const {h, c} = getHoldingAt();
     const mp = parseFloat(el('marketPrice').value)||0;
     const avg = h > 0 ? (c / h) : 0;
@@ -354,43 +386,46 @@
       const val = h * mp;
       const profit = val - c;
       const pct = c > 0 ? (profit / c) * 100 : 0;
-      const color = profit >= 0 ? '#007aff' : '#ff3b30';
+      const color = profit >= 0 ? 'var(--green)' : 'var(--red)';
       const sign = profit >= 0 ? '+' : '';
+      
       el('kpiVal').innerText = val.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+      // New Capsule Logic
       el('kpiProfit').innerHTML = `盈亏 <strong style="color:${color}; margin-left:4px">RM ${sign}${profit.toFixed(2)} (${pct.toFixed(2)}%)</strong>`;
     } else {
       el('kpiVal').innerText = '0.00';
       el('kpiProfit').innerText = '盈亏: ---';
     }
 
+    // Sort
+    let txs = getDB().tx;
+    if(sortMode === 'date-desc') txs.sort((a,b) => b.ts - a.ts);
+    else if(sortMode === 'date-asc') txs.sort((a,b) => a.ts - b.ts);
+    else if(sortMode === 'price-desc') txs.sort((a,b) => b.price - a.price);
+    else if(sortMode === 'price-asc') txs.sort((a,b) => a.price - b.price);
+
     const list = el('txList'); list.innerHTML = '';
-    getDB().tx.sort((a,b)=>b.ts - a.ts).slice(0, 10).forEach(t => {
+    txs.slice(0, 10).forEach(t => {
       list.innerHTML += `<div class="list-row" onclick="editT(${t.ts})">
           <div class="row-l"><div style="font-weight:600;font-size:16px;color:var(--text)"><span class="tag ${t.type}">${t.type==='buy'?'买':'卖'}</span>RM ${Number(t.amount).toFixed(2)}</div><div style="font-size:12px;color:var(--sub)">${t.date}</div></div>
           <div class="row-r"><div style="font-weight:700;font-size:15px;color:var(--text)">${Number(t.grams).toFixed(6)} g</div><div style="font-size:12px;color:var(--sub)">@ ${Number(t.price).toFixed(2)}</div></div></div>`;
     });
 
     const hList = el('histList'); hList.innerHTML = '';
-    // 历史列表：每一项都要独立调用 getHoldingAt(h.date) 来计算当天的持仓
     getDB().hs.sort((a,b)=>b.date > a.date ? 1 : -1).forEach(h => {
-      const stats = getHoldingAt(h.date); 
+      const stats = getHoldingAt(h.date);
       const impliedPrice = stats.h > 0 ? (h.val / stats.h) : 0;
-      
-      hList.innerHTML += `
-        <div class="hist-item" onclick="editHist('${h.date}', ${h.val})">
-          <div class="hist-top">
-            <div class="hist-date">${h.date}</div>
-            <div class="hist-val">RM ${Number(h.val).toFixed(2)}</div>
-          </div>
-          <div class="hist-btm">
-            <span>持仓 ${stats.h.toFixed(6)}g</span>
-            <span>约 ${impliedPrice.toFixed(2)}/g</span>
-          </div>
-        </div>`;
+      hList.innerHTML += `<div class="hist-item" onclick="editHist('${h.date}', ${h.val})">
+        <div class="hist-top"><div class="hist-date">${h.date}</div><div class="hist-val">RM ${Number(h.val).toFixed(2)}</div></div>
+        <div class="hist-btm"><span>持仓 ${stats.h.toFixed(6)}g</span><span>约 ${impliedPrice.toFixed(2)}/g</span></div></div>`;
     });
   }
 
-  // --- Calc Detail Modal Logic ---
+  function changeSort(){
+    sortMode = el('sortSelect').value;
+    render();
+  }
+
   function showCalcDetail(){
     const {h, c} = getHoldingAt();
     const avg = h > 0 ? (c / h) : 0;
@@ -411,7 +446,6 @@
     const box = el('trendChart'); box.innerHTML = '';
     if(hs.length < 2) { box.innerHTML = '<div style="text-align:center;padding-top:120px;font-size:12px;color:var(--sub)">暂无足够数据</div>'; return; }
     
-    // 图表数据准备：每一个历史点，都要算出当时的 Cost
     const data = hs.sort((a,b) => a.date > b.date ? 1 : -1).map(h => {
       const stats = getHoldingAt(h.date);
       return { date: h.date, val: h.val, cost: stats.c };
