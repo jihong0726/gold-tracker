@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V40</title>
+  <title>TNG 黄金管家 V41</title>
   <style>
     :root{
       --primary: #007aff; 
@@ -96,7 +96,7 @@
     .stat-val { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
     .info-icon { position: absolute; top: 16px; right: 16px; opacity: 0.3; }
 
-    /* Lists */
+    /* List Header */
     .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .list-title { font-weight: 700; font-size: 15px; color: var(--text); }
     .sort-select {
@@ -119,16 +119,23 @@
     .hist-val { font-weight: 700; font-size: 16px; color: var(--primary); }
     .hist-btm { display: flex; justify-content: space-between; font-size: 12px; color: var(--sub); }
 
-    /* Chart */
+    /* Chart Header */
+    .chart-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .chart-title { font-weight: 700; font-size: 16px; }
+    .zoom-group { display: flex; gap: 4px; background: rgba(120,120,128,0.1); border-radius: 8px; padding: 2px; }
+    .zoom-btn { width: 32px; height: 32px; border: none; background: transparent; font-size: 18px; color: var(--primary); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .zoom-btn:active { background: white; shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+    /* Chart Area */
     .chart-scroll-wrapper { overflow-x: auto; padding-bottom: 10px; }
-    .chart-box { height: 320px; position: relative; margin-top: 10px; width: 100%; } /* Increased height */
+    .chart-box { height: 320px; position: relative; margin-top: 10px; width: 100%; transition: width 0.3s ease; }
     svg { width: 100%; height: 100%; overflow: visible; }
     
-    .bar-val { fill: var(--primary); opacity: 0.9; rx: 3; }
-    .bar-cost { fill: var(--cost-color); opacity: 0.9; rx: 3; }
+    .bar-val { fill: var(--primary); opacity: 0.9; rx: 2; }
+    .bar-cost { fill: var(--cost-color); opacity: 0.9; rx: 2; }
     
     /* Chart Labels */
-    .bar-label-text { font-size: 9px; font-weight: 700; text-anchor: middle; }
+    .bar-label-text { font-size: 9px; font-weight: 600; text-anchor: middle; font-family: monospace; letter-spacing: -0.5px; }
     .val-text { fill: var(--primary); }
     .cost-text { fill: var(--cost-color); }
     .diff-text-pos { fill: var(--green); font-weight: 800; font-size: 10px; }
@@ -139,11 +146,6 @@
     .chart-legend { display: flex; justify-content: center; gap: 20px; margin-bottom: 10px; }
     .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--sub); cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: 0.2s; }
     .legend-item.hidden { opacity: 0.4; filter: grayscale(1); }
-
-    /* Zoom */
-    .zoom-ctrl { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.03); padding: 8px 12px; border-radius: 12px; }
-    .zoom-label { font-size: 11px; color: var(--sub); font-weight: 600; white-space: nowrap; }
-    input[type=range] { width: 100%; accent-color: var(--primary); }
 
     /* Calendar */
     .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-weight: 700; font-size: 16px; }
@@ -253,18 +255,22 @@
 
 <div id="view-chart" class="view">
   <div class="glass-card" id="chartCard">
+    <div class="chart-head-row">
+      <div class="chart-title">资产走势 (2位小数)</div>
+      <div class="zoom-group">
+        <button class="zoom-btn" onclick="changeZoom(-0.5)">−</button>
+        <button class="zoom-btn" onclick="changeZoom(0.5)">+</button>
+      </div>
+    </div>
+    
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
-      <div style="font-weight:700; font-size:16px">资产走势 (全透视)</div>
+      <div class="chart-legend">
+        <div class="legend-item" id="lg-val" onclick="toggleChart('val')"><div style="width:12px;height:12px;background:var(--primary);border-radius:2px"></div> 市值</div>
+        <div class="legend-item" id="lg-cost" onclick="toggleChart('cost')"><div style="width:12px;height:12px;background:var(--cost-color);border-radius:2px"></div> 成本</div>
+      </div>
       <button style="font-size:12px; color:var(--primary); background:rgba(0,122,255,0.1); border:none; padding:6px 12px; border-radius:12px; font-weight:600" onclick="openHistModal()">+ 补录</button>
     </div>
-    <div class="chart-legend">
-      <div class="legend-item" id="lg-val" onclick="toggleChart('val')"><div style="width:12px;height:12px;background:var(--primary);border-radius:2px"></div> 市值</div>
-      <div class="legend-item" id="lg-cost" onclick="toggleChart('cost')"><div style="width:16px;height:2px;background:var(--cost-color);border:1px dashed var(--cost-color)"></div> 成本</div>
-    </div>
-    <div class="zoom-ctrl">
-      <div class="zoom-label">🔍 缩放</div>
-      <input type="range" id="zoomSlider" min="1" max="5" step="0.1" value="1" oninput="updateZoom()">
-    </div>
+
     <div class="chart-scroll-wrapper">
       <div class="chart-box" id="trendChart"></div>
     </div>
@@ -382,7 +388,7 @@
 <script>
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401}];
   const PRELOAD_HIST = [{"ts":1770000000000,"date":"2026-01-22","time":"00:00","val":558.05},{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89}];
-  const KEY = { TX: 'tng_tx_v40', HS: 'tng_hs_v40', MK: 'tng_mk_v40' };
+  const KEY = { TX: 'tng_tx_v41', HS: 'tng_hs_v41', MK: 'tng_mk_v41' };
   const el = id => document.getElementById(id);
   
   let editId = null, editHistId = null, currentZoom = 1.0;
@@ -392,7 +398,11 @@
 
   function init(){
     if(!localStorage.getItem(KEY.TX)) localStorage.setItem(KEY.TX, JSON.stringify(PRELOAD_TX));
-    if(!localStorage.getItem(KEY.HS)) localStorage.setItem(KEY.HS, JSON.stringify(PRELOAD_HIST));
+    if(!localStorage.getItem(KEY.HS)) {
+        const oldHs = JSON.parse(JSON.stringify(PRELOAD_HIST));
+        const newHs = oldHs.map((h,i) => ({...h, ts: Date.now()+i, time: "00:00"}));
+        localStorage.setItem(KEY.HS, JSON.stringify(newHs));
+    }
     el('tDate').value = new Date().toISOString().split('T')[0];
     const savedP = localStorage.getItem(KEY.MK);
     if(savedP) el('marketPrice').value = savedP;
@@ -568,7 +578,12 @@
       render(); switchTab('chart'); 
   }
   function toggleChart(t){ chartVis[t]=!chartVis[t]; el('lg-'+t).className=chartVis[t]?'legend-item':'legend-item hidden'; drawChart(); }
-  function updateZoom(){ currentZoom=parseFloat(el('zoomSlider').value); drawChart(); }
+  function changeZoom(delta){
+      currentZoom += delta;
+      if(currentZoom < 0.5) currentZoom = 0.5;
+      if(currentZoom > 5) currentZoom = 5;
+      drawChart();
+  }
   function changeSort(){ sortMode=el('sortSelect').value; render(); }
   function showCalcDetail(){ const {h,c}=getHoldingAt(); const avg=h>0?(c/h):0; el('detailCost').innerText="RM "+c.toFixed(2); el('detailGrams').innerText=h.toFixed(6)+" g"; el('detailAvg').innerText="RM "+avg.toFixed(2)+" /g"; openModal('calcDetailModal'); }
 
@@ -583,11 +598,9 @@
     });
     
     const vals = data.map(d=>d.val).concat(data.map(d=>d.cost));
-    const min=Math.min(...vals)*0.98, max=Math.max(...vals)*1.02, h=280, w=box.offsetWidth*currentZoom;
+    const min=Math.min(...vals)*0.98, max=Math.max(...vals)*1.02, h=320, w=box.offsetWidth*currentZoom;
     
     let svg = `<svg style="width:${w}px;height:${h}px">`;
-    // Dual Bar Logic
-    // Step to avoid overcrowding labels
     const step = Math.ceil(data.length / (5 * currentZoom));
     const groupW = w / data.length;
     const barW = Math.max(4, groupW * 0.35); 
@@ -599,36 +612,31 @@
         d 
     }));
     
-    // Cost Bar (Left)
+    // Cost
     if(chartVis.cost){
         svg += pts.map((p,i)=> {
             let bar = `<rect x="${p.x - barW}" y="${p.yCost}" width="${barW}" height="${h-30-p.yCost}" class="bar-cost" onclick="alert('${p.d.date} ${p.d.time} 成本: ${p.d.cost.toFixed(2)}')"></rect>`;
-            // Cost Label
-            if(i % step === 0) bar += `<text x="${p.x - barW/2}" y="${p.yCost - 5}" class="bar-label-text cost-text">${p.d.cost.toFixed(0)}</text>`;
+            if(i % step === 0) bar += `<text x="${p.x - barW/2}" y="${p.yCost - 5}" class="bar-label-text cost-text">${p.d.cost.toFixed(2)}</text>`;
             return bar;
         }).join('');
     }
-    // Value Bar (Right)
+    // Value + Diff
     if(chartVis.val){
         svg += pts.map((p,i)=> {
             let bar = `<rect x="${p.x}" y="${p.yVal}" width="${barW}" height="${h-30-p.yVal}" class="bar-val" onclick="alert('${p.d.date} ${p.d.time} 市值: ${p.d.val.toFixed(2)}')"></rect>`;
-            // Value Label
-            if(i % step === 0) bar += `<text x="${p.x + barW/2}" y="${p.yVal - 5}" class="bar-label-text val-text">${p.d.val.toFixed(0)}</text>`;
-            
-            // Diff Label (Green/Red) on top of Value bar
             if(i % step === 0) {
+                bar += `<text x="${p.x + barW/2}" y="${p.yVal - 5}" class="bar-label-text val-text">${p.d.val.toFixed(2)}</text>`;
                 const diff = p.d.val - p.d.cost;
-                const diffY = Math.min(p.yVal, p.yCost) - 15; // Place above higher bar
+                const diffY = Math.min(p.yVal, p.yCost) - 15;
                 const colorClass = diff >= 0 ? 'diff-text-pos' : 'diff-text-neg';
                 const sign = diff >= 0 ? '+' : '';
-                bar += `<text x="${p.x}" y="${diffY}" class="bar-label-text ${colorClass}" style="font-size:8px">${sign}${diff.toFixed(0)}</text>`;
+                bar += `<text x="${p.x}" y="${diffY}" class="bar-label-text ${colorClass}" style="font-size:8px">${sign}${diff.toFixed(2)}</text>`;
             }
             return bar;
         }).join('');
     }
     
-    // Labels (X Axis)
-    svg += pts.map((p,i)=> (i%Math.ceil(data.length/(5*currentZoom))===0) ? `<text x="${p.x}" y="${h-5}" class="axis-label" style="text-anchor:middle">${p.d.date.slice(5)}</text>` : '').join('');
+    svg += pts.map((p,i)=> (i%Math.ceil(data.length/(5*currentZoom))===0) ? `<text x="${p.x}" y="${h-10}" class="axis-label" style="text-anchor:middle">${p.d.date.slice(5)}</text>` : '').join('');
     
     box.innerHTML = svg + '</svg>';
   }
