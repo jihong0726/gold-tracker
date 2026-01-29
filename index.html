@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V51</title>
+  <title>TNG 黄金管家 V52</title>
   <style>
     :root{
       --primary: #007aff; 
@@ -16,12 +16,14 @@
       --glass-shadow: 0 4px 12px rgba(0,0,0,0.05);
       --nav-h: 65px; --safe-pb: env(safe-area-inset-bottom);
       --green: #34c759; --red: #ff3b30;
+      --bg-color: #f2f2f7;
     }
     @media (prefers-color-scheme: dark) {
       :root{
         --text: #f2f2f7; --sub: #98989d;
         --glass-bg: #1c1c1e;
         --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+        --bg-color: #000;
       }
     }
 
@@ -29,13 +31,12 @@
     
     body {
       margin: 0; 
-      background: #f2f2f7; 
+      background: var(--bg-color); 
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
       padding-bottom: calc(var(--nav-h) + 20px + var(--safe-pb));
       user-select: none; -webkit-font-smoothing: antialiased;
     }
-    @media (prefers-color-scheme: dark) { body { background: #000; } }
 
     .view { display: none; padding: 20px; padding-top: 60px; animation: fadeIn 0.3s; }
     .view.active { display: block; }
@@ -140,26 +141,28 @@
     .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--sub); cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: 0.2s; }
     .legend-item.hidden { opacity: 0.4; filter: grayscale(1); }
 
-    /* SIMULATOR STYLES - STABLE LAYOUT */
-    .sim-toggle { display: flex; background: rgba(120,120,128,0.1); padding: 4px; border-radius: 12px; margin-bottom: 16px; }
-    .sim-tab { flex: 1; text-align: center; padding: 8px; font-size: 13px; font-weight: 600; border-radius: 8px; color: var(--sub); transition: 0.2s; }
+    /* SIMULATOR STYLES - 3 PART LAYOUT */
+    .sim-top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .sim-card-top { background: var(--glass-bg); border-radius: 16px; padding: 16px; box-shadow: var(--glass-shadow); border: var(--glass-border); display: flex; flex-direction: column; justify-content: center; height: 100%; }
+    .sim-card-top.right { background: rgba(0,122,255,0.05); border: 1px solid rgba(0,122,255,0.1); }
+    
+    .sim-title-sm { font-size: 12px; color: var(--sub); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; }
+    .sim-big-val { font-size: 20px; font-weight: 800; margin-bottom: 2px; color: var(--text); }
+    .sim-sub-val { font-size: 12px; color: var(--sub); }
+    .sim-tag { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-top: 6px; font-weight: 700; }
+    .sim-tag.green { background: rgba(52,199,89,0.15); color: var(--green); }
+    .sim-tag.red { background: rgba(255,59,48,0.15); color: var(--red); }
+    
+    .sim-extra-info { margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(0,0,0,0.05); font-size: 12px; }
+    .sim-row-sm { display: flex; justify-content: space-between; margin-bottom: 4px; }
+
+    .sim-input-area { background: var(--glass-bg); border-radius: 20px; padding: 24px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); border: var(--glass-border); }
+    
+    .sim-toggle { display: flex; background: rgba(120,120,128,0.1); padding: 4px; border-radius: 12px; margin-bottom: 20px; }
+    .sim-tab { flex: 1; text-align: center; padding: 10px; font-size: 13px; font-weight: 600; border-radius: 8px; color: var(--sub); transition: 0.2s; }
     .sim-tab.active { background: var(--glass-bg); color: var(--text); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-    
-    .sim-compare-grid { display: grid; grid-template-columns: 1fr 30px 1fr; gap: 4px; align-items: center; margin-bottom: 20px; text-align: center; }
-    .sim-box { background: var(--glass-bg); border: var(--glass-border); box-shadow: var(--glass-shadow); border-radius: 16px; padding: 16px 8px; }
-    .sim-box-title { font-size: 11px; color: var(--sub); margin-bottom: 4px; font-weight:600; text-transform: uppercase; }
-    .sim-box-val { font-size: 18px; font-weight: 800; color: var(--text); }
-    .sim-box-sub { font-size: 11px; color: var(--sub); margin-top: 2px; }
-    .sim-arrow { font-size: 20px; color: var(--sub); opacity: 0.5; }
-    .sim-res-highlight { color: var(--primary); }
-    
-    .sim-input-card { background: rgba(120,120,128,0.05); border-radius: 16px; padding: 20px; margin-top: 20px; }
-    .sim-data-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size:13px; color:var(--text); }
-    .sim-label { color: var(--sub); }
-    .sim-val-bold { font-weight: 700; }
-    .sim-profit-box { margin-top: 16px; padding: 12px; background: rgba(52,199,89,0.1); border-radius: 12px; display:flex; justify-content:space-between; align-items:center; }
-    .sim-profit-val { font-weight: 800; color: var(--green); font-size: 16px; }
-    .sim-hint { font-size: 12px; color: var(--cost-color); margin-top: 4px; font-weight: 500; display: none; }
+
+    .sim-hint { font-size: 12px; color: var(--cost-color); margin-top: 6px; font-weight: 500; display: none; background: rgba(255,159,10,0.1); padding: 8px; border-radius: 8px; }
 
     /* Calendar */
     .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-weight: 700; font-size: 16px; }
@@ -308,38 +311,35 @@
 </div>
 
 <div id="view-sim" class="view">
-  <div class="sim-compare-grid">
-    <div class="sim-box">
-      <div class="sim-box-title">当前成本</div>
-      <div class="sim-box-val" id="simCurAvg">--</div>
-      <div class="sim-box-sub" id="simCurHold">-- g</div>
+  <div class="sim-top-row">
+    <div class="sim-card-top left">
+      <div class="sim-title-sm">当前状态</div>
+      <div class="sim-big-val" id="simCurAvg">--</div>
+      <div class="sim-sub-val" id="simCurHold">-- g</div>
     </div>
-    <div class="sim-arrow">➔</div>
-    <div class="sim-box" style="background:var(--glass-bg)">
-      <div class="sim-box-title">推演后成本</div>
-      <div class="sim-box-val sim-res-highlight" id="simNewAvg">--</div>
-      <div class="sim-box-sub" id="simNewHold">-- g</div>
-    </div>
-  </div>
-
-  <div class="glass-card" id="simResultCard">
-    <div class="sim-data-row">
-      <span class="sim-label">回本起跑线</span>
-      <span class="sim-val-bold" id="resBreakEven">--</span>
-    </div>
-    <div class="sim-profit-box" id="simProfitBox" style="display:none">
-        <span style="font-size:13px;color:#2d6a4f">若未来涨至 <span id="resSellPrice" style="font-weight:700">--</span></span>
-        <div style="text-align:right">
-            <div class="sim-profit-val" id="resNetProfit">RM 0.00</div>
-            <div style="font-size:11px;color:#2d6a4f;opacity:0.8" id="resROI">0.00%</div>
+    
+    <div class="sim-card-top right">
+      <div class="sim-title-sm" style="color:var(--primary)">推演结果</div>
+      <div class="sim-big-val" style="color:var(--primary)" id="simNewAvg">--</div>
+      <div class="sim-sub-val" id="simNewHold">-- g</div>
+      
+      <div class="sim-extra-info">
+        <div class="sim-row-sm">
+            <span>回本需涨</span>
+            <span style="font-weight:700" id="resBreakEven">--</span>
         </div>
+        <div class="sim-row-sm" id="rowProfit" style="display:none">
+            <span>预计利润</span>
+            <span style="font-weight:700;color:var(--green)" id="resNetProfit">--</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="sim-input-card">
+  <div class="sim-input-area">
     <div class="sim-toggle">
-        <div class="sim-tab active" id="tab-mode-amt" onclick="setSimMode('amt')">按投入金额</div>
-        <div class="sim-tab" id="tab-mode-target" onclick="setSimMode('target')">按目标成本</div>
+        <div class="sim-tab active" id="tab-mode-amt" onclick="setSimMode('amt')">按金额推演</div>
+        <div class="sim-tab" id="tab-mode-target" onclick="setSimMode('target')">按目标反推</div>
     </div>
 
     <div class="form-group">
@@ -352,8 +352,8 @@
       <input type="number" id="simAmt" class="form-input" placeholder="准备买多少钱?" oninput="runSim()">
     </div>
     <div class="form-group" id="input-grp-target" style="display:none">
-      <label class="form-label">想把成本降到多少 (RM/g)</label>
-      <input type="number" id="simTargetCost" class="form-input" placeholder="目标平均价" oninput="runSim()">
+      <label class="form-label">目标平均成本 (RM/g)</label>
+      <input type="number" id="simTargetCost" class="form-input" placeholder="想降到多少?" oninput="runSim()">
       <div class="sim-hint" id="simHintTarget"></div>
     </div>
 
@@ -455,7 +455,7 @@
 <script>
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401},{"ts":1769679188602,"type":"buy","date":"2025-04-23","amount":10,"grams":0.021294,"price":469.623106},{"ts":1769679209117,"type":"buy","date":"2025-05-10","amount":10,"grams":0.021391,"price":467.48292}];
   const PRELOAD_HIST = [{"ts":1770000000000,"date":"2026-01-22","time":"00:00","val":558.05},{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89},{"ts":1769570138096,"date":"2026-01-26","time":"10:00","val":1580.48},{"ts":1769570149763,"date":"2026-01-27","time":"10:00","val":1571.57},{"ts":1769570157362,"date":"2026-01-28","time":"10:00","val":1597.82},{"ts":1769679309649,"date":"2026-01-29","time":"10:00","val":1623.05},{"ts":1769679322265,"date":"2026-01-29","time":"11:00","val":1627.36},{"ts":1769679331450,"date":"2026-01-29","time":"12:00","val":1708.71},{"ts":1769679360449,"date":"2026-01-29","time":"17:00","val":1696.79}];
-  const KEY = { TX: 'tng_tx_v51', HS: 'tng_hs_v51', MK: 'tng_mk_v51' };
+  const KEY = { TX: 'tng_tx_v52', HS: 'tng_hs_v52', MK: 'tng_mk_v52' };
   const el = id => document.getElementById(id);
   
   let editId = null, editHistId = null, currentZoom = 1.0;
@@ -540,7 +540,7 @@
     }
   }
 
-  // --- Simulator (FIXED LOGIC) ---
+  // --- Simulator (Optimized) ---
   function setSimMode(m){
       simMode = m;
       el('tab-mode-amt').className = m=='amt' ? 'sim-tab active' : 'sim-tab';
@@ -558,8 +558,8 @@
       
       el('simCurAvg').innerText = "RM " + curAvg.toFixed(2);
       el('simCurHold').innerText = h.toFixed(4) + " g";
-      el('simProfitBox').style.display = 'none';
       el('simHintTarget').style.display = 'none';
+      el('rowProfit').style.display = 'none';
 
       let simAmt = 0;
       let valid = false;
@@ -571,21 +571,18 @@
           } else {
               const targetCost = parseFloat(el('simTargetCost').value);
               if(targetCost > 0){
-                  // Smart Hint Logic
+                  // Logic Fix & Smart Hint
                   if(targetCost < curAvg){
                       el('simHintTarget').style.display = 'block';
                       el('simHintTarget').innerText = `💡 提示：买入价必须低于 RM ${targetCost.toFixed(2)} 才能实现`;
                   }
                   
                   if(targetCost < curAvg && simP < targetCost){ 
-                      // Only valid if BuyPrice < Target < Current
-                      // X = (T*H - C) / (1 - T/P)
                       if(Math.abs(1 - targetCost/simP) > 0.001){
                           simAmt = (targetCost*h - c) / (1 - targetCost/simP);
                           if(simAmt > 0) valid = true;
                       }
                   } else if (targetCost > curAvg && simP > targetCost) {
-                      // Pulling UP the average (rare case)
                       simAmt = (targetCost*h - c) / (1 - targetCost/simP);
                       if(simAmt > 0) valid = true;
                   }
@@ -604,27 +601,18 @@
           
           // Break Even
           const riseNeed = ((newAvg - simP) / simP) * 100;
-          if(newAvg > simP) el('resBreakEven').innerHTML = `需涨 <span style="color:var(--red)">${riseNeed.toFixed(2)}%</span> 回本`;
-          else el('resBreakEven').innerHTML = `当前已盈利 <span style="color:var(--green)">${Math.abs(riseNeed).toFixed(2)}%</span>`;
+          if(newAvg > simP) el('resBreakEven').innerHTML = `需涨 <span style="color:var(--red);font-weight:700">${riseNeed.toFixed(2)}%</span> 回本`;
+          else el('resBreakEven').innerHTML = `当前已盈 <span style="color:var(--green);font-weight:700">${Math.abs(riseNeed).toFixed(2)}%</span>`;
 
           if(sellP > 0){
               const revenue = totalH * sellP;
               const profit = revenue - totalC;
-              const roi = (profit / totalC) * 100;
-              el('resSellPrice').innerText = "RM " + sellP.toFixed(2);
+              el('rowProfit').style.display = 'flex';
               el('resNetProfit').innerText = (profit>=0?'+':'') + "RM " + profit.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
               el('resNetProfit').style.color = profit>=0 ? 'var(--green)' : 'var(--red)';
-              el('resROI').innerText = roi.toFixed(2) + "%";
-              el('simProfitBox').style.display = 'flex';
-          }
-          
-          if(simMode === 'target') {
-              el('simAmt').value = simAmt; // Optional: Show calculated amt? Or maybe not needed.
-              // Just displaying result in grid is enough.
           }
 
       } else {
-          // Keep showing "--" but don't hide the card
           el('simNewAvg').innerText = "--";
           el('simNewHold').innerText = "-- g";
           el('resBreakEven').innerText = "--";
@@ -771,21 +759,19 @@
     if(chartVis.cost){
         svg += pts.map((p,i)=> {
             let bar = `<rect x="${p.x - barW}" y="${p.yCost}" width="${barW}" height="${h-30-p.yCost}" class="bar-cost" onclick="alert('${p.d.date} ${p.d.time} 成本: ${p.d.cost.toFixed(2)}')"></rect>`;
-            if(i % step === 0) bar += `<text x="${p.x - barW/2}" y="${p.yCost - 5}" class="bar-label-text cost-text">${p.d.cost.toFixed(2)}</text>`;
+            bar += `<text x="${p.x - barW/2}" y="${p.yCost - 5}" class="bar-label-text cost-text">${p.d.cost.toFixed(2)}</text>`;
             return bar;
         }).join('');
     }
     if(chartVis.val){
         svg += pts.map((p,i)=> {
             let bar = `<rect x="${p.x}" y="${p.yVal}" width="${barW}" height="${h-30-p.yVal}" class="bar-val" onclick="alert('${p.d.date} ${p.d.time} 市值: ${p.d.val.toFixed(2)}')"></rect>`;
-            if(i % step === 0) {
-                bar += `<text x="${p.x + barW/2}" y="${p.yVal - 5}" class="bar-label-text val-text">${p.d.val.toFixed(2)}</text>`;
-                const diff = p.d.val - p.d.cost;
-                const diffY = Math.min(p.yVal, p.yCost) - 15;
-                const colorClass = diff >= 0 ? 'diff-text-pos' : 'diff-text-neg';
-                const sign = diff >= 0 ? '+' : '';
-                bar += `<text x="${p.x}" y="${diffY}" class="bar-label-text ${colorClass}" style="font-size:8px">${sign}${diff.toFixed(2)}</text>`;
-            }
+            bar += `<text x="${p.x + barW/2}" y="${p.yVal - 5}" class="bar-label-text val-text">${p.d.val.toFixed(2)}</text>`;
+            const diff = p.d.val - p.d.cost;
+            const diffY = Math.min(p.yVal, p.yCost) - 15;
+            const colorClass = diff >= 0 ? 'diff-text-pos' : 'diff-text-neg';
+            const sign = diff >= 0 ? '+' : '';
+            bar += `<text x="${p.x}" y="${diffY}" class="bar-label-text ${colorClass}" style="font-size:8px">${sign}${diff.toFixed(2)}</text>`;
             return bar;
         }).join('');
     }
