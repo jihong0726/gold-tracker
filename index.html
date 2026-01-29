@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V49</title>
+  <title>TNG 黄金管家 V50</title>
   <style>
     :root{
       --primary: #007aff; 
@@ -140,23 +140,29 @@
     .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--sub); cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: 0.2s; }
     .legend-item.hidden { opacity: 0.4; filter: grayscale(1); }
 
-    /* SIMULATOR STYLES - NEW LAYOUT */
+    /* SIMULATOR STYLES - TOP FIRST */
     .sim-toggle { display: flex; background: rgba(120,120,128,0.1); padding: 4px; border-radius: 12px; margin-bottom: 16px; }
     .sim-tab { flex: 1; text-align: center; padding: 8px; font-size: 13px; font-weight: 600; border-radius: 8px; color: var(--sub); transition: 0.2s; }
     .sim-tab.active { background: var(--glass-bg); color: var(--text); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
     
-    .sim-input-card { background: rgba(120,120,128,0.05); border-radius: 16px; padding: 16px; margin-bottom: 20px; }
-    .sim-result-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.05); }
+    .sim-compare-grid { display: grid; grid-template-columns: 1fr 30px 1fr; gap: 4px; align-items: center; margin-bottom: 20px; text-align: center; }
+    .sim-box { background: var(--glass-bg); border: var(--glass-border); box-shadow: var(--glass-shadow); border-radius: 16px; padding: 16px 8px; }
+    .sim-box-title { font-size: 11px; color: var(--sub); margin-bottom: 4px; font-weight:600; text-transform: uppercase; }
+    .sim-box-val { font-size: 18px; font-weight: 800; color: var(--text); }
+    .sim-box-sub { font-size: 11px; color: var(--sub); margin-top: 2px; }
+    .sim-arrow { font-size: 20px; color: var(--sub); opacity: 0.5; }
+    .sim-res-highlight { color: var(--primary); }
     
-    .sim-data-row { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed rgba(0,0,0,0.1); }
-    .sim-data-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    .sim-label { font-size: 13px; color: var(--sub); }
-    .sim-val { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
-    .sim-highlight { color: var(--primary); font-weight: 700; }
-    .sim-profit { color: var(--green); font-size: 18px; font-weight: 800; }
-    .sim-loss { color: var(--red); font-size: 18px; font-weight: 800; }
+    .sim-input-card { background: rgba(120,120,128,0.05); border-radius: 16px; padding: 20px; margin-top: 20px; }
     
-    .sim-arrow-sm { font-size: 12px; color: var(--sub); opacity: 0.6; margin: 0 4px; }
+    .sim-data-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size:13px; color:var(--text); }
+    .sim-label { color: var(--sub); }
+    .sim-val-bold { font-weight: 700; }
+    
+    .sim-profit-box { margin-top: 16px; padding: 12px; background: rgba(52,199,89,0.1); border-radius: 12px; display:flex; justify-content:space-between; align-items:center; }
+    .sim-profit-val { font-weight: 800; color: var(--green); font-size: 16px; }
+    
+    .sim-error-box { background: rgba(255,59,48,0.1); color: var(--red); padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 600; text-align: center; margin-bottom: 10px; display: none; }
 
     /* Calendar */
     .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-weight: 700; font-size: 16px; }
@@ -305,76 +311,60 @@
 </div>
 
 <div id="view-sim" class="view">
-  <div class="sim-toggle">
-    <div class="sim-tab active" id="tab-mode-amt" onclick="setSimMode('amt')">按投入金额推演</div>
-    <div class="sim-tab" id="tab-mode-target" onclick="setSimMode('target')">按目标成本反推</div>
+  <div class="sim-compare-grid">
+    <div class="sim-box">
+      <div class="sim-box-title">当前成本</div>
+      <div class="sim-box-val" id="simCurAvg">--</div>
+      <div class="sim-box-sub" id="simCurHold">-- g</div>
+    </div>
+    <div class="sim-arrow">➔</div>
+    <div class="sim-box" style="background:var(--glass-bg)">
+      <div class="sim-box-title">推演后成本</div>
+      <div class="sim-box-val sim-res-highlight" id="simNewAvg">--</div>
+      <div class="sim-box-sub" id="simNewHold">-- g</div>
+    </div>
+  </div>
+
+  <div class="glass-card">
+    <div class="sim-error-box" id="simErrorMsg"></div>
+    <div class="sim-data-row">
+      <span class="sim-label">回本起跑线</span>
+      <span class="sim-val-bold" id="resBreakEven">--</span>
+    </div>
+    <div class="sim-profit-box" id="simProfitBox" style="display:none">
+        <span style="font-size:13px;color:#2d6a4f">若未来涨至 <span id="resSellPrice" style="font-weight:700">--</span></span>
+        <div style="text-align:right">
+            <div class="sim-profit-val" id="resNetProfit">RM 0.00</div>
+            <div style="font-size:11px;color:#2d6a4f;opacity:0.8" id="resROI">0.00%</div>
+        </div>
+    </div>
   </div>
 
   <div class="sim-input-card">
+    <div class="sim-toggle">
+        <div class="sim-tab active" id="tab-mode-amt" onclick="setSimMode('amt')">按投入金额</div>
+        <div class="sim-tab" id="tab-mode-target" onclick="setSimMode('target')">按目标成本</div>
+    </div>
+
     <div class="form-group">
-      <label class="form-label">第1步：设置买入条件</label>
-      <div style="display:flex;gap:10px;margin-bottom:10px">
-        <input type="number" id="simPrice" class="form-input" placeholder="假设单价 (RM/g)" oninput="runSim()" style="flex:1">
-      </div>
-      <div id="input-grp-amt">
-        <input type="number" id="simAmt" class="form-input" placeholder="计划投入多少钱 (RM)?" oninput="runSim()">
-      </div>
-      <div id="input-grp-target" style="display:none">
-        <input type="number" id="simTargetCost" class="form-input" placeholder="想把成本降到多少 (RM/g)?" oninput="runSim()">
-      </div>
+      <label class="form-label">假设买入单价 (RM/g)</label>
+      <input type="number" id="simPrice" class="form-input" placeholder="0.00" oninput="runSim()">
     </div>
-    <div class="form-group" style="margin-bottom:0">
-      <label class="form-label">第2步：设置卖出目标</label>
-      <input type="number" id="simSellPrice" class="form-input" placeholder="未来想在什么价格卖出 (RM/g)?" oninput="runSim()">
-    </div>
-  </div>
-
-  <div class="glass-card" id="simResultCard" style="display:none">
-    <div style="font-weight:700;font-size:16px;margin-bottom:15px;color:var(--primary)">📊 推演结果</div>
     
-    <div class="sim-data-row">
-      <span class="sim-label">资金总投入</span>
-      <span class="sim-val">
-        <span style="font-weight:400;font-size:13px;opacity:0.6" id="resOldCost"></span> 
-        <span class="sim-arrow-sm">➔</span> 
-        <span class="sim-highlight" id="resNewCost"></span>
-      </span>
+    <div class="form-group" id="input-grp-amt">
+      <label class="form-label">计划投入金额 (RM)</label>
+      <input type="number" id="simAmt" class="form-input" placeholder="准备买多少钱?" oninput="runSim()">
     </div>
-    <div class="sim-data-row">
-      <span class="sim-label">持有克数</span>
-      <span class="sim-val">
-        <span style="font-weight:400;font-size:13px;opacity:0.6" id="resOldHold"></span> 
-        <span class="sim-arrow-sm">➔</span> 
-        <span class="sim-highlight" id="resNewHold"></span>
-      </span>
-    </div>
-    <div class="sim-data-row">
-      <span class="sim-label">平均成本</span>
-      <span class="sim-val">
-        <span style="font-weight:400;font-size:13px;opacity:0.6" id="resOldAvg"></span> 
-        <span class="sim-arrow-sm">➔</span> 
-        <span class="sim-highlight" id="resNewAvg"></span>
-      </span>
-    </div>
-    <div class="sim-data-row">
-      <span class="sim-label">回本起跑线</span>
-      <span class="sim-val" style="color:var(--text);opacity:0.8" id="resBreakEven">需涨 --% 回本</span>
+    <div class="form-group" id="input-grp-target" style="display:none">
+      <label class="form-label">想把成本降到多少 (RM/g)</label>
+      <input type="number" id="simTargetCost" class="form-input" placeholder="目标平均价" oninput="runSim()">
     </div>
 
-    <div style="margin-top:20px;padding-top:15px;border-top:1px solid rgba(0,0,0,0.05)">
-        <div style="display:flex;justify-content:space-between;align-items:flex-end">
-            <span style="font-size:13px;color:var(--sub)">预计净利润</span>
-            <span class="sim-profit" id="resNetProfit">RM 0.00</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:4px">
-            <span style="font-size:13px;color:var(--sub)">预计收益率</span>
-            <span style="font-weight:700;color:var(--text)" id="resROI">0.00%</span>
-        </div>
+    <div class="form-group" style="margin-bottom:0;margin-top:20px;padding-top:20px;border-top:1px dashed rgba(0,0,0,0.1)">
+      <label class="form-label">目标卖出价 (可选)</label>
+      <input type="number" id="simSellPrice" class="form-input" placeholder="预测未来卖出价" oninput="runSim()">
     </div>
   </div>
-  
-  <div id="simErrorMsg" style="text-align:center;color:var(--sub);margin-top:20px;font-size:14px">请输入数据开始推演</div>
-
 </div>
 
 <div class="dock">
@@ -466,10 +456,9 @@
 </div>
 
 <script>
-  // Updated with data from file (29012026.json)
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401},{"ts":1769679188602,"type":"buy","date":"2025-04-23","amount":10,"grams":0.021294,"price":469.623106},{"ts":1769679209117,"type":"buy","date":"2025-05-10","amount":10,"grams":0.021391,"price":467.48292}];
   const PRELOAD_HIST = [{"ts":1770000000000,"date":"2026-01-22","time":"00:00","val":558.05},{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89},{"ts":1769570138096,"date":"2026-01-26","time":"10:00","val":1580.48},{"ts":1769570149763,"date":"2026-01-27","time":"10:00","val":1571.57},{"ts":1769570157362,"date":"2026-01-28","time":"10:00","val":1597.82},{"ts":1769679309649,"date":"2026-01-29","time":"10:00","val":1623.05},{"ts":1769679322265,"date":"2026-01-29","time":"11:00","val":1627.36},{"ts":1769679331450,"date":"2026-01-29","time":"12:00","val":1708.71},{"ts":1769679360449,"date":"2026-01-29","time":"17:00","val":1696.79}];
-  const KEY = { TX: 'tng_tx_v49', HS: 'tng_hs_v49', MK: 'tng_mk_v49' };
+  const KEY = { TX: 'tng_tx_v50', HS: 'tng_hs_v50', MK: 'tng_mk_v50' };
   const el = id => document.getElementById(id);
   
   let editId = null, editHistId = null, currentZoom = 1.0;
@@ -554,7 +543,7 @@
     }
   }
 
-  // --- Simulator (FULL REFACTOR) ---
+  // --- Simulator ---
   function setSimMode(m){
       simMode = m;
       el('tab-mode-amt').className = m=='amt' ? 'sim-tab active' : 'sim-tab';
@@ -567,14 +556,13 @@
   function runSim(){
       const simP = parseFloat(el('simPrice').value);
       const sellP = parseFloat(el('simSellPrice').value);
-      
       const {h, c} = getHoldingAt();
       const curAvg = h > 0 ? c/h : 0;
       
-      // Initial State
-      el('resOldCost').innerText = "RM " + c.toFixed(2);
-      el('resOldHold').innerText = h.toFixed(4) + "g";
-      el('resOldAvg').innerText = "RM " + curAvg.toFixed(2);
+      el('simCurAvg').innerText = "RM " + curAvg.toFixed(2);
+      el('simCurHold').innerText = h.toFixed(4) + " g";
+      el('simErrorMsg').style.display = 'none';
+      el('simProfitBox').style.display = 'none';
 
       let simAmt = 0;
       let valid = false;
@@ -587,11 +575,11 @@
           } else {
               const targetCost = parseFloat(el('simTargetCost').value);
               if(targetCost > 0){
-                  // Logic Fix: Cannot lower average if buy price > current avg
+                  // Logic Fix for Target Cost Mode
                   if(targetCost < curAvg && simP >= curAvg){
-                      error = "买入价过高，无法拉低成本";
-                  } else if (targetCost > curAvg && simP <= curAvg) {
-                      error = "买入价过低，无法拉高成本";
+                      error = `买入价过高！要将成本降至 RM ${targetCost}，买入价必须低于 RM ${curAvg.toFixed(2)}`;
+                  } else if (targetCost < curAvg && simP >= targetCost) {
+                      error = `要实现目标成本 RM ${targetCost.toFixed(2)}，您的买入价必须低于 RM ${targetCost.toFixed(2)}`;
                   } else if (Math.abs(1 - targetCost/simP) > 0.001){
                       simAmt = (targetCost*h - c) / (1 - targetCost/simP);
                       if(simAmt > 0) valid = true;
@@ -607,44 +595,37 @@
           const totalH = h + newG;
           const newAvg = totalC / totalH;
           
-          // Show Result Card
-          el('simResultCard').style.display = 'block';
-          el('simErrorMsg').style.display = 'none';
-
-          // Update Data Grid
-          el('resNewCost').innerText = "RM " + totalC.toLocaleString('en-US',{maximumFractionDigits:2});
-          el('resNewHold').innerText = totalH.toFixed(4) + "g";
-          el('resNewAvg').innerText = "RM " + newAvg.toFixed(2);
+          el('simNewAvg').innerText = "RM " + newAvg.toFixed(2);
+          el('simNewHold').innerText = totalH.toFixed(4) + " g";
           
-          // Break Even
-          const riseNeeded = (newAvg - simP) / simP * 100;
-          if(newAvg > simP) el('resBreakEven').innerHTML = `需从当前价涨 <strong style="color:var(--red)">${riseNeeded.toFixed(2)}%</strong> 回本`;
-          else el('resBreakEven').innerHTML = `当前价已盈利 <strong style="color:var(--green)">${Math.abs(riseNeeded).toFixed(2)}%</strong>`;
+          if(simMode === 'target') {
+             // Optional: indicate calculated amount
+          }
+          
+          // Break Even & Profit
+          const riseNeed = ((newAvg - simP) / simP) * 100;
+          if(newAvg > simP) el('resBreakEven').innerHTML = `需涨 <span style="color:var(--red)">${riseNeed.toFixed(2)}%</span> 回本`;
+          else el('resBreakEven').innerHTML = `当前已盈利 <span style="color:var(--green)">${Math.abs(riseNeed).toFixed(2)}%</span>`;
 
-          // Profit Projection
           if(sellP > 0){
               const revenue = totalH * sellP;
               const profit = revenue - totalC;
               const roi = (profit / totalC) * 100;
-              const pColor = profit >= 0 ? 'var(--green)' : 'var(--red)';
-              el('resNetProfit').style.color = profit >= 0 ? 'var(--green)' : 'var(--red)';
+              el('resSellPrice').innerText = "RM " + sellP.toFixed(2);
               el('resNetProfit').innerText = (profit>=0?'+':'') + "RM " + profit.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-              el('resROI').innerText = (roi>=0?'+':'') + roi.toFixed(2) + "%";
-          } else {
-              el('resNetProfit').innerText = "--";
-              el('resROI').innerText = "--";
-          }
-          
-          if(simMode === 'target') {
-             // Auto-fill the calculated amount into the input placeholder or alert
-             // Actually, showing it in the card is enough. 
-             // We can update the amt input placeholder to show calculated value if user wants to switch back
+              el('resNetProfit').style.color = profit>=0 ? 'var(--green)' : 'var(--red)';
+              el('resROI').innerText = roi.toFixed(2) + "%";
+              el('simProfitBox').style.display = 'flex';
           }
 
       } else {
-          el('simResultCard').style.display = 'none';
-          el('simErrorMsg').style.display = 'block';
-          el('simErrorMsg').innerText = error || "请输入有效数值开始推演...";
+          el('simNewAvg').innerText = "--";
+          el('simNewHold').innerText = "-- g";
+          el('resBreakEven').innerText = "--";
+          if(error) {
+              el('simErrorMsg').style.display = 'block';
+              el('simErrorMsg').innerText = error;
+          }
       }
   }
 
@@ -785,17 +766,23 @@
         d 
     }));
     
+    // Cost
     if(chartVis.cost){
         svg += pts.map((p,i)=> {
             let bar = `<rect x="${p.x - barW}" y="${p.yCost}" width="${barW}" height="${h-30-p.yCost}" class="bar-cost" onclick="alert('${p.d.date} ${p.d.time} 成本: ${p.d.cost.toFixed(2)}')"></rect>`;
+            // Force Show Label
             bar += `<text x="${p.x - barW/2}" y="${p.yCost - 5}" class="bar-label-text cost-text">${p.d.cost.toFixed(2)}</text>`;
             return bar;
         }).join('');
     }
+    // Value + Diff
     if(chartVis.val){
         svg += pts.map((p,i)=> {
             let bar = `<rect x="${p.x}" y="${p.yVal}" width="${barW}" height="${h-30-p.yVal}" class="bar-val" onclick="alert('${p.d.date} ${p.d.time} 市值: ${p.d.val.toFixed(2)}')"></rect>`;
+            // Force Show Label
             bar += `<text x="${p.x + barW/2}" y="${p.yVal - 5}" class="bar-label-text val-text">${p.d.val.toFixed(2)}</text>`;
+            
+            // Diff Label
             const diff = p.d.val - p.d.cost;
             const diffY = Math.min(p.yVal, p.yCost) - 15;
             const colorClass = diff >= 0 ? 'diff-text-pos' : 'diff-text-neg';
@@ -805,6 +792,7 @@
         }).join('');
     }
     
+    // Labels (X Axis)
     svg += pts.map((p,i)=> (i%Math.ceil(data.length/(5*currentZoom))===0) ? `<text x="${p.x}" y="${h-10}" class="axis-label" style="text-anchor:middle">${p.d.date.slice(5)}</text>` : '').join('');
     
     box.innerHTML = svg + '</svg>';
