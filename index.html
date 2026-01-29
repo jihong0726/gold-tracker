@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V42</title>
+  <title>TNG 黄金管家 V43</title>
   <style>
     :root{
       --primary: #007aff; 
@@ -195,7 +195,7 @@
     .calc-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px; }
     .calc-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; font-weight: 700; font-size: 16px; color: var(--primary); }
 
-    /* Settings List - iOS Style */
+    /* Settings List */
     .settings-list { display: flex; flex-direction: column; gap: 0; border-radius: 16px; overflow: hidden; background: rgba(120,120,128,0.08); }
     .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: transparent; border: none; width: 100%; text-align: left; font-size: 16px; color: var(--text); border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer; }
     .settings-item:last-child { border-bottom: none; }
@@ -246,9 +246,10 @@
     <div class="list-header">
       <div class="list-title">最近交易</div>
       <select id="sortSelect" class="sort-select" onchange="changeSort()">
-        <option value="date-desc">时间 ↓</option>
-        <option value="date-asc">时间 ↑</option>
-        <option value="price-desc">单价 ↓</option>
+        <option value="date-desc">交易日期 ↓ (新到旧)</option>
+        <option value="date-asc">交易日期 ↑ (旧到新)</option>
+        <option value="price-desc">单价 ↓ (高到低)</option>
+        <option value="price-asc">单价 ↑ (低到高)</option>
       </select>
     </div>
     <div id="txList"></div>
@@ -390,7 +391,7 @@
 <script>
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401}];
   const PRELOAD_HIST = [{"ts":1770000000000,"date":"2026-01-22","time":"00:00","val":558.05},{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89}];
-  const KEY = { TX: 'tng_tx_v42', HS: 'tng_hs_v42', MK: 'tng_mk_v42' };
+  const KEY = { TX: 'tng_tx_v43', HS: 'tng_hs_v43', MK: 'tng_mk_v43' };
   const el = id => document.getElementById(id);
   
   let editId = null, editHistId = null, currentZoom = 1.0;
@@ -454,9 +455,11 @@
 
     if(!previewOnly){
         let txs = getDB().tx;
-        if(sortMode === 'date-desc') txs.sort((a,b) => b.ts - a.ts);
-        else if(sortMode === 'date-asc') txs.sort((a,b) => a.ts - b.ts);
+        // 核心修复: 按交易日期 (date) 字符串排序，而非时间戳
+        if(sortMode === 'date-desc') txs.sort((a,b) => b.date.localeCompare(a.date));
+        else if(sortMode === 'date-asc') txs.sort((a,b) => a.date.localeCompare(b.date));
         else if(sortMode === 'price-desc') txs.sort((a,b) => b.price - a.price);
+        else if(sortMode === 'price-asc') txs.sort((a,b) => a.price - b.price);
 
         const list = el('txList'); list.innerHTML = '';
         txs.slice(0, 10).forEach(t => {
@@ -603,6 +606,7 @@
     const min=Math.min(...vals)*0.98, max=Math.max(...vals)*1.02, h=320, w=box.offsetWidth*currentZoom;
     
     let svg = `<svg style="width:${w}px;height:${h}px">`;
+    const step = Math.ceil(data.length / (5 * currentZoom));
     const groupW = w / data.length;
     const barW = Math.max(4, groupW * 0.35); 
     
@@ -613,36 +617,28 @@
         d 
     }));
     
-    // Cost
     if(chartVis.cost){
         svg += pts.map((p,i)=> {
             let bar = `<rect x="${p.x - barW}" y="${p.yCost}" width="${barW}" height="${h-30-p.yCost}" class="bar-cost" onclick="alert('${p.d.date} ${p.d.time} 成本: ${p.d.cost.toFixed(2)}')"></rect>`;
-            // Cost Label - FORCE SHOW ALL
-            bar += `<text x="${p.x - barW/2}" y="${p.yCost - 5}" class="bar-label-text cost-text">${p.d.cost.toFixed(2)}</text>`;
+            if(i % step === 0) bar += `<text x="${p.x - barW/2}" y="${p.yCost - 5}" class="bar-label-text cost-text">${p.d.cost.toFixed(2)}</text>`;
             return bar;
         }).join('');
     }
-    // Value + Diff
     if(chartVis.val){
         svg += pts.map((p,i)=> {
             let bar = `<rect x="${p.x}" y="${p.yVal}" width="${barW}" height="${h-30-p.yVal}" class="bar-val" onclick="alert('${p.d.date} ${p.d.time} 市值: ${p.d.val.toFixed(2)}')"></rect>`;
-            // Value Label - FORCE SHOW ALL
-            bar += `<text x="${p.x + barW/2}" y="${p.yVal - 5}" class="bar-label-text val-text">${p.d.val.toFixed(2)}</text>`;
-            
-            // Diff Label - FORCE SHOW ALL
-            const diff = p.d.val - p.d.cost;
-            const diffY = Math.min(p.yVal, p.yCost) - 15;
-            const colorClass = diff >= 0 ? 'diff-text-pos' : 'diff-text-neg';
-            const sign = diff >= 0 ? '+' : '';
-            bar += `<text x="${p.x}" y="${diffY}" class="bar-label-text ${colorClass}" style="font-size:8px">${sign}${diff.toFixed(2)}</text>`;
-            
+            if(i % step === 0) {
+                bar += `<text x="${p.x + barW/2}" y="${p.yVal - 5}" class="bar-label-text val-text">${p.d.val.toFixed(2)}</text>`;
+                const diff = p.d.val - p.d.cost;
+                const diffY = Math.min(p.yVal, p.yCost) - 15;
+                const colorClass = diff >= 0 ? 'diff-text-pos' : 'diff-text-neg';
+                const sign = diff >= 0 ? '+' : '';
+                bar += `<text x="${p.x}" y="${diffY}" class="bar-label-text ${colorClass}" style="font-size:8px">${sign}${diff.toFixed(2)}</text>`;
+            }
             return bar;
         }).join('');
     }
-    
-    // Labels (X Axis) - Show all if possible, or skip smartly to avoid unreadable text
-    svg += pts.map((p,i)=> (i%Math.ceil(data.length/(5*currentZoom))===0) ? `<text x="${p.x}" y="${h-5}" class="axis-label" style="text-anchor:middle">${p.d.date.slice(5)}</text>` : '').join('');
-    
+    svg += pts.map((p,i)=> (i%Math.ceil(data.length/(5*currentZoom))===0) ? `<text x="${p.x}" y="${h-10}" class="axis-label" style="text-anchor:middle">${p.d.date.slice(5)}</text>` : '').join('');
     box.innerHTML = svg + '</svg>';
   }
 
