@@ -123,6 +123,8 @@
     /* Chart */
     .chart-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .chart-title { font-weight: 700; font-size: 16px; }
+    .zoom-group { display: flex; gap: 4px; background: rgba(120,120,128,0.1); border-radius: 8px; padding: 2px; }
+    .zoom-btn { width: 32px; height: 32px; border: none; background: transparent; font-size: 18px; color: var(--primary); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     
     /* New Filter Tabs */
     .filter-tabs { display: flex; gap: 3px; background: rgba(120,120,128,0.1); padding: 3px; border-radius: 8px; }
@@ -633,7 +635,7 @@
       }
   }
 
-  // --- Chart Logic (Day/Week/Month) ---
+  // --- Chart Logic (Fixed for K-Line Style) ---
   function setChartFilter(range){
       chartFilter = range;
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -651,12 +653,10 @@
     
     let data = hs.sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
     
-    // Filter Logic
+    // Filter Data
     const now = new Date();
-    
     if(chartFilter === '1d'){
         // Logic for Day: Show latest date's intraday points
-        // 1. Find latest date in data
         const latestDate = data[data.length-1].date;
         data = data.filter(d => d.date === latestDate);
         if(data.length === 0) { box.innerHTML='<div style="text-align:center;padding-top:120px;color:var(--sub)">暂无今日数据</div>'; return; }
@@ -737,7 +737,7 @@
     });
 
     svg += `<path d="${trendPath}" class="line-trend" />`;
-    svg += `<path d="${costPath}" class="line-cost" />`; // Added Cost Line
+    svg += `<path d="${costPath}" class="line-cost" />`; // Cost Line
     
     box.innerHTML = svg + '</svg>';
     setTimeout(() => { wrapper.scrollLeft = wrapper.scrollWidth; }, 50);
