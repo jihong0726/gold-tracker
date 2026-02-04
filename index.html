@@ -45,7 +45,7 @@
     /* Cards */
     .glass-card {
       background: var(--glass-bg); border-radius: 20px; border: var(--glass-border); box-shadow: var(--glass-shadow);
-      padding: 24px; margin-bottom: 20px; position: relative; overflow: hidden;
+      padding: 24px; margin-bottom: 20px; position: relative; /* Fixed: visible overflow for calendar */
     }
 
     /* Top Bar */
@@ -171,21 +171,24 @@
     .sim-hint { font-size: 12px; color: var(--cost-color); margin-top: 6px; font-weight: 500; display: none; background: rgba(255,159,10,0.1); padding: 8px; border-radius: 8px; }
     .sim-error-box { background: rgba(255,59,48,0.1); color: var(--red); padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 600; text-align: center; margin-bottom: 10px; display: none; }
 
-    /* Calendar */
+    /* Calendar (FIXED) */
     .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-weight: 700; font-size: 16px; color: var(--text); }
     .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; width: 100%; }
     .cal-head-day { font-size: 11px; color: var(--sub); font-weight: 600; margin-bottom: 8px; }
+    
     .cal-cell { 
-        height: 44px; min-height: 44px; /* Fixed height */
+        height: 44px; min-height: 44px;
         display: flex; flex-direction: column; align-items: center; justify-content: center; 
         font-size: 15px; font-weight: 500; border-radius: 12px; 
         position: relative; transition: 0.2s; cursor: pointer; 
-        color: var(--text); /* Force text color */
+        color: var(--text); 
         background: transparent;
     }
+    
     .cal-cell.today { background: rgba(0,122,255,0.1); color: var(--primary); font-weight: 800; }
     .cal-cell.has-tx { background: var(--glass-bg); border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .cal-cell.selected { background: var(--primary) !important; color: white !important; box-shadow: 0 4px 12px rgba(0,122,255,0.4); border:none; }
+    
     .cal-dot { width: 5px; height: 5px; border-radius: 50%; margin-top: 4px; }
     .cal-dot.green { background: var(--green); }
     .cal-dot.red { background: var(--red); }
@@ -294,7 +297,7 @@
       </div>
     </div>
     
-    <div style="display:flex; justify-content:center; align-items:center; margin-bottom:12px">
+    <div style="display:flex; justify-content:center; gap:16px; margin-bottom:12px">
       <div class="chart-legend">
         <div class="legend-item"><div style="width:10px;height:10px;background:var(--green);border-radius:2px"></div> 盈利</div>
         <div class="legend-item"><div style="width:10px;height:10px;background:var(--red);border-radius:2px"></div> 亏损</div>
@@ -317,7 +320,7 @@
 </div>
 
 <div id="view-cal" class="view">
-  <div class="glass-card" style="overflow:visible">
+  <div class="glass-card">
     <div class="cal-header">
       <div onclick="changeMonth(-1)" style="cursor:pointer;padding:10px">❮</div>
       <div id="calTitle"></div>
@@ -484,8 +487,9 @@
 </div>
 
 <script>
-  const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401},{"ts":1769679188602,"type":"buy","date":"2025-04-23","amount":10,"grams":0.021294,"price":469.623106},{"ts":1769679209117,"type":"buy","date":"2025-05-10","amount":10,"grams":0.021391,"price":467.48292}];
-  const PRELOAD_HIST = [{"ts":1770000000000,"date":"2026-01-22","time":"00:00","val":558.05},{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89},{"ts":1769570138096,"date":"2026-01-26","time":"10:00","val":1580.48},{"ts":1769570149763,"date":"2026-01-27","time":"10:00","val":1571.57},{"ts":1769570157362,"date":"2026-01-28","time":"10:00","val":1597.82},{"ts":1769679309649,"date":"2026-01-29","time":"10:00","val":1623.05},{"ts":1769679322265,"date":"2026-01-29","time":"11:00","val":1627.36},{"ts":1769679331450,"date":"2026-01-29","time":"12:00","val":1708.71},{"ts":1769679360449,"date":"2026-01-29","time":"17:00","val":1696.79},{"ts":1769708569185,"date":"2026-01-29","time":"01:42","val":1648.4774752351618},{"ts":1769738400000,"date":"2026-01-30","time":"10:00","val":1648.48},{"ts":1769742000000,"date":"2026-01-30","time":"11:00","val":1647.24},{"ts":1769745600000,"date":"2026-01-30","time":"12:00","val":1615.23},{"ts":1769749200000,"date":"2026-01-30","time":"13:00","val":1567.28},{"ts":1769922467213,"date":"2026-01-31","time":"10:00","val":1499.76},{"ts":1769922479699,"date":"2026-02-01","time":"10:00","val":1537.53}];
+  // Updated with 04.02.2026 data
+  const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401},{"ts":1769679188602,"type":"buy","date":"2025-04-23","amount":10,"grams":0.021294,"price":469.623106},{"ts":1769679209117,"type":"buy","date":"2025-05-10","amount":10,"grams":0.021391,"price":467.48292},{"ts":1770188908558,"type":"buy","date":"2026-01-31","amount":10,"grams":0.014681,"price":681.146353},{"ts":1770188927873,"type":"buy","date":"2026-01-30","amount":10,"grams":0.014713,"price":679.665226}];
+  const PRELOAD_HIST = [{"ts":1770000000000,"date":"2026-01-22","time":"00:00","val":558.05},{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89},{"ts":1769570138096,"date":"2026-01-26","time":"10:00","val":1580.48},{"ts":1769570149763,"date":"2026-01-27","time":"10:00","val":1571.57},{"ts":1769570157362,"date":"2026-01-28","time":"10:00","val":1597.82},{"ts":1769679309649,"date":"2026-01-29","time":"10:00","val":1623.05},{"ts":1769679322265,"date":"2026-01-29","time":"11:00","val":1627.36},{"ts":1769679331450,"date":"2026-01-29","time":"12:00","val":1708.71},{"ts":1769679360449,"date":"2026-01-29","time":"17:00","val":1696.79},{"ts":1769708569185,"date":"2026-01-29","time":"01:42","val":1648.4774752351618},{"ts":1769738400000,"date":"2026-01-30","time":"10:00","val":1648.48},{"ts":1769742000000,"date":"2026-01-30","time":"11:00","val":1647.24},{"ts":1769745600000,"date":"2026-01-30","time":"12:00","val":1615.23},{"ts":1769749200000,"date":"2026-01-30","time":"13:00","val":1567.28},{"ts":1769922467213,"date":"2026-01-31","time":"10:00","val":1499.76},{"ts":1769922479699,"date":"2026-02-01","time":"10:00","val":1537.53},{"ts":1770188969456,"date":"2026-02-03","time":"10:00","val":1523.45},{"ts":1770188984340,"date":"2026-02-04","time":"10:00","val":1511.36},{"ts":1770188991324,"date":"2026-02-04","time":"11:00","val":1578}];
   const KEY = { TX: 'tng_tx_v61', HS: 'tng_hs_v61', MK: 'tng_mk_v61' };
   const el = id => document.getElementById(id);
   
@@ -758,8 +762,8 @@
   function calcG(){ const a=parseFloat(el('tAmt').value), p=parseFloat(el('tPrice').value); if(a&&p)el('tGrams').value=(a/p).toFixed(6); }
   function openModal(id){ el(id).classList.add('show'); }
   function closeModal(id){ el(id).classList.remove('show'); }
-  function openTxModal(){ editId=null; el('tAmt').value=''; el('tPrice').value=''; el('tGrams').value=''; openModal('txModal'); }
-  function openHistModal(){ editHistId=null; el('hDate').value=new Date().toISOString().split('T')[0]; el('hTime').value="10:00"; el('hTotalVal').value=''; openModal('histModal'); }
+  function openTxModal(){ el('tAmt').value=''; el('tPrice').value=''; el('tGrams').value=''; openModal('txModal'); }
+  function openHistModal(){ el('hDate').value=new Date().toISOString().split('T')[0]; el('hTime').value="10:00"; el('hTotalVal').value=''; openModal('histModal'); }
   function editHist(ts){ const h=getDB().hs.find(x=>x.ts==ts); if(!h)return; editHistId=ts; el('hDate').value=h.date; el('hTime').value=h.time||"00:00"; el('hTotalVal').value=h.val; openModal('histModal'); }
   function openSettings(){ openModal('settingsModal'); }
   function switchTab(t){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); el('view-'+t).classList.add('active'); el('nav-home').className=t=='home'?'dock-btn active':'dock-btn'; el('nav-chart').className=t=='chart'?'dock-btn active':'dock-btn'; el('nav-cal').className=t=='cal'?'dock-btn active':'dock-btn'; el('nav-sim').className=t=='sim'?'dock-btn active':'dock-btn'; el('fabBtn').style.display=t=='home'?'flex':'none'; if(t=='chart')drawChart(); if(t=='cal')renderCalendar(); if(t=='sim') runSim(); }
@@ -774,9 +778,24 @@
   function confirmSave(){ const p=parseFloat(el('marketPrice').value); if(!p||p<=0)return alert("请输入有效金价"); if(confirm(`确认写入今日金价 RM ${p.toFixed(2)}?`)) saveAndChart(p); }
   function saveAndChart(p){ localStorage.setItem(KEY.MK,p); const {h}=getHoldingAt(); if(h>0){ const now = new Date(); const d = now.toISOString().split('T')[0]; const time = now.toTimeString().slice(0,5); let hs=getDB().hs; hs.push({ts: Date.now(), date:d, time:time, val:h*p}); localStorage.setItem(KEY.HS,JSON.stringify(hs)); } render(); switchTab('chart'); }
 
-  // Calendar Logic
+  // Calendar Logic (Fixed)
   function changeMonth(delta){ curCalMonth += delta; if(curCalMonth > 11) { curCalMonth=0; curCalYear++; } if(curCalMonth < 0) { curCalMonth=11; curCalYear--; } renderCalendar(); }
-  function renderCalendar(){ const y = curCalYear, m = curCalMonth; el('calTitle').innerText = `${y}年 ${m+1 < 10 ? '0'+(m+1) : m+1}月`; const firstDay = new Date(y, m, 1).getDay(); const daysInMonth = new Date(y, m+1, 0).getDate(); const tx = getDB().tx; let html = ''; for(let i=0; i<firstDay; i++) html += '<div></div>'; for(let i=1; i<=daysInMonth; i++){ const dateStr = `${y}-${(m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`; const hasTx = tx.some(t => t.date === dateStr); const isToday = (new Date().toDateString() === new Date(y,m,i).toDateString()); html += `<div class="cal-cell ${isToday?'today':''} ${hasTx?'has-tx':''}" onclick="showCalDetail('${dateStr}', this)">${i} ${hasTx?'<div class="cal-dot green"></div>':''}</div>`; } el('calDays').innerHTML = html; }
+  function renderCalendar(){ 
+    const y = curCalYear, m = curCalMonth; 
+    el('calTitle').innerText = `${y}年 ${m+1 < 10 ? '0'+(m+1) : m+1}月`; 
+    const firstDay = new Date(y, m, 1).getDay(); 
+    const daysInMonth = new Date(y, m+1, 0).getDate(); 
+    const tx = getDB().tx; 
+    let html = ''; 
+    for(let i=0; i<firstDay; i++) html += '<div></div>'; 
+    for(let i=1; i<=daysInMonth; i++){ 
+        const dateStr = `${y}-${(m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`; 
+        const hasTx = tx.some(t => t.date === dateStr); 
+        const isToday = (new Date().toDateString() === new Date(y,m,i).toDateString()); 
+        html += `<div class="cal-cell ${isToday?'today':''} ${hasTx?'has-tx':''}" onclick="showCalDetail('${dateStr}', this)">${i} ${hasTx?'<div class="cal-dot green"></div>':''}</div>`; 
+    } 
+    el('calDays').innerHTML = html; 
+  }
   function showCalDetail(dateStr, cell){ document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('selected')); if(cell) cell.classList.add('selected'); const tx = getDB().tx.filter(t => t.date === dateStr); el('calDetailDate').innerText = dateStr; if(tx.length===0){ el('calDetailContent').innerHTML='<div style="text-align:center;color:var(--sub);padding:10px">当日无交易</div>'; return; } el('calDetailContent').innerHTML = tx.map(t=>`<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;border-bottom:1px solid #eee;padding-bottom:8px"><span style="color:${t.type=='buy'?'var(--green)':'var(--red)'};font-weight:700">${t.type=='buy'?'买入':'卖出'} RM ${Number(t.amount).toFixed(2)}</span><span>${Number(t.grams).toFixed(4)}g</span></div>`).join(''); }
 
   init();
