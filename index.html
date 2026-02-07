@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V62</title>
+  <title>TNG 黄金管家 V63</title>
   <style>
     :root{
       --primary: #007aff; 
@@ -45,7 +45,7 @@
     /* Cards */
     .glass-card {
       background: var(--glass-bg); border-radius: 20px; border: var(--glass-border); box-shadow: var(--glass-shadow);
-      padding: 24px; margin-bottom: 20px; position: relative; overflow: hidden;
+      padding: 24px; margin-bottom: 20px; position: relative; overflow: visible; /* Ensuring Calendar visible */
     }
 
     /* Top Bar */
@@ -139,7 +139,7 @@
     .line-trend { fill: none; stroke: var(--primary); stroke-width: 2; }
     .line-cost { fill: none; stroke: var(--cost-color); stroke-width: 2; stroke-dasharray: 4,4; stroke-opacity: 0.8; }
     
-    .val-label { font-size: 9px; font-weight: 700; fill: var(--text); text-anchor: middle; opacity: 0.8; }
+    .val-label { font-size: 9px; font-weight: 700; fill: var(--text); text-anchor: middle; opacity: 1; } /* Force Opacity 1 */
     .axis-label { font-size: 10px; fill: var(--sub); }
     .grid-line { stroke: var(--text); stroke-opacity: 0.05; stroke-width: 1; stroke-dasharray: 4,4; }
     
@@ -154,15 +154,12 @@
     .sim-box-sub { font-size: 11px; color: var(--sub); margin-top: 2px; }
     .sim-arrow { font-size: 20px; color: var(--sub); opacity: 0.5; }
     .sim-res-highlight { color: var(--primary); }
-    
     .sim-input-area { background: var(--glass-bg); border-radius: 20px; padding: 24px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); border: var(--glass-border); }
     .sim-toggle { display: flex; background: rgba(120,120,128,0.1); padding: 4px; border-radius: 12px; margin-bottom: 20px; }
     .sim-tab { flex: 1; text-align: center; padding: 10px; font-size: 13px; font-weight: 600; border-radius: 8px; color: var(--sub); transition: 0.2s; }
     .sim-tab.active { background: var(--glass-bg); color: var(--text); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-
     .sim-calc-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border-radius: 12px; font-weight: 700; border: none; margin-top: 20px; font-size: 16px; box-shadow: 0 4px 12px rgba(0,122,255,0.3); transition: 0.2s; }
     .sim-calc-btn:active { transform: scale(0.98); }
-
     .sim-data-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size:13px; color:var(--text); }
     .sim-label { color: var(--sub); }
     .sim-val-bold { font-weight: 700; }
@@ -639,7 +636,7 @@
     "val": 1548.65
   }
 ];
-  const KEY = { TX: 'tng_tx_v62', HS: 'tng_hs_v62', MK: 'tng_mk_v62' };
+  const KEY = { TX: 'tng_tx_v63', HS: 'tng_hs_v63', MK: 'tng_mk_v63' };
   const el = id => document.getElementById(id);
   
   let editId = null, editHistId = null, chartFilter = '1m'; 
@@ -889,12 +886,10 @@
         if(i === 0) { trendPath += `M ${x} ${yMP}`; costPath += `M ${x} ${yAC}`; }
         else { trendPath += ` L ${x} ${yMP}`; costPath += ` L ${x} ${yAC}`; }
         
-        const skip = Math.ceil(candles.length / (totalW / 60));
-        if (i % skip === 0 || i === candles.length - 1) {
-             const lbl = chartFilter === '1d' ? d.time : d.date.slice(5);
-             svg += `<text x="${x}" y="${h - 5}" class="axis-label" style="text-anchor:middle">${lbl}</text>`;
-             svg += `<text x="${x}" y="${yTop - 5}" class="val-label">${d.mp.toFixed(0)}</text>`;
-        }
+        // **Force Label Display**
+        const lbl = chartFilter === '1d' ? d.time : d.date.slice(5);
+        svg += `<text x="${x}" y="${h - 5}" class="axis-label" style="text-anchor:middle">${lbl}</text>`;
+        svg += `<text x="${x}" y="${yTop - 5}" class="val-label">${d.mp.toFixed(0)}</text>`;
     });
 
     svg += `<path d="${trendPath}" class="line-trend" />`;
