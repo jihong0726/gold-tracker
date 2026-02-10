@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V66</title>
+  <title>TNG 黄金管家 V68</title>
   <style>
     :root{
       --primary: #007aff; 
@@ -146,6 +146,17 @@
     .chart-legend { display: flex; justify-content: center; gap: 16px; margin-bottom: 10px; }
     .legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; color: var(--sub); cursor: pointer; }
 
+    /* CHART SUMMARY CARD */
+    .chart-summary { 
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; 
+      background: var(--glass-bg); border-radius: 16px; padding: 16px;
+      margin-bottom: 16px; border: 1px solid var(--border-color); box-shadow: var(--glass-shadow);
+      text-align: center;
+    }
+    .cs-label { font-size: 11px; color: var(--sub); margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
+    .cs-val { font-size: 15px; font-weight: 800; color: var(--text); }
+    .cs-val.highlight { color: var(--primary); }
+
     /* SIMULATOR STYLES */
     .sim-top-row { display: grid; grid-template-columns: 1fr 30px 1fr; gap: 4px; align-items: center; margin-bottom: 20px; text-align: center; }
     .sim-box { background: var(--glass-bg); border: var(--glass-border); box-shadow: var(--glass-shadow); border-radius: 16px; padding: 16px 8px; }
@@ -285,6 +296,22 @@
 </div>
 
 <div id="view-chart" class="view">
+  
+  <div class="chart-summary">
+     <div>
+        <div class="cs-label">总投入成本</div>
+        <div class="cs-val" id="chartTotalCost">--</div>
+     </div>
+     <div>
+        <div class="cs-label">当前总市值</div>
+        <div class="cs-val highlight" id="chartTotalVal">--</div>
+     </div>
+     <div>
+        <div class="cs-label">总盈亏</div>
+        <div class="cs-val" id="chartTotalPL">--</div>
+     </div>
+  </div>
+
   <div class="glass-card" id="chartCard">
     <div class="chart-head-row">
       <div class="chart-title">资产走势 (K线盈亏)</div>
@@ -300,8 +327,8 @@
       <div class="chart-legend">
         <div class="legend-item"><div style="width:10px;height:10px;background:var(--green);border-radius:2px"></div> 盈利</div>
         <div class="legend-item"><div style="width:10px;height:10px;background:var(--red);border-radius:2px"></div> 亏损</div>
-        <div class="legend-item"><div style="width:12px;height:2px;background:var(--primary);border-radius:2px"></div> 总资产</div>
-        <div class="legend-item"><div style="width:12px;height:2px;background:var(--cost-color);border-radius:2px;border-bottom:2px dashed var(--cost-color)"></div> 总成本</div>
+        <div class="legend-item"><div style="width:12px;height:2px;background:var(--primary);border-radius:2px"></div> 市价</div>
+        <div class="legend-item"><div style="width:12px;height:2px;background:var(--cost-color);border-radius:2px;border-bottom:2px dashed var(--cost-color)"></div> 成本</div>
       </div>
     </div>
 
@@ -487,251 +514,178 @@
 
 <script>
   // Updated with 07.02.2026 data + NEW 08.02, 09.02, 10.02
-  const PRELOAD_TX = [
-{
-"ts": 1769197202982,
-"type": "buy",
-"date": "2025-05-18",
-"amount": 10,
-"grams": 0.022438,
-"price": 445.669382
-},
-{
-"ts": 1769197251472,
-"type": "buy",
-"date": "2025-12-25",
-"amount": 10,
-"grams": 0.016995,
-"price": 588.417299
-},
-{
-"ts": 1769197276233,
-"type": "buy",
-"date": "2025-12-31",
-"amount": 10,
-"grams": 0.017494,
-"price": 571.610734
-},
-{
-"ts": 1769197303771,
-"type": "buy",
-"date": "2026-01-21",
-"amount": 500,
-"grams": 0.796725,
-"price": 627.568989
-},
-{
-"ts": 1769197324261,
-"type": "buy",
-"date": "2026-01-23",
-"amount": 1000,
-"grams": 1.553877,
-"price": 643.551401
-},
-{
-"ts": 1769679188602,
-"type": "buy",
-"date": "2025-04-23",
-"amount": 10,
-"grams": 0.021294,
-"price": 469.623106
-},
-{
-"ts": 1769679209117,
-"type": "buy",
-"date": "2025-05-10",
-"amount": 10,
-"grams": 0.021391,
-"price": 467.48292
-},
-{
-"ts": 1770188908558,
-"type": "buy",
-"date": "2026-01-31",
-"amount": "10",
-"grams": "0.014681",
-"price": "681.146353"
-},
-{
-"ts": 1770188927873,
-"type": "buy",
-"date": "2026-01-30",
-"amount": "10",
-"grams": "0.014713",
-"price": "679.665226"
-}
-];
+  const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401},{"ts":1769679188602,"type":"buy","date":"2025-04-23","amount":10,"grams":0.021294,"price":469.623106},{"ts":1769679209117,"type":"buy","date":"2025-05-10","amount":10,"grams":0.021391,"price":467.48292},{"ts":1770188908558,"type":"buy","date":"2026-01-31","amount":10,"grams":0.014681,"price":681.146353},{"ts":1770188927873,"type":"buy","date":"2026-01-30","amount":10,"grams":0.014713,"price":679.665226}];
   const PRELOAD_HIST = [
-{
-"ts": 1770000000000,
-"date": "2026-01-22",
-"time": "00:00",
-"val": 558.05
-},
-{
-"ts": 1770000000001,
-"date": "2026-01-23",
-"time": "00:00",
-"val": 1547.97
-},
-{
-"ts": 1770000000002,
-"date": "2026-01-24",
-"time": "00:00",
-"val": 1559.44
-},
-{
-"ts": 1770000000003,
-"date": "2026-01-25",
-"time": "00:00",
-"val": 1558.89
-},
-{
-"ts": 1769570138096,
-"date": "2026-01-26",
-"time": "10:00",
-"val": 1580.48
-},
-{
-"ts": 1769570149763,
-"date": "2026-01-27",
-"time": "10:00",
-"val": 1571.57
-},
-{
-"ts": 1769570157362,
-"date": "2026-01-28",
-"time": "10:00",
-"val": 1597.82
-},
-{
-"ts": 1769708569185,
-"date": "2026-01-29",
-"time": "01:42",
-"val": 1648.4774752351618
-},
-{
-"ts": 1769679309649,
-"date": "2026-01-29",
-"time": "10:00",
-"val": 1623.05
-},
-{
-"ts": 1769679322265,
-"date": "2026-01-29",
-"time": "11:00",
-"val": 1627.36
-},
-{
-"ts": 1769679331450,
-"date": "2026-01-29",
-"time": "12:00",
-"val": 1708.71
-},
-{
-"ts": 1769679360449,
-"date": "2026-01-29",
-"time": "17:00",
-"val": 1696.79
-},
-{
-"ts": 1769738400000,
-"date": "2026-01-30",
-"time": "10:00",
-"val": 1648.48
-},
-{
-"ts": 1769742000000,
-"date": "2026-01-30",
-"time": "11:00",
-"val": 1647.24
-},
-{
-"ts": 1769745600000,
-"date": "2026-01-30",
-"time": "12:00",
-"val": 1615.23
-},
-{
-"ts": 1769749200000,
-"date": "2026-01-30",
-"time": "13:00",
-"val": 1567.28
-},
-{
-"ts": 1769922467213,
-"date": "2026-01-31",
-"time": "10:00",
-"val": 1499.76
-},
-{
-"ts": 1769922479699,
-"date": "2026-02-01",
-"time": "10:00",
-"val": 1537.53
-},
-{
-"ts": 1770188969456,
-"date": "2026-02-03",
-"time": "10:00",
-"val": 1523.45
-},
-{
-"ts": 1770199200000,
-"date": "2026-02-04",
-"time": "10:00",
-"val": 1551.36
-},
-{
-"ts": 1770202800000,
-"date": "2026-02-04",
-"time": "11:00",
-"val": 1578.0
-},
-{
-"ts": 1770285600000,
-"date": "2026-02-05",
-"time": "10:00",
-"val": 1528.71
-},
-{
-"ts": 1770289200000,
-"date": "2026-02-05",
-"time": "11:00",
-"val": 1515.3
-},
-{
-"ts": 1770372000000,
-"date": "2026-02-06",
-"time": "10:00",
-"val": 1519.28
-},
-{
-"ts": 1770458400000,
-"date": "2026-02-07",
-"time": "10:00",
-"val": 1548.65
-},
-{
-"ts": 1770544800000,
-"date": "2026-02-08",
-"time": "10:00",
-"val": 1548.65
-},
-{
-"ts": 1770631200000,
-"date": "2026-02-09",
-"time": "10:00",
-"val": 1563.72
-},
-{
-"ts": 1770717600000,
-"date": "2026-02-10",
-"time": "10:00",
-"val": 1564.98
-}
+  {
+    "ts": 1770000000000,
+    "date": "2026-01-22",
+    "time": "00:00",
+    "val": 558.05
+  },
+  {
+    "ts": 1770000000001,
+    "date": "2026-01-23",
+    "time": "00:00",
+    "val": 1547.97
+  },
+  {
+    "ts": 1770000000002,
+    "date": "2026-01-24",
+    "time": "00:00",
+    "val": 1559.44
+  },
+  {
+    "ts": 1770000000003,
+    "date": "2026-01-25",
+    "time": "00:00",
+    "val": 1558.89
+  },
+  {
+    "ts": 1769570138096,
+    "date": "2026-01-26",
+    "time": "10:00",
+    "val": 1580.48
+  },
+  {
+    "ts": 1769570149763,
+    "date": "2026-01-27",
+    "time": "10:00",
+    "val": 1571.57
+  },
+  {
+    "ts": 1769570157362,
+    "date": "2026-01-28",
+    "time": "10:00",
+    "val": 1597.82
+  },
+  {
+    "ts": 1769708569185,
+    "date": "2026-01-29",
+    "time": "01:42",
+    "val": 1648.4774752351618
+  },
+  {
+    "ts": 1769679309649,
+    "date": "2026-01-29",
+    "time": "10:00",
+    "val": 1623.05
+  },
+  {
+    "ts": 1769679322265,
+    "date": "2026-01-29",
+    "time": "11:00",
+    "val": 1627.36
+  },
+  {
+    "ts": 1769679331450,
+    "date": "2026-01-29",
+    "time": "12:00",
+    "val": 1708.71
+  },
+  {
+    "ts": 1769679360449,
+    "date": "2026-01-29",
+    "time": "17:00",
+    "val": 1696.79
+  },
+  {
+    "ts": 1769738400000,
+    "date": "2026-01-30",
+    "time": "10:00",
+    "val": 1648.48
+  },
+  {
+    "ts": 1769742000000,
+    "date": "2026-01-30",
+    "time": "11:00",
+    "val": 1647.24
+  },
+  {
+    "ts": 1769745600000,
+    "date": "2026-01-30",
+    "time": "12:00",
+    "val": 1615.23
+  },
+  {
+    "ts": 1769749200000,
+    "date": "2026-01-30",
+    "time": "13:00",
+    "val": 1567.28
+  },
+  {
+    "ts": 1769922467213,
+    "date": "2026-01-31",
+    "time": "10:00",
+    "val": 1499.76
+  },
+  {
+    "ts": 1769922479699,
+    "date": "2026-02-01",
+    "time": "10:00",
+    "val": 1537.53
+  },
+  {
+    "ts": 1770188969456,
+    "date": "2026-02-03",
+    "time": "10:00",
+    "val": 1523.45
+  },
+  {
+    "ts": 1770188984340,
+    "date": "2026-02-04",
+    "time": "10:00",
+    "val": 1551.36
+  },
+  {
+    "ts": 1770188991324,
+    "date": "2026-02-04",
+    "time": "11:00",
+    "val": 1578.0
+  },
+  {
+    "ts": 1770285600000,
+    "date": "2026-02-05",
+    "time": "10:00",
+    "val": 1528.71
+  },
+  {
+    "ts": 1770289200000,
+    "date": "2026-02-05",
+    "time": "11:00",
+    "val": 1515.3
+  },
+  {
+    "ts": 1770372000000,
+    "date": "2026-02-06",
+    "time": "10:00",
+    "val": 1519.28
+  },
+  {
+    "ts": 1770458400000,
+    "date": "2026-02-07",
+    "time": "10:00",
+    "val": 1548.65
+  },
+  {
+    "ts": 1770544800000,
+    "date": "2026-02-08",
+    "time": "10:00",
+    "val": 1548.65
+  },
+  {
+    "ts": 1770631200000,
+    "date": "2026-02-09",
+    "time": "10:00",
+    "val": 1563.72
+  },
+  {
+    "ts": 1770717600000,
+    "date": "2026-02-10",
+    "time": "10:00",
+    "val": 1564.98
+  }
 ];
-  const KEY = { TX: 'tng_tx_v65', HS: 'tng_hs_v65', MK: 'tng_mk_v65' };
+  const KEY = { TX: 'tng_tx_v68', HS: 'tng_hs_v68', MK: 'tng_mk_v68' };
   const el = id => document.getElementById(id);
   
   let editId = null, editHistId = null, chartFilter = '1m'; 
@@ -814,7 +768,30 @@
                 <div class="hist-top"><div class="hist-date">${h.date} <span class="hist-time">${h.time || '00:00'}</span></div><div class="hist-val">RM ${Number(h.val).toFixed(2)}</div></div>
                 <div class="hist-btm"><span>持仓 ${stats.h.toFixed(6)}g</span><span>当时金价约 ${impliedPrice.toFixed(2)}/g</span></div></div>`;
         });
+        
+        // UPDATE CHART SUMMARY IF ON CHART TAB
+        updateChartSummary();
     }
+  }
+  
+  function updateChartSummary(){
+     const {h, c} = getHoldingAt();
+     // Try get live price, else get last hist price
+     let currentP = parseFloat(el('marketPrice').value);
+     if(!currentP){
+         const hs = getDB().hs;
+         if(hs.length > 0) currentP = hs[hs.length-1].val;
+         else currentP = 0;
+     }
+     
+     const currentVal = h * currentP;
+     const pl = currentVal - c;
+     const color = pl >= 0 ? 'var(--green)' : 'var(--red)';
+     const sign = pl >= 0 ? '+' : '';
+     
+     el('chartTotalCost').innerText = "RM " + c.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+     el('chartTotalVal').innerText = "RM " + currentVal.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+     el('chartTotalPL').innerHTML = `<span style="color:${color}">${sign}${pl.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2})}</span>`;
   }
 
   // --- Simulator ---
@@ -942,7 +919,7 @@
     // V66 Logic: Total Asset vs Total Cost
     const candles = mappedData.filter(d => d.hold > 0).map(d => {
         // Now using TOTAL values directly
-        const totalAsset = d.val;
+        const totalAsset = d.val * d.hold; // Corrected: Value * Holding
         const totalCost = d.cost;
         return { ...d, totalAsset, totalCost };
     });
@@ -1012,17 +989,17 @@
   }
 
   function saveTx(){ const d=el('tDate').value, a=el('tAmt').value, p=el('tPrice').value, g=el('tGrams').value; if(!a||!g)return alert("完整填写"); let tx=getDB().tx; const rec={ts:Date.now(), type:'buy', date:d, amount:a, grams:g, price:p}; tx.push(rec); localStorage.setItem(KEY.TX,JSON.stringify(tx)); closeModal('txModal'); render(); }
-  function saveHist(){ const d=el('hDate').value, time=el('hTime').value, v=parseFloat(el('hTotalVal').value); if(!v)return alert("输入金额"); let hs=getDB().hs; if(editHistId){const i=hs.findIndex(x=>x.ts==editHistId);if(i>-1)hs[i]={...hs[i],date:d,time:time,val:v};}else{hs.push({ts:Date.now(), date:d, time:time||"00:00", val:v});} localStorage.setItem(KEY.HS,JSON.stringify(hs)); closeModal('histModal'); render(); drawChart(); }
+  function saveHist(){ const d=el('hDate').value, time=el('hTime').value, v=parseFloat(el('hVal').value); if(!v)return alert("输入金额"); let hs=getDB().hs; if(editHistId){const i=hs.findIndex(x=>x.ts==editHistId);if(i>-1)hs[i]={...hs[i],date:d,time:time,val:v};}else{hs.push({ts:Date.now(), date:d, time:time||"00:00", val:v});} localStorage.setItem(KEY.HS,JSON.stringify(hs)); closeModal('histModal'); render(); drawChart(); }
   function delTx(){ if(confirm("删除?")){ localStorage.setItem(KEY.TX,JSON.stringify(getDB().tx.filter(x=>x.ts!=editId))); closeModal('txModal'); render(); } }
   function delHist(){ if(confirm("删除?")){ localStorage.setItem(KEY.HS,JSON.stringify(getDB().hs.filter(x=>x.ts!=editHistId))); closeModal('histModal'); render(); drawChart(); } }
   function calcG(){ const a=parseFloat(el('tAmt').value), p=parseFloat(el('tPrice').value); if(a&&p)el('tGrams').value=(a/p).toFixed(6); }
   function openModal(id){ el(id).classList.add('show'); }
   function closeModal(id){ el(id).classList.remove('show'); }
   function openTxModal(){ el('tAmt').value=''; el('tPrice').value=''; el('tGrams').value=''; openModal('txModal'); }
-  function openHistModal(){ el('hDate').value=new Date().toISOString().split('T')[0]; el('hTime').value="10:00"; el('hTotalVal').value=''; openModal('histModal'); }
-  function editHist(ts){ const h=getDB().hs.find(x=>x.ts==ts); if(!h)return; editHistId=ts; el('hDate').value=h.date; el('hTime').value=h.time||"00:00"; el('hTotalVal').value=h.val; openModal('histModal'); }
+  function openHistModal(){ el('hDate').value=new Date().toISOString().split('T')[0]; el('hTime').value="10:00"; el('hVal').value=''; openModal('histModal'); }
+  function editHist(ts){ const h=getDB().hs.find(x=>x.ts==ts); if(!h)return; editHistId=ts; el('hDate').value=h.date; el('hTime').value=h.time||"00:00"; el('hVal').value=h.val; openModal('histModal'); }
   function openSettings(){ openModal('settingsModal'); }
-  function switchTab(t){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); el('view-'+t).classList.add('active'); el('nav-home').className=t=='home'?'dock-btn active':'dock-btn'; el('nav-chart').className=t=='chart'?'dock-btn active':'dock-btn'; el('nav-cal').className=t=='cal'?'dock-btn active':'dock-btn'; el('nav-sim').className=t=='sim'?'dock-btn active':'dock-btn'; el('fabBtn').style.display=t=='home'?'flex':'none'; if(t=='chart')drawChart(); if(t=='cal')renderCalendar(); if(t=='sim') runSim(); }
+  function switchTab(t){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); el('view-'+t).classList.add('active'); el('nav-home').className=t=='home'?'dock-btn active':'dock-btn'; el('nav-chart').className=t=='chart'?'dock-btn active':'dock-btn'; el('nav-cal').className=t=='cal'?'dock-btn active':'dock-btn'; el('nav-sim').className=t=='sim'?'dock-btn active':'dock-btn'; el('fabBtn').style.display=t=='home'?'flex':'none'; if(t=='chart'){drawChart(); updateChartSummary();} if(t=='cal')renderCalendar(); if(t=='sim') runSim(); }
   function exportData(){ const d=new Date().toISOString().split('T')[0]; const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(getDB())],{type:'application/json'})); a.download='TNG_Gold_'+d+'.json'; a.click(); }
   function importData(i){ const r=new FileReader(); r.onload=e=>{ try{const d=JSON.parse(e.target.result); if(d.tx)localStorage.setItem(KEY.TX,JSON.stringify(d.tx)); if(d.hs)localStorage.setItem(KEY.HS,JSON.stringify(d.hs)); location.reload();}catch{alert('Error');} }; r.readAsText(i.files[0]); }
   function resetAll(){ if(confirm('清空?')){ localStorage.clear(); location.reload(); } }
