@@ -5,105 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V63</title>
+  <title>TNG 黄金管家 V64 (云同步版)</title>
   <style>
+    /* ... (样式保持 V62 不变，增加 GitHub 相关的样式) ... */
     :root{
-      --primary: #007aff; 
-      --cost-color: #ff9f0a;
-      --text: #1c1c1e; --sub: #8e8e93;
-      --glass-bg: #ffffff; 
-      --glass-border: 1px solid rgba(0,0,0,0.05);
-      --glass-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      --nav-h: 65px; --safe-pb: env(safe-area-inset-bottom);
-      --green: #34c759; --red: #ff3b30;
-      --bg-color: #f2f2f7;
+      --primary: #007aff; --cost-color: #ff9f0a; --text: #1c1c1e; --sub: #8e8e93;
+      --glass-bg: #ffffff; --glass-border: 1px solid rgba(0,0,0,0.05);
+      --glass-shadow: 0 4px 12px rgba(0,0,0,0.05); --nav-h: 65px; --safe-pb: env(safe-area-inset-bottom);
+      --green: #34c759; --red: #ff3b30; --bg-color: #f2f2f7;
     }
-    @media (prefers-color-scheme: dark) {
-      :root{
-        --text: #f2f2f7; --sub: #98989d;
-        --glass-bg: #1c1c1e;
-        --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-        --bg-color: #000;
-      }
-    }
-
+    @media (prefers-color-scheme: dark) { :root{ --text: #f2f2f7; --sub: #98989d; --glass-bg: #1c1c1e; --glass-border: 1px solid rgba(255, 255, 255, 0.1); --bg-color: #000; } }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    
-    body {
-      margin: 0; 
-      background: var(--bg-color); 
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-      padding-bottom: calc(var(--nav-h) + 20px + var(--safe-pb));
-      user-select: none; -webkit-font-smoothing: antialiased;
-    }
-
+    body { margin: 0; background: var(--bg-color); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; padding-bottom: calc(var(--nav-h) + 20px + var(--safe-pb)); user-select: none; -webkit-font-smoothing: antialiased; }
     .view { display: none; padding: 20px; padding-top: 60px; animation: fadeIn 0.3s; }
     .view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    /* Cards */
-    .glass-card {
-      background: var(--glass-bg); border-radius: 20px; border: var(--glass-border); box-shadow: var(--glass-shadow);
-      padding: 24px; margin-bottom: 20px; position: relative; overflow: visible; /* Ensuring Calendar visible */
-    }
-
-    /* Top Bar */
-    .top-bar {
-      position: fixed; top: 0; left: 0; right: 0; height: 60px; z-index: 90;
-      background: var(--glass-bg); border-bottom: var(--glass-border);
-      display: flex; justify-content: space-between; align-items: flex-end; padding: 0 24px 12px;
-    }
+    .glass-card { background: var(--glass-bg); border-radius: 20px; border: var(--glass-border); box-shadow: var(--glass-shadow); padding: 24px; margin-bottom: 20px; position: relative; overflow: visible; }
+    .top-bar { position: fixed; top: 0; left: 0; right: 0; height: 60px; z-index: 90; background: var(--glass-bg); border-bottom: var(--glass-border); display: flex; justify-content: space-between; align-items: flex-end; padding: 0 24px 12px; }
     .app-title { font-size: 20px; font-weight: 700; }
     .icon-btn-top { font-size: 20px; padding: 4px 8px; cursor: pointer; opacity: 0.7; transition: 0.2s; }
     .icon-btn-top:active { opacity: 1; transform: scale(0.9); }
-
-    /* Hero */
-    .hero-card {
-      text-align: center; padding: 32px 20px;
-      background: linear-gradient(135deg, #007aff, #0055ff);
-      color: white; border: none; box-shadow: 0 8px 25px rgba(0,122,255,0.3);
-      position: relative;
-    }
+    .hero-card { text-align: center; padding: 32px 20px; background: linear-gradient(135deg, #007aff, #0055ff); color: white; border: none; box-shadow: 0 8px 25px rgba(0,122,255,0.3); position: relative; }
     .hero-label { font-size: 13px; opacity: 0.9; font-weight: 500; margin-bottom: 8px; }
     .hero-val { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin: 4px 0 16px 0; }
-    .hero-pill { 
-      font-size: 13px; background: rgba(255,255,255,0.9); padding: 6px 14px; 
-      border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; 
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-weight: 600; color: #333;
-    }
+    .hero-pill { font-size: 13px; background: rgba(255,255,255,0.9); padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-weight: 600; color: #333; }
     .eye-btn { font-size: 16px; cursor: pointer; opacity: 0.8; margin-left: 5px; }
     .blur-mode { filter: blur(8px); opacity: 0.5; }
-
-    /* Inputs */
-    .input-row {
-      display: flex; justify-content: space-between; align-items: center;
-      background: var(--glass-bg); padding: 16px 20px; border-radius: 20px;
-      box-shadow: var(--glass-shadow); border: var(--glass-border); margin-bottom: 20px;
-    }
-    .input-row input {
-      border: none; background: transparent; text-align: right; 
-      font-size: 22px; font-weight: 700; color: var(--primary); width: 120px; outline: none; margin-right: 10px;
-    }
-    .save-btn {
-      width: 48px; height: 48px; background: var(--primary); color: white; border-radius: 16px;
-      display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: none;
-    }
-
-    /* Grid */
+    .input-row { display: flex; justify-content: space-between; align-items: center; background: var(--glass-bg); padding: 16px 20px; border-radius: 20px; box-shadow: var(--glass-shadow); border: var(--glass-border); margin-bottom: 20px; }
+    .input-row input { border: none; background: transparent; text-align: right; font-size: 22px; font-weight: 700; color: var(--primary); width: 120px; outline: none; margin-right: 10px; }
+    .save-btn { width: 48px; height: 48px; background: var(--primary); color: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: none; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
     .stat-item { padding: 20px; display: flex; flex-direction: column; justify-content: center; position: relative; }
     .stat-label { font-size: 12px; color: var(--sub); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
     .stat-val { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
     .info-icon { position: absolute; top: 16px; right: 16px; opacity: 0.3; }
-
-    /* List Header */
     .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .list-title { font-weight: 700; font-size: 15px; color: var(--text); }
-    .sort-select {
-      appearance: none; border: none; background: rgba(120,120,128,0.1); 
-      color: var(--primary); font-size: 12px; padding: 6px 12px; border-radius: 8px; font-weight: 600; outline: none;
-    }
+    .sort-select { appearance: none; border: none; background: rgba(120,120,128,0.1); color: var(--primary); font-size: 12px; padding: 6px 12px; border-radius: 8px; font-weight: 600; outline: none; }
     .list-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 0.5px solid rgba(0,0,0,0.05); }
     .list-row:last-child { border-bottom: none; }
     .row-l { display: flex; flex-direction: column; gap: 4px; }
@@ -111,8 +49,6 @@
     .tag { font-size: 10px; padding: 4px 8px; border-radius: 6px; font-weight: 700; margin-right: 8px; }
     .buy { background: rgba(52,199,89,0.15); color: #32ae50; }
     .sell { background: rgba(255,59,48,0.15); color: #ff3b30; }
-
-    /* Hist Item */
     .hist-item { padding: 16px 0; border-bottom: 0.5px solid rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
     .hist-item:active { opacity: 0.6; background: rgba(0,0,0,0.02); }
     .hist-top { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: center; }
@@ -120,33 +56,22 @@
     .hist-time { font-size: 12px; color: var(--sub); margin-left: 8px; background: rgba(120,120,128,0.1); padding: 2px 6px; border-radius: 4px; font-weight: 500; }
     .hist-val { font-weight: 700; font-size: 16px; color: var(--primary); }
     .hist-btm { display: flex; justify-content: space-between; font-size: 12px; color: var(--sub); margin-top: 4px; }
-
-    /* Chart */
     .chart-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .chart-title { font-weight: 700; font-size: 16px; }
-    
     .filter-tabs { display: flex; gap: 3px; background: rgba(120,120,128,0.1); padding: 3px; border-radius: 8px; }
     .filter-btn { flex: 1; padding: 6px 4px; font-size: 10px; font-weight: 600; color: var(--sub); border: none; background: transparent; border-radius: 6px; cursor: pointer; transition: 0.2s; white-space:nowrap; text-align:center; }
     .filter-btn.active { background: var(--glass-bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-
     .chart-scroll-wrapper { overflow-x: auto; padding-bottom: 10px; scroll-behavior: smooth; }
     .chart-box { height: 340px; position: relative; margin-top: 10px; min-width: 100%; }
     svg { width: 100%; height: 100%; overflow: visible; }
-    
-    .candle-body.green { fill: var(--green); }
-    .candle-body.red { fill: var(--red); }
-    
+    .candle-body.green { fill: var(--green); } .candle-body.red { fill: var(--red); }
     .line-trend { fill: none; stroke: var(--primary); stroke-width: 2; }
     .line-cost { fill: none; stroke: var(--cost-color); stroke-width: 2; stroke-dasharray: 4,4; stroke-opacity: 0.8; }
-    
-    .val-label { font-size: 9px; font-weight: 700; fill: var(--text); text-anchor: middle; opacity: 1; } /* Force Opacity 1 */
+    .val-label { font-size: 9px; font-weight: 700; fill: var(--text); text-anchor: middle; opacity: 1; }
     .axis-label { font-size: 10px; fill: var(--sub); }
     .grid-line { stroke: var(--text); stroke-opacity: 0.05; stroke-width: 1; stroke-dasharray: 4,4; }
-    
     .chart-legend { display: flex; justify-content: center; gap: 16px; margin-bottom: 10px; }
     .legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; color: var(--sub); cursor: pointer; }
-
-    /* SIMULATOR STYLES */
     .sim-top-row { display: grid; grid-template-columns: 1fr 30px 1fr; gap: 4px; align-items: center; margin-bottom: 20px; text-align: center; }
     .sim-box { background: var(--glass-bg); border: var(--glass-border); box-shadow: var(--glass-shadow); border-radius: 16px; padding: 16px 8px; }
     .sim-box-title { font-size: 11px; color: var(--sub); margin-bottom: 4px; font-weight:600; text-transform: uppercase; }
@@ -167,39 +92,21 @@
     .sim-profit-val { font-weight: 800; color: var(--green); font-size: 16px; }
     .sim-hint { font-size: 12px; color: var(--cost-color); margin-top: 6px; font-weight: 500; display: none; background: rgba(255,159,10,0.1); padding: 8px; border-radius: 8px; }
     .sim-error-box { background: rgba(255,59,48,0.1); color: var(--red); padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 600; text-align: center; margin-bottom: 10px; display: none; }
-
-    /* Calendar (FIXED) */
     .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-weight: 700; font-size: 16px; color: var(--text); }
     .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; width: 100%; }
     .cal-head-day { font-size: 11px; color: var(--sub); font-weight: 600; margin-bottom: 8px; }
-    
-    .cal-cell { 
-        height: 44px; min-height: 44px;
-        display: flex; flex-direction: column; align-items: center; justify-content: center; 
-        font-size: 15px; font-weight: 500; border-radius: 12px; 
-        position: relative; transition: 0.2s; cursor: pointer; 
-        color: var(--text); 
-        background: transparent;
-    }
-    
+    .cal-cell { height: 44px; min-height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 15px; font-weight: 500; border-radius: 12px; position: relative; transition: 0.2s; cursor: pointer; color: var(--text); background: transparent; }
     .cal-cell.today { background: rgba(0,122,255,0.1); color: var(--primary); font-weight: 800; }
     .cal-cell.has-tx { background: var(--glass-bg); border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .cal-cell.selected { background: var(--primary) !important; color: white !important; box-shadow: 0 4px 12px rgba(0,122,255,0.4); border:none; }
-    
     .cal-dot { width: 5px; height: 5px; border-radius: 50%; margin-top: 4px; }
-    .cal-dot.green { background: var(--green); }
-    .cal-dot.red { background: var(--red); }
-    .cal-cell.selected .cal-dot { background: white; }
+    .cal-dot.green { background: var(--green); } .cal-dot.red { background: var(--red); }
     .cal-detail-box { margin-top: 20px; padding: 16px; background: rgba(120,120,128,0.05); border-radius: 16px; }
-
-    /* Dock & FAB */
     .dock { position: fixed; bottom: calc(20px + var(--safe-pb)); left: 50%; transform: translateX(-50%); width: 90%; max-width: 320px; height: 70px; background: var(--glass-bg); border-radius: 35px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: var(--glass-border); z-index: 100; }
     .dock-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 50px; height: 50px; color: var(--sub); border-radius: 50%; transition: 0.3s; position: relative; }
     .dock-btn.active { color: var(--primary); transform: translateY(-5px); }
     .dock-btn svg { width: 26px; height: 26px; fill: currentColor; }
     .fab { position: fixed; bottom: calc(110px + var(--safe-pb)); right: 24px; width: 60px; height: 60px; background: var(--primary); border-radius: 50%; color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 25px rgba(0,122,255,0.4); z-index: 90; }
-
-    /* Modals & Commons */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
     .modal-overlay.show { display: flex; animation: fadeIn 0.2s; }
     .modal-card { width: 85%; max-width: 360px; background: var(--glass-bg); border-radius: 32px; padding: 28px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); border: var(--glass-border); transform: scale(0.95); transition: 0.3s; }
@@ -209,12 +116,10 @@
     input.form-input { width: 100%; padding: 16px; background: rgba(120,120,128,0.08); border: none; border-radius: 16px; font-size: 18px; color: var(--text); outline: none; font-weight: 600; transition:0.2s; }
     input.form-input:focus { background: white; box-shadow: 0 0 0 2px var(--primary); }
     .btn-main { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; font-size: 16px; font-weight: 700; margin-top: 10px; }
-    
     .settings-list { display: flex; flex-direction: column; background: var(--glass-bg); border-radius: 16px; overflow: hidden; box-shadow: var(--glass-shadow); border: var(--glass-border); margin-bottom: 20px; }
     .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: white; border: none; width: 100%; text-align: left; font-size: 16px; color: var(--text); border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
     .settings-item:last-child { border-bottom: none; }
     .settings-item:active { background: rgba(0,0,0,0.05); }
-
     .calc-detail-box { background: rgba(120,120,128,0.05); padding: 16px; border-radius: 16px; font-size: 14px; line-height: 1.6; }
     .calc-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px; }
     .calc-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; font-weight: 700; font-size: 16px; color: var(--primary); }
@@ -226,6 +131,15 @@
     .share-label { font-size: 12px; opacity: 0.8; margin-bottom: 4px; }
     .share-val { font-size: 18px; font-weight: 700; }
     .share-footer { margin-top: 20px; font-size: 12px; opacity: 0.7; }
+    
+    /* GITHUB SYNC STYLES */
+    .gh-config-box { background: rgba(120,120,128,0.05); padding: 16px; border-radius: 12px; margin-bottom: 16px; }
+    .gh-label { display: block; font-size: 12px; font-weight: 600; color: var(--sub); margin-bottom: 4px; }
+    .gh-input { width: 100%; padding: 10px; font-size: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; margin-bottom: 12px; background: white; color: var(--text); }
+    .gh-actions { display: flex; gap: 10px; margin-top: 10px; }
+    .gh-btn { flex: 1; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 13px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .gh-btn.upload { background: var(--primary); color: white; }
+    .gh-btn.download { background: rgba(120,120,128,0.1); color: var(--text); }
   </style>
 </head>
 <body>
@@ -286,9 +200,11 @@
     <div class="chart-head-row">
       <div class="chart-title">资产走势 (K线盈亏)</div>
       <div class="filter-tabs">
-        <button class="filter-btn active" id="filter-1m" onclick="setChartFilter('1m')">近1月</button>
-        <button class="filter-btn" id="filter-3m" onclick="setChartFilter('3m')">近3月</button>
-        <button class="filter-btn" id="filter-all" onclick="setChartFilter('all')">全部</button>
+        <button class="filter-btn" id="filter-1d" onclick="setChartFilter('1d')">天</button>
+        <button class="filter-btn" id="filter-1w" onclick="setChartFilter('1w')">周</button>
+        <button class="filter-btn active" id="filter-1m" onclick="setChartFilter('1m')">月</button>
+        <button class="filter-btn" id="filter-3m" onclick="setChartFilter('3m')">3月</button>
+        <button class="filter-btn" id="filter-6m" onclick="setChartFilter('6m')">半年</button>
       </div>
     </div>
     
@@ -460,10 +376,37 @@
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-card">
     <h3 style="text-align:center; margin-bottom:24px">数据管理</h3>
+    
+    <div class="gh-config-box">
+        <label class="gh-label">GitHub Token (必填)</label>
+        <input type="password" id="ghToken" class="gh-input" placeholder="ghp_xxxxxxxxxxxx" onchange="saveGhConfig()">
+        <label class="gh-label">仓库路径 (用户名/仓库名)</label>
+        <input type="text" id="ghRepo" class="gh-input" placeholder="user/repo" onchange="saveGhConfig()">
+        <label class="gh-label">文件名 (例如 data.json)</label>
+        <input type="text" id="ghPath" class="gh-input" placeholder="data.json" value="tng_gold_data.json" onchange="saveGhConfig()">
+        
+        <div class="gh-actions">
+            <button class="gh-btn upload" onclick="syncUp()">⬆️ 上传云端</button>
+            <button class="gh-btn download" onclick="syncDown()">⬇️ 恢复云端</button>
+        </div>
+    </div>
+
     <div class="settings-list">
-      <button class="settings-item" onclick="exportData()"><span>📤 备份数据</span></button>
-      <div style="position:relative"><button class="settings-item"><span>📥 恢复备份</span></button><input type="file" onchange="importData(this)" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer"></div>
-      <button class="settings-item" onclick="resetAll()"><span style="color:var(--red)">🗑️ 清空所有数据</span></button>
+      <button class="settings-item" onclick="exportData()">
+        <span>📤 本地备份</span>
+        <span class="settings-arrow">›</span>
+      </button>
+      <div style="position:relative">
+        <button class="settings-item">
+          <span>📥 本地恢复</span>
+          <span class="settings-arrow">›</span>
+        </button>
+        <input type="file" onchange="importData(this)" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer">
+      </div>
+      <button class="settings-item" onclick="resetAll()">
+        <span style="color:var(--red)">🗑️ 清空所有数据</span>
+        <span class="settings-arrow">›</span>
+      </button>
     </div>
     <button class="btn-main" onclick="closeModal('settingsModal')" style="background:#eee; color:#333; margin-top:20px">关闭</button>
   </div>
@@ -482,161 +425,10 @@
 </div>
 
 <script>
-  // Updated with 04.02.2026 data + 30.01-07.02 history
+  // V64 Data Structure
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401},{"ts":1769679188602,"type":"buy","date":"2025-04-23","amount":10,"grams":0.021294,"price":469.623106},{"ts":1769679209117,"type":"buy","date":"2025-05-10","amount":10,"grams":0.021391,"price":467.48292},{"ts":1770188908558,"type":"buy","date":"2026-01-31","amount":10,"grams":0.014681,"price":681.146353},{"ts":1770188927873,"type":"buy","date":"2026-01-30","amount":10,"grams":0.014713,"price":679.665226}];
-  const PRELOAD_HIST = [
-  {
-    "ts": 1770000000000,
-    "date": "2026-01-22",
-    "time": "00:00",
-    "val": 558.05
-  },
-  {
-    "ts": 1770000000001,
-    "date": "2026-01-23",
-    "time": "00:00",
-    "val": 1547.97
-  },
-  {
-    "ts": 1770000000002,
-    "date": "2026-01-24",
-    "time": "00:00",
-    "val": 1559.44
-  },
-  {
-    "ts": 1770000000003,
-    "date": "2026-01-25",
-    "time": "00:00",
-    "val": 1558.89
-  },
-  {
-    "ts": 1769570138096,
-    "date": "2026-01-26",
-    "time": "10:00",
-    "val": 1580.48
-  },
-  {
-    "ts": 1769570149763,
-    "date": "2026-01-27",
-    "time": "10:00",
-    "val": 1571.57
-  },
-  {
-    "ts": 1769570157362,
-    "date": "2026-01-28",
-    "time": "10:00",
-    "val": 1597.82
-  },
-  {
-    "ts": 1769708569185,
-    "date": "2026-01-29",
-    "time": "01:42",
-    "val": 1648.4774752351618
-  },
-  {
-    "ts": 1769679309649,
-    "date": "2026-01-29",
-    "time": "10:00",
-    "val": 1623.05
-  },
-  {
-    "ts": 1769679322265,
-    "date": "2026-01-29",
-    "time": "11:00",
-    "val": 1627.36
-  },
-  {
-    "ts": 1769679331450,
-    "date": "2026-01-29",
-    "time": "12:00",
-    "val": 1708.71
-  },
-  {
-    "ts": 1769679360449,
-    "date": "2026-01-29",
-    "time": "17:00",
-    "val": 1696.79
-  },
-  {
-    "ts": 1769738400000,
-    "date": "2026-01-30",
-    "time": "10:00",
-    "val": 1648.48
-  },
-  {
-    "ts": 1769742000000,
-    "date": "2026-01-30",
-    "time": "11:00",
-    "val": 1647.24
-  },
-  {
-    "ts": 1769745600000,
-    "date": "2026-01-30",
-    "time": "12:00",
-    "val": 1615.23
-  },
-  {
-    "ts": 1769749200000,
-    "date": "2026-01-30",
-    "time": "13:00",
-    "val": 1567.28
-  },
-  {
-    "ts": 1769922467213,
-    "date": "2026-01-31",
-    "time": "10:00",
-    "val": 1499.76
-  },
-  {
-    "ts": 1769922479699,
-    "date": "2026-02-01",
-    "time": "10:00",
-    "val": 1537.53
-  },
-  {
-    "ts": 1770188969456,
-    "date": "2026-02-03",
-    "time": "10:00",
-    "val": 1523.45
-  },
-  {
-    "ts": 1770188984340,
-    "date": "2026-02-04",
-    "time": "10:00",
-    "val": 1551.36
-  },
-  {
-    "ts": 1770188991324,
-    "date": "2026-02-04",
-    "time": "11:00",
-    "val": 1578.0
-  },
-  {
-    "ts": 1770285600000,
-    "date": "2026-02-05",
-    "time": "10:00",
-    "val": 1528.71
-  },
-  {
-    "ts": 1770289200000,
-    "date": "2026-02-05",
-    "time": "11:00",
-    "val": 1515.3
-  },
-  {
-    "ts": 1770372000000,
-    "date": "2026-02-06",
-    "time": "10:00",
-    "val": 1519.28
-  },
-  {
-    "ts": 1770458400000,
-    "date": "2026-02-07",
-    "time": "10:00",
-    "val": 1548.65
-  }
-];
-  const KEY = { TX: 'tng_tx_v63', HS: 'tng_hs_v63', MK: 'tng_mk_v63' };
+  const PRELOAD_HIST = [{"ts":1770000000000,"date":"2026-01-22","time":"00:00","val":558.05},{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89},{"ts":1769570138096,"date":"2026-01-26","time":"10:00","val":1580.48},{"ts":1769570149763,"date":"2026-01-27","time":"10:00","val":1571.57},{"ts":1769570157362,"date":"2026-01-28","time":"10:00","val":1597.82},{"ts":1769679309649,"date":"2026-01-29","time":"10:00","val":1623.05},{"ts":1769679322265,"date":"2026-01-29","time":"11:00","val":1627.36},{"ts":1769679331450,"date":"2026-01-29","time":"12:00","val":1708.71},{"ts":1769679360449,"date":"2026-01-29","time":"17:00","val":1696.79},{"ts":1769738400000,"date":"2026-01-30","time":"10:00","val":1648.48},{"ts":1769742000000,"date":"2026-01-30","time":"11:00","val":1647.24},{"ts":1769745600000,"date":"2026-01-30","time":"12:00","val":1615.23},{"ts":1769749200000,"date":"2026-01-30","time":"13:00","val":1567.28},{"ts":1769922467213,"date":"2026-01-31","time":"10:00","val":1499.76},{"ts":1769922479699,"date":"2026-02-01","time":"10:00","val":1537.53},{"ts":1770188969456,"date":"2026-02-03","time":"10:00","val":1523.45},{"ts":1770188984340,"date":"2026-02-04","time":"10:00","val":1551.36},{"ts":1770188991324,"date":"2026-02-04","time":"11:00","val":1578.0},{"ts":1770285600000,"date":"2026-02-05","time":"10:00","val":1528.71},{"ts":1770289200000,"date":"2026-02-05","time":"11:00","val":1515.3},{"ts":1770372000000,"date":"2026-02-06","time":"10:00","val":1519.28},{"ts":1770458400000,"date":"2026-02-07","time":"10:00","val":1548.65}];
+  const KEY = { TX: 'tng_tx_v64', HS: 'tng_hs_v64', MK: 'tng_mk_v64', CFG: 'tng_cfg_v64' };
   const el = id => document.getElementById(id);
   
   let editId = null, editHistId = null, chartFilter = '1m'; 
@@ -651,6 +443,7 @@
     el('tDate').value = new Date().toISOString().split('T')[0];
     const savedP = localStorage.getItem(KEY.MK);
     if(savedP) el('marketPrice').value = savedP;
+    loadGhConfig();
     render();
   }
 
@@ -722,181 +515,133 @@
     }
   }
 
-  // --- Simulator ---
-  function setSimMode(m){
-      simMode = m;
-      el('tab-mode-amt').className = m=='amt' ? 'sim-tab active' : 'sim-tab';
-      el('tab-mode-target').className = m=='target' ? 'sim-tab active' : 'sim-tab';
-      el('input-grp-amt').style.display = m=='amt' ? 'block' : 'none';
-      el('input-grp-target').style.display = m=='target' ? 'block' : 'none';
-      runSim();
+  // --- GITHUB SYNC ---
+  function saveGhConfig(){
+      const cfg = { token: el('ghToken').value, repo: el('ghRepo').value, path: el('ghPath').value };
+      localStorage.setItem(KEY.CFG, JSON.stringify(cfg));
+  }
+  function loadGhConfig(){
+      const cfg = JSON.parse(localStorage.getItem(KEY.CFG) || '{}');
+      if(cfg.token) el('ghToken').value = cfg.token;
+      if(cfg.repo) el('ghRepo').value = cfg.repo;
+      if(cfg.path) el('ghPath').value = cfg.path;
+  }
+  function b64EncodeUnicode(str) { return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) { return String.fromCharCode('0x' + p1); })); }
+  function b64DecodeUnicode(str) { return decodeURIComponent(atob(str).split('').map(function(c) { return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2); }).join('')); }
+
+  async function syncUp(){
+      const cfg = JSON.parse(localStorage.getItem(KEY.CFG)||'{}');
+      if(!cfg.token || !cfg.repo || !cfg.path) return alert("请先配置 GitHub 信息");
+      
+      const content = JSON.stringify(getDB(), null, 2);
+      const url = `https://api.github.com/repos/${cfg.repo}/contents/${cfg.path}`;
+      
+      try {
+          // 1. Get SHA
+          const getRes = await fetch(url, { headers: { 'Authorization': `token ${cfg.token}` } });
+          let sha = "";
+          if(getRes.ok) {
+              const getData = await getRes.json();
+              sha = getData.sha;
+          }
+          
+          // 2. Put
+          const putRes = await fetch(url, {
+              method: 'PUT',
+              headers: { 'Authorization': `token ${cfg.token}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  message: `Sync from TNG Gold V64 at ${new Date().toLocaleString()}`,
+                  content: b64EncodeUnicode(content),
+                  sha: sha || undefined
+              })
+          });
+          
+          if(putRes.ok) alert("✅ 上传成功！");
+          else alert("❌ 上传失败: " + putRes.status);
+      } catch(e) { alert("❌ 网络错误: " + e.message); }
   }
 
+  async function syncDown(){
+      const cfg = JSON.parse(localStorage.getItem(KEY.CFG)||'{}');
+      if(!cfg.token || !cfg.repo || !cfg.path) return alert("请先配置 GitHub 信息");
+      
+      const url = `https://api.github.com/repos/${cfg.repo}/contents/${cfg.path}`;
+      try {
+          const res = await fetch(url, { headers: { 'Authorization': `token ${cfg.token}` } });
+          if(res.ok){
+              const data = await res.json();
+              const content = b64DecodeUnicode(data.content);
+              const db = JSON.parse(content);
+              if(db.tx && db.hs){
+                  localStorage.setItem(KEY.TX, JSON.stringify(db.tx));
+                  localStorage.setItem(KEY.HS, JSON.stringify(db.hs));
+                  alert("✅ 恢复成功，页面将刷新");
+                  location.reload();
+              } else { alert("❌ 数据格式错误"); }
+          } else { alert("❌ 下载失败: " + res.status); }
+      } catch(e) { alert("❌ 网络错误: " + e.message); }
+  }
+
+  // --- Simulator ---
+  function setSimMode(m){ simMode = m; el('tab-mode-amt').className = m=='amt' ? 'sim-tab active' : 'sim-tab'; el('tab-mode-target').className = m=='target' ? 'sim-tab active' : 'sim-tab'; el('input-grp-amt').style.display = m=='amt' ? 'block' : 'none'; el('input-grp-target').style.display = m=='target' ? 'block' : 'none'; runSim(); }
   function runSim(){
-      const simP = parseFloat(el('simPrice').value);
-      const sellP = parseFloat(el('simSellPrice').value);
-      const {h, c} = getHoldingAt();
-      const curAvg = h > 0 ? c/h : 0;
-      el('simCurAvg').innerText = "RM " + curAvg.toFixed(2);
-      el('simCurHold').innerText = h.toFixed(4) + " g";
-      el('simHintTarget').style.display = 'none';
-      el('simProfitBox').style.display = 'none';
-      el('simErrorMsg').style.display = 'none';
-
-      let simAmt = 0;
-      let valid = false;
-      let error = "";
-
+      const simP = parseFloat(el('simPrice').value); const sellP = parseFloat(el('simSellPrice').value); const {h, c} = getHoldingAt(); const curAvg = h > 0 ? c/h : 0;
+      el('simCurAvg').innerText = "RM " + curAvg.toFixed(2); el('simCurHold').innerText = h.toFixed(4) + " g";
+      el('simHintTarget').style.display = 'none'; el('simProfitBox').style.display = 'none'; el('simErrorMsg').style.display = 'none';
+      let simAmt = 0; let valid = false; let error = "";
       if(simP > 0) {
-          if(simMode === 'amt'){
-              simAmt = parseFloat(el('simAmt').value);
-              if(simAmt > 0) valid = true;
-          } else {
+          if(simMode === 'amt'){ simAmt = parseFloat(el('simAmt').value); if(simAmt > 0) valid = true; }
+          else {
               const targetCost = parseFloat(el('simTargetCost').value);
               if(targetCost > 0){
-                  if(targetCost < curAvg){
-                      el('simHintTarget').style.display = 'block';
-                      el('simHintTarget').innerText = `💡 提示：买入价必须低于 RM ${targetCost.toFixed(2)} 才能实现`;
-                  }
-                  if(targetCost < curAvg && simP < targetCost){ 
-                      if(Math.abs(1 - targetCost/simP) > 0.001){
-                          simAmt = (targetCost*h - c) / (1 - targetCost/simP);
-                          if(simAmt > 0) valid = true;
-                      }
-                  } else if (targetCost > curAvg && simP > targetCost) {
-                      simAmt = (targetCost*h - c) / (1 - targetCost/simP);
-                      if(simAmt > 0) valid = true;
-                  } else {
-                      error = "目标成本不可达成";
-                  }
+                  if(targetCost < curAvg) { el('simHintTarget').style.display = 'block'; el('simHintTarget').innerText = `💡 提示：买入价必须低于 RM ${targetCost.toFixed(2)} 才能实现`; }
+                  if(targetCost < curAvg && simP < targetCost){ if(Math.abs(1 - targetCost/simP) > 0.001){ simAmt = (targetCost*h - c) / (1 - targetCost/simP); if(simAmt > 0) valid = true; } }
+                  else if (targetCost > curAvg && simP > targetCost) { simAmt = (targetCost*h - c) / (1 - targetCost/simP); if(simAmt > 0) valid = true; }
+                  else { error = "目标成本不可达成"; }
               }
           }
       }
-
       if(valid){
-          const newG = simAmt / simP;
-          const totalC = c + simAmt;
-          const totalH = h + newG;
-          const newAvg = totalC / totalH;
-          el('simNewAvg').innerText = "RM " + newAvg.toFixed(2);
-          el('simNewHold').innerText = totalH.toFixed(4) + " g";
+          const newG = simAmt / simP; const totalC = c + simAmt; const totalH = h + newG; const newAvg = totalC / totalH;
+          el('simNewAvg').innerText = "RM " + newAvg.toFixed(2); el('simNewHold').innerText = totalH.toFixed(4) + " g";
           const riseNeed = ((newAvg - simP) / simP) * 100;
           if(newAvg > simP) el('resBreakEven').innerHTML = `需涨 <span style="color:var(--red);font-weight:700">${riseNeed.toFixed(2)}%</span> 回本`;
           else el('resBreakEven').innerHTML = `当前已盈 <span style="color:var(--green);font-weight:700">${Math.abs(riseNeed).toFixed(2)}%</span>`;
-
-          if(sellP > 0){
-              const revenue = totalH * sellP;
-              const profit = revenue - totalC;
-              el('simProfitBox').style.display = 'flex';
-              el('resNetProfit').innerText = (profit>=0?'+':'') + "RM " + profit.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-              el('resNetProfit').style.color = profit>=0 ? 'var(--green)' : 'var(--red)';
-          }
-      } else {
-          el('simNewAvg').innerText = "--";
-          el('simNewHold').innerText = "-- g";
-          el('resBreakEven').innerText = "--";
-          if(error && simP) { el('simErrorMsg').style.display = 'block'; el('simErrorMsg').innerText = error; }
-      }
+          if(sellP > 0){ const revenue = totalH * sellP; const profit = revenue - totalC; el('simProfitBox').style.display = 'flex'; el('resNetProfit').innerText = (profit>=0?'+':'') + "RM " + profit.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); el('resNetProfit').style.color = profit>=0 ? 'var(--green)' : 'var(--red)'; }
+      } else { el('simNewAvg').innerText = "--"; el('simNewHold').innerText = "-- g"; el('resBreakEven').innerText = "--"; if(error && simP) { el('simErrorMsg').style.display = 'block'; el('simErrorMsg').innerText = error; } }
   }
 
-  // --- Chart Logic ---
-  function setChartFilter(range){
-      chartFilter = range;
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      el('filter-'+range).classList.add('active');
-      drawChart();
-  }
-
+  // --- Chart ---
+  function setChartFilter(range){ chartFilter = range; document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); el('filter-'+range).classList.add('active'); drawChart(); }
   function drawChart(){
-    const {hs} = getDB();
-    const box = el('trendChart'); 
-    const wrapper = el('chartWrapper');
-    box.innerHTML = '';
-    
+    const {hs} = getDB(); const box = el('trendChart'); const wrapper = el('chartWrapper'); box.innerHTML = '';
     if(hs.length < 2) { box.innerHTML='<div style="text-align:center;padding-top:120px;color:var(--sub)">暂无数据</div>'; return; }
-    
     let data = hs.sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
-    
-    // Filter Data
     const now = new Date();
-    if(chartFilter === '1d'){
-        const latestDate = data[data.length-1].date;
-        data = data.filter(d => d.date === latestDate);
-        if(data.length === 0) { box.innerHTML='<div style="text-align:center;padding-top:120px;color:var(--sub)">暂无今日数据</div>'; return; }
-    } else if(chartFilter === '1w'){
-        const cut = new Date(); cut.setDate(now.getDate() - 7);
-        data = data.filter(d => new Date(d.date) >= cut);
-    } else if(chartFilter === '1m'){
-        const cut = new Date(); cut.setMonth(now.getMonth() - 1);
-        data = data.filter(d => new Date(d.date) >= cut);
-    } else if(chartFilter === '3m'){
-        const cut = new Date(); cut.setMonth(now.getMonth() - 3);
-        data = data.filter(d => new Date(d.date) >= cut);
-    } else if(chartFilter === '6m'){
-        const cut = new Date(); cut.setMonth(now.getMonth() - 6);
-        data = data.filter(d => new Date(d.date) >= cut);
-    }
-    
+    if(chartFilter === '1d'){ const latestDate = data[data.length-1].date; data = data.filter(d => d.date === latestDate); }
+    else if(chartFilter === '1w'){ const cut = new Date(); cut.setDate(now.getDate() - 7); data = data.filter(d => new Date(d.date) >= cut); }
+    else if(chartFilter === '1m'){ const cut = new Date(); cut.setMonth(now.getMonth() - 1); data = data.filter(d => new Date(d.date) >= cut); }
+    else if(chartFilter === '3m'){ const cut = new Date(); cut.setMonth(now.getMonth() - 3); data = data.filter(d => new Date(d.date) >= cut); }
+    else if(chartFilter === '6m'){ const cut = new Date(); cut.setMonth(now.getMonth() - 6); data = data.filter(d => new Date(d.date) >= cut); }
     if(data.length === 0) { box.innerHTML='<div style="text-align:center;padding-top:120px;color:var(--sub)">该时段无数据</div>'; return; }
-
-    const mappedData = data.map(h=>{ 
-        const s=getHoldingAt(h.date); 
-        return {date:h.date, time:h.time, val:h.val, cost:s.c, hold:s.h}; 
-    });
-    
-    const candles = mappedData.filter(d => d.hold > 0).map(d => {
-        const marketPrice = d.val / d.hold;
-        const avgCost = d.cost / d.hold;
-        return { ...d, mp: marketPrice, ac: avgCost };
-    });
-    
+    const mappedData = data.map(h=>{ const s=getHoldingAt(h.date); return {date:h.date, time:h.time, val:h.val, cost:s.c, hold:s.h}; });
+    const candles = mappedData.filter(d => d.hold > 0).map(d => { const marketPrice = d.val / d.hold; const avgCost = d.cost / d.hold; return { ...d, mp: marketPrice, ac: avgCost }; });
     const allPrices = candles.map(d => d.mp).concat(candles.map(d => d.ac));
-    const minP = Math.min(...allPrices) * 0.98;
-    const maxP = Math.max(...allPrices) * 1.02;
-    const range = maxP - minP;
-    const h = 340;
-    
-    const minBarWidth = 45; 
-    const totalW = Math.max(wrapper.offsetWidth, candles.length * minBarWidth);
-    const groupW = totalW / candles.length;
-    const barW = Math.max(8, groupW * 0.4); 
-
+    const minP = Math.min(...allPrices) * 0.98; const maxP = Math.max(...allPrices) * 1.02; const range = maxP - minP; const h = 340;
+    const minBarWidth = 45; const totalW = Math.max(wrapper.offsetWidth, candles.length * minBarWidth); const groupW = totalW / candles.length; const barW = Math.max(8, groupW * 0.4); 
     let svg = `<svg style="width:${totalW}px;height:${h}px">`;
-    
-    for(let i=0; i<=5; i++){
-        const y = h - 30 - (i/5)*(h-60);
-        svg += `<line x1="0" y1="${y}" x2="${totalW}" y2="${y}" class="grid-line" />`;
-    }
-
-    let trendPath = "";
-    let costPath = "";
-
+    for(let i=0; i<=5; i++){ const y = h - 30 - (i/5)*(h-60); svg += `<line x1="0" y1="${y}" x2="${totalW}" y2="${y}" class="grid-line" />`; }
+    let trendPath = "", costPath = "";
     candles.forEach((d, i) => {
-        const x = i * groupW + groupW/2;
-        const yMP = h - 30 - ((d.mp - minP) / range) * (h - 60);
-        const yAC = h - 30 - ((d.ac - minP) / range) * (h - 60);
-        
-        const yTop = Math.min(yMP, yAC);
-        const height = Math.abs(yMP - yAC);
-        const isProfit = d.mp >= d.ac;
-        const colorClass = isProfit ? "green" : "red";
-        
+        const x = i * groupW + groupW/2; const yMP = h - 30 - ((d.mp - minP) / range) * (h - 60); const yAC = h - 30 - ((d.ac - minP) / range) * (h - 60);
+        const yTop = Math.min(yMP, yAC); const height = Math.abs(yMP - yAC); const isProfit = d.mp >= d.ac; const colorClass = isProfit ? "green" : "red";
         svg += `<rect x="${x - barW/2}" y="${yTop}" width="${barW}" height="${Math.max(2, height)}" class="candle-body ${colorClass}" rx="2" onclick="alert('${d.date} ${d.time}\\n市价: ${d.mp.toFixed(2)}\\n成本: ${d.ac.toFixed(2)}')"></rect>`;
-        
-        if(i === 0) { trendPath += `M ${x} ${yMP}`; costPath += `M ${x} ${yAC}`; }
-        else { trendPath += ` L ${x} ${yMP}`; costPath += ` L ${x} ${yAC}`; }
-        
-        // **Force Label Display**
-        const lbl = chartFilter === '1d' ? d.time : d.date.slice(5);
-        svg += `<text x="${x}" y="${h - 5}" class="axis-label" style="text-anchor:middle">${lbl}</text>`;
-        svg += `<text x="${x}" y="${yTop - 5}" class="val-label">${d.mp.toFixed(0)}</text>`;
+        if(i === 0) { trendPath += `M ${x} ${yMP}`; costPath += `M ${x} ${yAC}`; } else { trendPath += ` L ${x} ${yMP}`; costPath += ` L ${x} ${yAC}`; }
+        const skip = Math.ceil(candles.length / (totalW / 60));
+        if (i % skip === 0 || i === candles.length - 1) { const lbl = chartFilter === '1d' ? d.time : d.date.slice(5); svg += `<text x="${x}" y="${h - 5}" class="axis-label" style="text-anchor:middle">${lbl}</text>`; svg += `<text x="${x}" y="${yTop - 5}" class="val-label">${d.mp.toFixed(0)}</text>`; }
     });
-
-    svg += `<path d="${trendPath}" class="line-trend" />`;
-    svg += `<path d="${costPath}" class="line-cost" />`; 
-    
-    box.innerHTML = svg + '</svg>';
-    setTimeout(() => { wrapper.scrollLeft = wrapper.scrollWidth; }, 50);
+    svg += `<path d="${trendPath}" class="line-trend" />`; svg += `<path d="${costPath}" class="line-cost" />`; 
+    box.innerHTML = svg + '</svg>'; setTimeout(() => { wrapper.scrollLeft = wrapper.scrollWidth; }, 50);
   }
 
   function saveTx(){ const d=el('tDate').value, a=el('tAmt').value, p=el('tPrice').value, g=el('tGrams').value; if(!a||!g)return alert("完整填写"); let tx=getDB().tx; const rec={ts:Date.now(), type:'buy', date:d, amount:a, grams:g, price:p}; tx.push(rec); localStorage.setItem(KEY.TX,JSON.stringify(tx)); closeModal('txModal'); render(); }
@@ -921,7 +666,7 @@
   function togglePrivacy(){ privacyMode = !privacyMode; render(true); }
   function confirmSave(){ const p=parseFloat(el('marketPrice').value); if(!p||p<=0)return alert("请输入有效金价"); if(confirm(`确认写入今日金价 RM ${p.toFixed(2)}?`)) saveAndChart(p); }
   function saveAndChart(p){ localStorage.setItem(KEY.MK,p); const {h}=getHoldingAt(); if(h>0){ const now = new Date(); const d = now.toISOString().split('T')[0]; const time = now.toTimeString().slice(0,5); let hs=getDB().hs; hs.push({ts: Date.now(), date:d, time:time, val:h*p}); localStorage.setItem(KEY.HS,JSON.stringify(hs)); } render(); switchTab('chart'); }
-
+  
   // Calendar Logic
   function changeMonth(delta){ curCalMonth += delta; if(curCalMonth > 11) { curCalMonth=0; curCalYear++; } if(curCalMonth < 0) { curCalMonth=11; curCalYear--; } renderCalendar(); }
   function renderCalendar(){ const y = curCalYear, m = curCalMonth; el('calTitle').innerText = `${y}年 ${m+1 < 10 ? '0'+(m+1) : m+1}月`; const firstDay = new Date(y, m, 1).getDay(); const daysInMonth = new Date(y, m+1, 0).getDate(); const tx = getDB().tx; let html = ''; for(let i=0; i<firstDay; i++) html += '<div></div>'; for(let i=1; i<=daysInMonth; i++){ const dateStr = `${y}-${(m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`; const hasTx = tx.some(t => t.date === dateStr); const isToday = (new Date().toDateString() === new Date(y,m,i).toDateString()); html += `<div class="cal-cell ${isToday?'today':''} ${hasTx?'has-tx':''}" onclick="showCalDetail('${dateStr}', this)">${i} ${hasTx?'<div class="cal-dot green"></div>':''}</div>`; } el('calDays').innerHTML = html; }
