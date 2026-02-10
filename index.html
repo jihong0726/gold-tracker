@@ -2,1659 +2,1044 @@
 <html lang="zh-Hans">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>金库 & 换算</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>TNG 黄金管家 V66</title>
   <style>
     :root{
-      --bg:#f4f7fb;
-      --card:#ffffff;
-      --ink:#0b1324;
-      --muted:rgba(11,19,36,.55);
-      --line:rgba(11,19,36,.08);
-
-      --green:#14a874;
-      --green-weak:rgba(20,168,116,.10);
-
-      --blue:#2b6cff;
-      --blue-weak:rgba(43,108,255,.10);
-
-      --danger:#ff3b30;
-      --danger-weak:rgba(255,59,48,.10);
-
-      --shadow:0 18px 40px rgba(0,0,0,.07);
-      --radius:26px;
-
-      --tabH:78px;
+      --primary: #007aff; 
+      --cost-color: #ff9f0a;
+      --text: #1c1c1e; --sub: #8e8e93;
+      --glass-bg: #ffffff; 
+      --glass-border: 1px solid rgba(0,0,0,0.05);
+      --glass-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      --nav-h: 65px; --safe-pb: env(safe-area-inset-bottom);
+      --green: #34c759; --red: #ff3b30;
+      --bg-color: #f2f2f7;
     }
-    [data-theme="dark"]{
-      --bg:#0b1220;
-      --card:#121a2b;
-      --ink:#e9eefc;
-      --muted:rgba(233,238,252,.58);
-      --line:rgba(233,238,252,.10);
-
-      --green:#28d18f;
-      --green-weak:rgba(40,209,143,.12);
-
-      --blue:#5c8cff;
-      --blue-weak:rgba(92,140,255,.14);
-
-      --shadow:0 18px 40px rgba(0,0,0,.35);
+    @media (prefers-color-scheme: dark) {
+      :root{
+        --text: #f2f2f7; --sub: #98989d;
+        --glass-bg: #1c1c1e;
+        --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+        --bg-color: #000;
+      }
     }
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Microsoft YaHei", Arial;
-      background: radial-gradient(1000px 500px at 20% -10%, rgba(20,168,116,.18), transparent 55%),
-                  radial-gradient(900px 500px at 90% 0%, rgba(43,108,255,.14), transparent 55%),
-                  var(--bg);
-      color:var(--ink);
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      margin: 0; 
+      background: var(--bg-color); 
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+      padding-bottom: calc(var(--nav-h) + 20px + var(--safe-pb));
+      user-select: none; -webkit-font-smoothing: antialiased;
     }
 
-    .screen{
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      padding-bottom: calc(var(--tabH) + env(safe-area-inset-bottom));
+    .view { display: none; padding: 20px; padding-top: 60px; animation: fadeIn 0.3s; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* Cards */
+    .glass-card {
+      background: var(--glass-bg); border-radius: 20px; border: var(--glass-border); box-shadow: var(--glass-shadow);
+      padding: 24px; margin-bottom: 20px; position: relative; overflow: visible;
     }
 
-    /* 顶部栏 */
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:18px 18px 10px;
-      gap:14px;
+    /* Top Bar */
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 60px; z-index: 90;
+      background: var(--glass-bg); border-bottom: var(--glass-border);
+      display: flex; justify-content: space-between; align-items: flex-end; padding: 0 24px 12px;
     }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width:0;
-    }
-    .appIcon{
-      width:52px;height:52px;border-radius:18px;
-      background: linear-gradient(145deg, rgba(20,168,116,1), rgba(20,168,116,.65));
-      display:grid;place-items:center;
-      box-shadow: 0 14px 30px rgba(20,168,116,.25);
-      flex:0 0 auto;
-    }
-    .titleWrap{min-width:0}
-    .title{
-      font-size:38px;
-      font-weight:900;
-      letter-spacing:-.5px;
-      line-height:1;
-      margin:0;
-    }
-    .subtitle{
-      margin-top:6px;
-      font-size:13px;
-      color:var(--muted);
-      font-weight:700;
-      letter-spacing:.2px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .actions{display:flex;align-items:center;gap:12px;flex:0 0 auto;}
-    .iconBtn{
-      width:54px;height:54px;border-radius:20px;
-      border:1px solid var(--line);
-      background: color-mix(in srgb, var(--card) 92%, transparent);
-      box-shadow: 0 10px 26px rgba(0,0,0,.05);
-      display:grid;place-items:center;
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .iconBtn:active{transform:scale(.98)}
+    .app-title { font-size: 20px; font-weight: 700; }
+    .icon-btn-top { font-size: 20px; padding: 4px 8px; cursor: pointer; opacity: 0.7; transition: 0.2s; }
+    .icon-btn-top:active { opacity: 1; transform: scale(0.9); }
 
-    /* 小胶囊 */
-    .pillRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:8px 18px 10px;
+    /* Hero */
+    .hero-card {
+      text-align: center; padding: 32px 20px;
+      background: linear-gradient(135deg, #007aff, #0055ff);
+      color: white; border: none; box-shadow: 0 8px 25px rgba(0,122,255,0.3);
+      position: relative;
     }
-    .ratePill{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:14px 16px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background: color-mix(in srgb, var(--card) 92%, transparent);
-      box-shadow: 0 12px 28px rgba(0,0,0,.05);
-      min-width:0;
+    .hero-label { font-size: 13px; opacity: 0.9; font-weight: 500; margin-bottom: 8px; }
+    .hero-val { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin: 4px 0 16px 0; }
+    .hero-pill { 
+      font-size: 13px; background: rgba(255,255,255,0.9); padding: 6px 14px; 
+      border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-weight: 600; color: #333;
     }
-    .ratePill .bolt{
-      width:22px;height:22px;border-radius:10px;
-      background:var(--green-weak);
-      display:grid;place-items:center;
-      color:var(--green);
-      font-weight:900;
-      flex:0 0 auto;
-    }
-    .rateText{
-      font-weight:900;
-      letter-spacing:.2px;
-      color:var(--muted);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .rateText b{color:var(--ink)}
-    .histBtn{
-      padding:14px 16px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background: color-mix(in srgb, var(--card) 92%, transparent);
-      box-shadow: 0 12px 28px rgba(0,0,0,.05);
-      font-weight:900;
-      cursor:pointer;
-      -webkit-tap-highlight-color: transparent;
-      user-select:none;
-      display:flex;align-items:center;gap:10px;
-    }
-    .histBtn:active{transform:scale(.99)}
+    .eye-btn { font-size: 16px; cursor: pointer; opacity: 0.8; margin-left: 5px; }
+    .blur-mode { filter: blur(8px); opacity: 0.5; }
 
-    /* 页面容器 */
-    .page{display:none;}
-    .page.show{display:block;}
-
-    /* ===== 换算页 ===== */
-    .fxPanel{
-      margin:6px 18px 10px;
-      border-radius: var(--radius);
-      background:
-        linear-gradient(90deg, var(--blue-weak), transparent 55%),
-        linear-gradient(270deg, var(--green-weak), transparent 55%),
-        var(--card);
-      border:1px solid var(--line);
-      box-shadow: var(--shadow);
-      overflow:hidden;
+    /* Inputs */
+    .input-row {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--glass-bg); padding: 16px 20px; border-radius: 20px;
+      box-shadow: var(--glass-shadow); border: var(--glass-border); margin-bottom: 20px;
     }
-    .fxInner{
-      padding:18px 18px 14px;
-      display:flex;
-      align-items:stretch;
-      gap:16px;
+    .input-row input {
+      border: none; background: transparent; text-align: right; 
+      font-size: 22px; font-weight: 700; color: var(--primary); width: 120px; outline: none; margin-right: 10px;
     }
-    .col{
-      flex:1; min-width:0;
-      border-radius:22px;
-      padding:14px 14px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      border:1px solid rgba(0,0,0,0);
-    }
-    .col.left{
-      background: linear-gradient(180deg, rgba(43,108,255,.12), transparent 70%);
-      border:1px solid color-mix(in srgb, var(--blue) 18%, transparent);
-    }
-    .col.right{
-      background: linear-gradient(180deg, rgba(20,168,116,.12), transparent 70%);
-      border:1px solid color-mix(in srgb, var(--green) 18%, transparent);
-      text-align:right;
-    }
-    .miniRow{
-      display:flex;align-items:center;justify-content:space-between;
-      gap:10px;
-      margin-bottom:10px;
-    }
-    .tag{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      font-size:13px;
-      font-weight:900;
-      color:var(--muted);
-      border:1px solid var(--line);
-      background: color-mix(in srgb, var(--card) 75%, transparent);
-      user-select:none;
-      white-space:nowrap;
-    }
-    .tag .dot{
-      width:10px;height:10px;border-radius:999px;
-      background:var(--blue);
-      box-shadow:0 0 0 6px rgba(43,108,255,.10);
-    }
-    .right .tag .dot{
-      background:var(--green);
-      box-shadow:0 0 0 6px rgba(20,168,116,.10);
-    }
-    .hint{
-      font-size:12px;
-      font-weight:900;
-      color:rgba(11,19,36,.40);
-    }
-    [data-theme="dark"] .hint{color:rgba(233,238,252,.42)}
-    .bigLine{
-      display:flex;
-      align-items:baseline;
-      gap:12px;
-    }
-    .right .bigLine{justify-content:flex-end}
-    .bigNum{
-      font-size:64px;
-      font-weight:950;
-      letter-spacing:-1.8px;
-      line-height:1;
-      color:var(--ink);
-    }
-    .right .bigNum{color:var(--green)}
-    .unit{
-      font-size:18px;
-      font-weight:950;
-      color:rgba(11,19,36,.35);
-    }
-    [data-theme="dark"] .unit{color:rgba(233,238,252,.35)}
-
-    .saveBar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:12px 14px 14px;
-      border-top:1px solid var(--line);
-      background: linear-gradient(90deg, rgba(43,108,255,.06), rgba(20,168,116,.08));
-    }
-    .saveText{
-      font-weight:950;
-      letter-spacing:.2px;
-      color:var(--muted);
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-    .saveText b{color:var(--ink)}
-    .saveBtn{
-      flex:0 0 auto;
-      display:flex;align-items:center;gap:10px;
-      padding:14px 22px;
-      border-radius:999px;
-      background: linear-gradient(135deg, rgba(20,168,116,1), rgba(20,168,116,.72));
-      color:white;
-      border:none;
-      font-weight:950;
-      cursor:pointer;
-      box-shadow: 0 18px 34px rgba(20,168,116,.28);
-      -webkit-tap-highlight-color: transparent;
-      user-select:none;
-    }
-    .saveBtn:active{transform:scale(.99)}
-
-    /* 键盘区 */
-    .padWrap{
-      flex:1;
-      display:flex;
-      padding:0 18px 18px;
-    }
-    .pad{
-      width:100%;
-      border-radius: var(--radius);
-      background: color-mix(in srgb, var(--card) 90%, transparent);
-      border:1px solid var(--line);
-      box-shadow: var(--shadow);
-      padding:14px;
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr 1.05fr;
-      grid-template-rows: repeat(5, minmax(54px, 1fr));
-      gap:14px;
-      align-items:stretch;
-      min-height: 340px;
-    }
-    .key{
-      border-radius:22px;
-      border:1px solid var(--line);
-      background: color-mix(in srgb, var(--card) 92%, transparent);
-      display:flex;align-items:center;justify-content:center;
-      font-weight:950;
-      font-size:28px;
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-      box-shadow: 0 12px 26px rgba(0,0,0,.05);
-    }
-    .key:active{transform:scale(.99)}
-    .key.op{
-      background: color-mix(in srgb, var(--blue-weak) 45%, var(--card));
-      color: color-mix(in srgb, var(--blue) 75%, var(--ink));
-    }
-    .key.ac{
-      background: rgba(255,60,60,.10);
-      color:var(--danger);
-      border-color: rgba(255,60,60,.18);
-    }
-    .key.eq{
-      background: linear-gradient(135deg, rgba(20,168,116,1), rgba(20,168,116,.72));
-      color:white;
-      border:none;
-      box-shadow: 0 18px 34px rgba(20,168,116,.28);
-      grid-row: 4 / span 2;
-      grid-column: 4;
-      font-size:34px;
-      border-radius:26px;
-    }
-    .key.zero{
-      grid-column: 1 / span 2;
-      justify-content:center;
-    }
-    .key.back{font-size:22px;}
-
-    /* ===== 金库页（不显示计算器） ===== */
-    .vaultHero{
-      margin:6px 18px 12px;
-      border-radius: 34px;
-      border:1px solid var(--line);
-      background: linear-gradient(145deg, rgba(11,19,36,.98), rgba(11,19,36,.82));
-      box-shadow: var(--shadow);
-      padding:20px 20px 18px;
-      color:white;
-      overflow:hidden;
-      position:relative;
-    }
-    [data-theme="dark"] .vaultHero{
-      background: linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
-      color:var(--ink);
-    }
-    .vaultHero .row1{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:14px;
-    }
-    .vaultHero .label{
-      font-weight:900;
-      opacity:.72;
-      letter-spacing:.2px;
-    }
-    .vaultHero .balance{
-      font-size:72px;
-      font-weight:950;
-      letter-spacing:-2px;
-      line-height:1;
-      margin-top:8px;
-    }
-    .vaultHero .rateBadge{
-      border-radius:999px;
-      padding:10px 14px;
-      background: rgba(255,255,255,.12);
-      border:1px solid rgba(255,255,255,.16);
-      font-weight:950;
-      color: rgba(255,255,255,.88);
-      white-space:nowrap;
-    }
-    [data-theme="dark"] .vaultHero .rateBadge{
-      background: rgba(20,168,116,.12);
-      border:1px solid rgba(20,168,116,.18);
-      color:var(--green);
-    }
-    .vaultMeta{
-      margin-top:14px;
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      opacity:.86;
-      font-weight:900;
+    .save-btn {
+      width: 48px; height: 48px; background: var(--primary); color: white; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: none;
     }
 
-    .vaultBtns{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:14px;
-      padding: 0 18px 12px;
-    }
-    .bigAction{
-      border-radius: 28px;
-      border:1px solid var(--line);
-      background: color-mix(in srgb, var(--card) 92%, transparent);
-      box-shadow: 0 14px 30px rgba(0,0,0,.06);
-      padding:18px 16px;
-      display:flex;
-      align-items:center;
-      gap:14px;
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .bigAction:active{transform:scale(.995)}
-    .bigAction .ic{
-      width:50px;height:50px;border-radius:18px;
-      display:grid;place-items:center;
-      flex:0 0 auto;
-      background: var(--green-weak);
-      color: var(--green);
-      border:1px solid color-mix(in srgb, var(--green) 18%, transparent);
-    }
-    .bigAction .ic.blue{
-      background: var(--blue-weak);
-      color: var(--blue);
-      border:1px solid color-mix(in srgb, var(--blue) 18%, transparent);
-    }
-    .bigAction .t{
-      font-size:20px;
-      font-weight:950;
-      letter-spacing:-.2px;
-      margin:0;
-      line-height:1.1;
-    }
-    .bigAction .s{
-      margin-top:4px;
-      font-size:12px;
-      color:var(--muted);
-      font-weight:850;
-      letter-spacing:.2px;
-    }
+    /* Grid */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .stat-item { padding: 20px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+    .stat-label { font-size: 12px; color: var(--sub); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
+    .stat-val { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+    .info-icon { position: absolute; top: 16px; right: 16px; opacity: 0.3; }
 
-    .vaultListWrap{
-      padding: 0 18px 18px;
+    /* List Header */
+    .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .list-title { font-weight: 700; font-size: 15px; color: var(--text); }
+    .sort-select {
+      appearance: none; border: none; background: rgba(120,120,128,0.1); 
+      color: var(--primary); font-size: 12px; padding: 6px 12px; border-radius: 8px; font-weight: 600; outline: none;
     }
-    .sectionTitle{
-      display:flex;align-items:center;justify-content:space-between;
-      margin:6px 2px 10px;
-      color:var(--muted);
-      font-weight:950;
-      letter-spacing:.2px;
-    }
-    .vaultList{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-    }
-    .vaultItem{
-      border-radius: 24px;
-      border:1px solid var(--line);
-      background: color-mix(in srgb, var(--card) 96%, transparent);
-      box-shadow: 0 10px 22px rgba(0,0,0,.04);
-      padding:14px 14px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .vaultItem:active{transform:scale(.998)}
-    .vaultItem .left{
-      display:flex;align-items:center;gap:12px;min-width:0;
-    }
-    .vaultItem .emoji{
-      width:44px;height:44px;border-radius:18px;
-      display:grid;place-items:center;
-      background: color-mix(in srgb, var(--green-weak) 70%, var(--card));
-      border:1px solid color-mix(in srgb, var(--green) 18%, transparent);
-      font-size:20px;
-    }
-    .vaultItem .txt{
-      min-width:0;
-    }
-    .vaultItem .txt .name{
-      font-weight:950;
-      letter-spacing:-.2px;
-      margin:0;
-      line-height:1.1;
-      font-size:18px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .vaultItem .txt .meta{
-      margin-top:6px;
-      font-size:12px;
-      color:var(--muted);
-      font-weight:850;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .vaultItem .amt{
-      text-align:right;
-      font-weight:950;
-      letter-spacing:-.2px;
-      font-size:20px;
-      color:var(--ink);
-      white-space:nowrap;
-    }
+    .list-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 0.5px solid rgba(0,0,0,0.05); }
+    .list-row:last-child { border-bottom: none; }
+    .row-l { display: flex; flex-direction: column; gap: 4px; }
+    .row-r { text-align: right; display: flex; flex-direction: column; gap: 4px; }
+    .tag { font-size: 10px; padding: 4px 8px; border-radius: 6px; font-weight: 700; margin-right: 8px; }
+    .buy { background: rgba(52,199,89,0.15); color: #32ae50; }
+    .sell { background: rgba(255,59,48,0.15); color: #ff3b30; }
 
-    /* 弹窗复用 */
-    .overlay{
-      position:fixed; inset:0;
-      background: rgba(0,0,0,.38);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-      z-index:50;
-    }
-    .overlay.show{display:flex}
-    .modal{
-      width:min(720px, 100%);
-      border-radius: 30px;
-      background: var(--card);
-      border:1px solid var(--line);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .modalHead{
-      display:flex;align-items:center;justify-content:space-between;
-      padding:18px 18px 10px;
-      gap:12px;
-    }
-    .modalTitle{
-      display:flex;align-items:center;gap:12px;min-width:0;
-    }
-    .modalTitle h2{
-      margin:0;
-      font-size:28px;
-      font-weight:950;
-      letter-spacing:-.4px;
-      line-height:1.1;
-    }
-    .modalTitle p{
-      margin:4px 0 0;
-      font-size:13px;
-      color:var(--muted);
-      font-weight:850;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .modalIcon{
-      width:52px;height:52px;border-radius:18px;
-      background: var(--green-weak);
-      display:grid;place-items:center;
-      color:var(--green);
-      flex:0 0 auto;
-      border:1px solid color-mix(in srgb, var(--green) 18%, transparent);
-    }
-    .closeBtn{
-      width:52px;height:52px;border-radius:20px;
-      border:1px solid var(--line);
-      background: color-mix(in srgb, var(--card) 92%, transparent);
-      display:grid;place-items:center;
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .closeBtn:active{transform:scale(.99)}
+    /* Hist Item */
+    .hist-item { padding: 16px 0; border-bottom: 0.5px solid rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
+    .hist-item:active { opacity: 0.6; background: rgba(0,0,0,0.02); }
+    .hist-top { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: center; }
+    .hist-date { font-weight: 600; font-size: 15px; color: var(--text); }
+    .hist-time { font-size: 12px; color: var(--sub); margin-left: 8px; background: rgba(120,120,128,0.1); padding: 2px 6px; border-radius: 4px; font-weight: 500; }
+    .hist-val { font-weight: 700; font-size: 16px; color: var(--primary); }
+    .hist-btm { display: flex; justify-content: space-between; font-size: 12px; color: var(--sub); margin-top: 4px; }
 
-    .modalActions{
-      display:flex;
-      gap:12px;
-      padding:10px 18px 14px;
-    }
-    .ghostBtn{
-      flex:1;
-      padding:16px 14px;
-      border-radius: 22px;
-      border:1px solid var(--line);
-      background: color-mix(in srgb, var(--card) 92%, transparent);
-      font-weight:950;
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .ghostBtn:active{transform:scale(.99)}
-    .dangerBtn{
-      flex:1;
-      padding:16px 14px;
-      border-radius: 22px;
-      border:1px solid rgba(255,60,60,.18);
-      background: rgba(255,60,60,.10);
-      color:var(--danger);
-      font-weight:950;
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .dangerBtn:active{transform:scale(.99)}
+    /* Chart */
+    .chart-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .chart-title { font-weight: 700; font-size: 16px; }
+    
+    .filter-tabs { display: flex; gap: 3px; background: rgba(120,120,128,0.1); padding: 3px; border-radius: 8px; }
+    .filter-btn { flex: 1; padding: 6px 4px; font-size: 10px; font-weight: 600; color: var(--sub); border: none; background: transparent; border-radius: 6px; cursor: pointer; transition: 0.2s; white-space:nowrap; text-align:center; }
+    .filter-btn.active { background: var(--glass-bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-    .list{
-      padding:0 18px 18px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      max-height: min(62vh, 560px);
-      overflow:auto;
-    }
-    .item{
-      border-radius: 24px;
-      border:1px solid var(--line);
-      background:
-        linear-gradient(90deg, var(--blue-weak), transparent 55%),
-        linear-gradient(270deg, var(--green-weak), transparent 55%),
-        color-mix(in srgb, var(--card) 96%, transparent);
-      padding:14px 14px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .item:active{transform:scale(.998)}
-    .itemLeft{min-width:0;display:flex;flex-direction:column;gap:6px;}
-    .line1{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-weight:950;letter-spacing:-.2px;}
-    .line1 .twd{color:var(--ink);font-size:26px;}
-    .line1 .twd small{font-size:14px;color:rgba(11,19,36,.40);font-weight:950;margin-left:6px;}
-    [data-theme="dark"] .line1 .twd small{color:rgba(233,238,252,.38)}
-    .chip{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:8px 10px;border-radius:999px;border:1px solid var(--line);
-      background: color-mix(in srgb, var(--card) 78%, transparent);
-      font-size:13px;color:var(--muted);font-weight:950;white-space:nowrap;
-    }
-    .line2{font-size:13px;color:var(--muted);font-weight:850;display:flex;gap:10px;flex-wrap:wrap;}
-    .itemRight{text-align:right;display:flex;flex-direction:column;gap:6px;flex:0 0 auto;align-items:flex-end;}
-    .rm{font-size:30px;font-weight:950;color:var(--green);letter-spacing:-.4px;}
-    .rm small{font-size:14px;color:rgba(11,19,36,.40);font-weight:950;margin-left:6px;}
-    [data-theme="dark"] .rm small{color:rgba(233,238,252,.38)}
-    .empty{
-      border-radius: 24px;border:1px dashed var(--line);
-      padding:18px;color:var(--muted);font-weight:900;text-align:center;
-      background: color-mix(in srgb, var(--card) 92%, transparent);
-    }
+    .chart-scroll-wrapper { overflow-x: auto; padding-bottom: 10px; scroll-behavior: smooth; }
+    .chart-box { height: 340px; position: relative; margin-top: 10px; min-width: 100%; }
+    svg { width: 100%; height: 100%; overflow: visible; }
+    
+    .candle-body.green { fill: var(--green); }
+    .candle-body.red { fill: var(--red); }
+    
+    .line-trend { fill: none; stroke: var(--primary); stroke-width: 2; }
+    .line-cost { fill: none; stroke: var(--cost-color); stroke-width: 2; stroke-dasharray: 4,4; stroke-opacity: 0.8; }
+    
+    .val-label { font-size: 9px; font-weight: 700; fill: var(--text); text-anchor: middle; opacity: 1; }
+    .axis-label { font-size: 10px; fill: var(--sub); }
+    .grid-line { stroke: var(--text); stroke-opacity: 0.05; stroke-width: 1; stroke-dasharray: 4,4; }
+    
+    .chart-legend { display: flex; justify-content: center; gap: 16px; margin-bottom: 10px; }
+    .legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; color: var(--sub); cursor: pointer; }
 
-    .detailBody{padding:0 18px 18px;display:flex;flex-direction:column;gap:12px;}
-    .detailCard{
-      border-radius: 26px;border:1px solid var(--line);
-      background:
-        linear-gradient(90deg, var(--blue-weak), transparent 55%),
-        linear-gradient(270deg, var(--green-weak), transparent 55%),
-        color-mix(in srgb, var(--card) 96%, transparent);
-      padding:16px 16px;
-    }
-    .detailTop{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;}
-    .detailTop .leftBlock{display:flex;flex-direction:column;gap:8px;min-width:0;}
-    .detailTop .rightBlock{text-align:right;display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
-    .bigPair{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
-    .bigPair .num{font-size:44px;font-weight:950;letter-spacing:-1px;}
-    .bigPair .u{font-size:16px;font-weight:950;color:rgba(11,19,36,.42);}
-    [data-theme="dark"] .bigPair .u{color:rgba(233,238,252,.40)}
-    .bigPair.rm .num{color:var(--green)}
-    .meta{font-size:13px;color:var(--muted);font-weight:850;display:flex;gap:10px;flex-wrap:wrap;}
-    .detailBtns{display:flex;gap:12px;}
-    .primaryClose{
-      flex:1;padding:18px 14px;border-radius: 22px;border:1px solid var(--line);
-      background: color-mix(in srgb, var(--card) 92%, transparent);
-      font-weight:950;cursor:pointer;
-    }
-    .deleteBtn{
-      flex:1;padding:18px 14px;border-radius: 22px;border:1px solid rgba(255,60,60,.18);
-      background: rgba(255,60,60,.10);color:var(--danger);
-      font-weight:950;cursor:pointer;
-    }
+    /* SIMULATOR STYLES */
+    .sim-top-row { display: grid; grid-template-columns: 1fr 30px 1fr; gap: 4px; align-items: center; margin-bottom: 20px; text-align: center; }
+    .sim-box { background: var(--glass-bg); border: var(--glass-border); box-shadow: var(--glass-shadow); border-radius: 16px; padding: 16px 8px; }
+    .sim-box-title { font-size: 11px; color: var(--sub); margin-bottom: 4px; font-weight:600; text-transform: uppercase; }
+    .sim-box-val { font-size: 18px; font-weight: 800; color: var(--text); }
+    .sim-box-sub { font-size: 11px; color: var(--sub); margin-top: 2px; }
+    .sim-arrow { font-size: 20px; color: var(--sub); opacity: 0.5; }
+    .sim-res-highlight { color: var(--primary); }
+    
+    .sim-input-area { background: var(--glass-bg); border-radius: 20px; padding: 24px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); border: var(--glass-border); }
+    .sim-toggle { display: flex; background: rgba(120,120,128,0.1); padding: 4px; border-radius: 12px; margin-bottom: 20px; }
+    .sim-tab { flex: 1; text-align: center; padding: 10px; font-size: 13px; font-weight: 600; border-radius: 8px; color: var(--sub); transition: 0.2s; }
+    .sim-tab.active { background: var(--glass-bg); color: var(--text); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
 
-    /* 底部 tab */
-    .tabbar{
-      position:fixed;left:0;right:0;bottom:0;
-      height: calc(var(--tabH) + env(safe-area-inset-bottom));
-      padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
-      display:flex;justify-content:center;
-      pointer-events:none;
-    }
-    .tabInner{
-      width:min(520px, calc(100% - 24px));
-      background: color-mix(in srgb, var(--card) 92%, transparent);
-      border:1px solid var(--line);
-      border-radius: 26px;
-      box-shadow: var(--shadow);
-      display:flex;
-      overflow:hidden;
-      pointer-events:auto;
-    }
-    .tab{
-      flex:1;
-      padding:12px 14px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      font-weight:950;
-      color:rgba(11,19,36,.42);
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    [data-theme="dark"] .tab{color:rgba(233,238,252,.48)}
-    .tab.active{
-      color:var(--ink);
-      background: linear-gradient(90deg, rgba(43,108,255,.08), rgba(20,168,116,.10));
-    }
-    .tab + .tab{border-left:1px solid var(--line);}
+    .sim-calc-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border-radius: 12px; font-weight: 700; border: none; margin-top: 20px; font-size: 16px; box-shadow: 0 4px 12px rgba(0,122,255,0.3); transition: 0.2s; }
+    .sim-calc-btn:active { transform: scale(0.98); }
 
-    @media (max-width:560px){
-      .fxInner{flex-direction:column}
-      .bigNum{font-size:58px}
+    .sim-data-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size:13px; color:var(--text); }
+    .sim-label { color: var(--sub); }
+    .sim-val-bold { font-weight: 700; }
+    .sim-profit-box { margin-top: 16px; padding: 12px; background: rgba(52,199,89,0.1); border-radius: 12px; display:flex; justify-content:space-between; align-items:center; }
+    .sim-profit-val { font-weight: 800; color: var(--green); font-size: 16px; }
+    .sim-hint { font-size: 12px; color: var(--cost-color); margin-top: 6px; font-weight: 500; display: none; background: rgba(255,159,10,0.1); padding: 8px; border-radius: 8px; }
+    .sim-error-box { background: rgba(255,59,48,0.1); color: var(--red); padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 600; text-align: center; margin-bottom: 10px; display: none; }
+
+    /* Calendar (FIXED) */
+    .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-weight: 700; font-size: 16px; color: var(--text); }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; width: 100%; }
+    .cal-head-day { font-size: 11px; color: var(--sub); font-weight: 600; margin-bottom: 8px; }
+    
+    .cal-cell { 
+        height: 44px; min-height: 44px;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; 
+        font-size: 15px; font-weight: 500; border-radius: 12px; 
+        position: relative; transition: 0.2s; cursor: pointer; 
+        color: var(--text); 
+        background: transparent;
     }
-    @media (max-width:420px){
-      .title{font-size:34px}
-      .pad{gap:12px}
-      .key{font-size:26px;border-radius:20px}
-      .vaultHero .balance{font-size:62px}
-    }
+    
+    .cal-cell.today { background: rgba(0,122,255,0.1); color: var(--primary); font-weight: 800; }
+    .cal-cell.has-tx { background: var(--glass-bg); border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .cal-cell.selected { background: var(--primary) !important; color: white !important; box-shadow: 0 4px 12px rgba(0,122,255,0.4); border:none; }
+    
+    .cal-dot { width: 5px; height: 5px; border-radius: 50%; margin-top: 4px; }
+    .cal-dot.green { background: var(--green); }
+    .cal-dot.red { background: var(--red); }
+    .cal-cell.selected .cal-dot { background: white; }
+    .cal-detail-box { margin-top: 20px; padding: 16px; background: rgba(120,120,128,0.05); border-radius: 16px; }
+
+    /* Dock & FAB */
+    .dock { position: fixed; bottom: calc(20px + var(--safe-pb)); left: 50%; transform: translateX(-50%); width: 90%; max-width: 320px; height: 70px; background: var(--glass-bg); border-radius: 35px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: var(--glass-border); z-index: 100; }
+    .dock-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 50px; height: 50px; color: var(--sub); border-radius: 50%; transition: 0.3s; position: relative; }
+    .dock-btn.active { color: var(--primary); transform: translateY(-5px); }
+    .dock-btn svg { width: 26px; height: 26px; fill: currentColor; }
+    .fab { position: fixed; bottom: calc(110px + var(--safe-pb)); right: 24px; width: 60px; height: 60px; background: var(--primary); border-radius: 50%; color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 25px rgba(0,122,255,0.4); z-index: 90; }
+
+    /* Modals & Commons */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+    .modal-overlay.show { display: flex; animation: fadeIn 0.2s; }
+    .modal-card { width: 85%; max-width: 360px; background: var(--glass-bg); border-radius: 32px; padding: 28px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); border: var(--glass-border); transform: scale(0.95); transition: 0.3s; }
+    .modal-overlay.show .modal-card { transform: scale(1); }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--sub); margin-bottom: 6px; margin-left: 4px; }
+    input.form-input { width: 100%; padding: 16px; background: rgba(120,120,128,0.08); border: none; border-radius: 16px; font-size: 18px; color: var(--text); outline: none; font-weight: 600; transition:0.2s; }
+    input.form-input:focus { background: white; box-shadow: 0 0 0 2px var(--primary); }
+    .btn-main { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; font-size: 16px; font-weight: 700; margin-top: 10px; }
+    
+    .settings-list { display: flex; flex-direction: column; background: var(--glass-bg); border-radius: 16px; overflow: hidden; box-shadow: var(--glass-shadow); border: var(--glass-border); margin-bottom: 20px; }
+    .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: white; border: none; width: 100%; text-align: left; font-size: 16px; color: var(--text); border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
+    .settings-item:last-child { border-bottom: none; }
+    .settings-item:active { background: rgba(0,0,0,0.05); }
+
+    .calc-detail-box { background: rgba(120,120,128,0.05); padding: 16px; border-radius: 16px; font-size: 14px; line-height: 1.6; }
+    .calc-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px; }
+    .calc-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; font-weight: 700; font-size: 16px; color: var(--primary); }
+    .share-card-container { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); border-radius: 24px; padding: 30px; color: #fff; text-align: center; box-shadow: 0 20px 50px rgba(255, 165, 0, 0.4); margin-bottom: 20px; }
+    .share-title { font-size: 16px; font-weight: 600; opacity: 0.9; margin-bottom: 10px; letter-spacing: 2px; }
+    .share-amount { font-size: 48px; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .share-item { background: rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; }
+    .share-label { font-size: 12px; opacity: 0.8; margin-bottom: 4px; }
+    .share-val { font-size: 18px; font-weight: 700; }
+    .share-footer { margin-top: 20px; font-size: 12px; opacity: 0.7; }
   </style>
 </head>
-
 <body>
-  <div class="screen" id="screen">
-    <div class="topbar">
-      <div class="brand">
-        <div class="appIcon" aria-hidden="true">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-            <rect x="6" y="3.8" width="12" height="16.4" rx="2.2" stroke="white" stroke-width="2"/>
-            <path d="M8.5 8.5h7" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <path d="M8.5 12h7" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <path d="M8.5 15.5h4.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div class="titleWrap">
-          <div class="title" id="pageTitle">换算</div>
-          <div class="subtitle" id="subTitle">输入 TWD，右侧自动折合 RM</div>
-        </div>
-      </div>
 
-      <div class="actions">
-        <div class="iconBtn" id="themeBtn" title="切换主题" aria-label="切换主题">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M21 12.5A8.5 8.5 0 1 1 11.5 3a6.2 6.2 0 0 0 9.5 9.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="iconBtn" id="undoBtn" title="撤回输入" aria-label="撤回输入">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M9 9H4V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M4 9a8 8 0 1 1 2.4 5.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-      </div>
+<div class="top-bar">
+  <div class="app-title">TNG 黄金管家</div>
+  <div>
+    <span class="icon-btn-top" onclick="openShareModal()">⏏</span>
+    <span class="icon-btn-top" onclick="openSettings()">⚙️</span>
+  </div>
+</div>
+
+<div id="view-home" class="view active">
+  <div class="glass-card hero-card">
+    <div class="hero-label">当前持仓总值 (RM) <span class="eye-btn" onclick="togglePrivacy()">👁️</span></div>
+    <div class="hero-val" id="kpiVal">0.00</div>
+    <div class="hero-pill" id="kpiProfit">盈亏: ---</div>
+  </div>
+
+  <div class="input-row">
+    <div style="display:flex; align-items:center; gap:8px">
+      <div style="width:4px; height:16px; background:var(--primary); border-radius:2px"></div>
+      <div style="font-weight:600; font-size:16px">今日金价</div>
     </div>
-
-    <div class="pillRow" id="pillRow">
-      <div class="ratePill" title="目前兑换汇率">
-        <div class="bolt">⚡</div>
-        <div class="rateText">当前汇率 <b id="rateLabel">1 : 7.949</b> <span style="opacity:.8">TWD/MYR</span></div>
-      </div>
-
-      <div class="histBtn" id="openHistory">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <path d="M3 12a9 9 0 1 0 3-6.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M3 4v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        历史
-      </div>
-    </div>
-
-    <!-- =========================
-         换算页（显示计算器）
-    ========================== -->
-    <div class="page show" id="pageCalc">
-      <div class="fxPanel">
-        <div class="fxInner">
-          <div class="col left">
-            <div class="miniRow">
-              <div class="tag"><span class="dot"></span> 输入</div>
-              <div class="hint">可编辑</div>
-            </div>
-            <div class="bigLine">
-              <span class="bigNum" id="twdValue">0</span>
-              <span class="unit">TWD</span>
-            </div>
-          </div>
-
-          <div class="col right">
-            <div class="miniRow">
-              <div class="tag"><span class="dot"></span> 换算</div>
-              <div class="hint">仅显示</div>
-            </div>
-            <div class="bigLine">
-              <span class="bigNum" id="rmValue">0.00</span>
-              <span class="unit">RM</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="saveBar">
-          <div class="saveText">用当前汇率 <b id="rateSmall">1 : 7.949</b> 保存这次换算</div>
-          <button class="saveBtn" id="saveBtn" type="button" title="保存记录">保存</button>
-        </div>
-      </div>
-
-      <div class="padWrap">
-        <div class="pad" id="pad">
-          <div class="key ac" data-act="ac">AC</div>
-          <div class="key op back" data-act="back">⌫</div>
-          <div class="key op" data-act="div">÷</div>
-          <div class="key op" data-act="mul">×</div>
-
-          <div class="key" data-act="7">7</div>
-          <div class="key" data-act="8">8</div>
-          <div class="key" data-act="9">9</div>
-          <div class="key op" data-act="sub">−</div>
-
-          <div class="key" data-act="4">4</div>
-          <div class="key" data-act="5">5</div>
-          <div class="key" data-act="6">6</div>
-          <div class="key op" data-act="add">+</div>
-
-          <div class="key" data-act="1">1</div>
-          <div class="key" data-act="2">2</div>
-          <div class="key" data-act="3">3</div>
-          <div class="key eq" data-act="eq">=</div>
-
-          <div class="key zero" data-act="0">0</div>
-          <div class="key" data-act="dot">.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- =========================
-         金库页（不显示计算器）
-    ========================== -->
-    <div class="page" id="pageVault">
-      <div class="vaultHero">
-        <div class="row1">
-          <div>
-            <div class="label">台币余额</div>
-            <div class="balance" id="vaultBalance">0</div>
-          </div>
-          <div class="rateBadge" id="vaultRateBadge">1 : 7.949</div>
-        </div>
-        <div class="vaultMeta">
-          <div>现金已花 <span id="vaultCash">0</span></div>
-          <div>卡片已花 <span id="vaultCard">0</span></div>
-        </div>
-      </div>
-
-      <div class="vaultBtns">
-        <div class="bigAction" id="vaultGoExchange">
-          <div class="ic">
-            🔄
-          </div>
-          <div>
-            <div class="t">去换钱</div>
-            <div class="s">记录一次换汇存入</div>
-          </div>
-        </div>
-        <div class="bigAction" id="vaultAddExpense">
-          <div class="ic blue">
-            🧾
-          </div>
-          <div>
-            <div class="t">记开销</div>
-            <div class="s">交通 / 吃喝 / 玩乐…</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="vaultListWrap">
-        <div class="sectionTitle">
-          <span>记录</span>
-          <span style="opacity:.75">点开才可删除</span>
-        </div>
-        <div class="vaultList" id="vaultList"></div>
-      </div>
+    <div style="display:flex; align-items:center">
+      <input type="number" id="marketPrice" placeholder="0.00" inputmode="decimal" step="any" oninput="render(true)">
+      <button class="save-btn" onclick="confirmSave()">➔</button>
     </div>
   </div>
 
-  <!-- 底部 Tab -->
-  <div class="tabbar">
-    <div class="tabInner">
-      <div class="tab" id="tabVault">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <rect x="3" y="6" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="2"/>
-          <path d="M7 10h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        金库
-      </div>
-      <div class="tab active" id="tabCalc">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <rect x="5" y="3" width="14" height="18" rx="2.5" stroke="currentColor" stroke-width="2"/>
-          <path d="M8 8h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M8 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M8 16h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        换算
-      </div>
+  <div class="grid-2">
+    <div class="glass-card stat-item">
+      <div class="stat-label">持有克数</div>
+      <div class="stat-val"><span id="kpiHolding">0.000000</span> <span style="font-size:14px;font-weight:500">g</span></div>
+    </div>
+    <div class="glass-card stat-item">
+      <div class="stat-label">平均成本</div>
+      <div class="stat-val"><span id="kpiAvg">0.00</span> <span style="font-size:14px;font-weight:500">/g</span></div>
+      <div class="info-icon" onclick="showCalcDetail()">?</div>
     </div>
   </div>
 
-  <!-- 历史记录（换算保存列表） -->
-  <div class="overlay" id="historyOverlay" role="dialog" aria-modal="true">
-    <div class="modal">
-      <div class="modalHead">
-        <div class="modalTitle">
-          <div class="modalIcon" aria-hidden="true">🕘</div>
-          <div style="min-width:0">
-            <h2>历史记录</h2>
-            <p>点击一条记录查看详情，详情页才提供删除</p>
-          </div>
-        </div>
-        <div class="closeBtn" id="closeHistory" aria-label="关闭">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-      </div>
+  <div class="glass-card">
+    <div class="list-header">
+      <div class="list-title">最近交易</div>
+      <select id="sortSelect" class="sort-select" onchange="changeSort()">
+        <option value="date-desc">交易日期 ↓</option>
+        <option value="date-asc">交易日期 ↑</option>
+        <option value="price-desc">单价 ↓</option>
+      </select>
+    </div>
+    <div id="txList"></div>
+  </div>
+</div>
 
-      <div class="modalActions">
-        <button class="ghostBtn" id="exportBtn" type="button">导出</button>
-        <button class="dangerBtn" id="clearBtn" type="button">清空</button>
+<div id="view-chart" class="view">
+  <div class="glass-card" id="chartCard">
+    <div class="chart-head-row">
+      <div class="chart-title">资产走势 (K线盈亏)</div>
+      <div class="filter-tabs">
+        <button class="filter-btn active" id="filter-1m" onclick="setChartFilter('1m')">近1月</button>
+        <button class="filter-btn" id="filter-3m" onclick="setChartFilter('3m')">近3月</button>
+        <button class="filter-btn" id="filter-6m" onclick="setChartFilter('6m')">半年</button>
+        <button class="filter-btn" id="filter-all" onclick="setChartFilter('all')">全部</button>
       </div>
+    </div>
+    
+    <div style="display:flex; justify-content:center; gap:16px; margin-bottom:12px">
+      <div class="chart-legend">
+        <div class="legend-item"><div style="width:10px;height:10px;background:var(--green);border-radius:2px"></div> 盈利</div>
+        <div class="legend-item"><div style="width:10px;height:10px;background:var(--red);border-radius:2px"></div> 亏损</div>
+        <div class="legend-item"><div style="width:12px;height:2px;background:var(--primary);border-radius:2px"></div> 总资产</div>
+        <div class="legend-item"><div style="width:12px;height:2px;background:var(--cost-color);border-radius:2px;border-bottom:2px dashed var(--cost-color)"></div> 总成本</div>
+      </div>
+    </div>
 
-      <div class="list" id="historyList"></div>
+    <div class="chart-scroll-wrapper" id="chartWrapper">
+      <div class="chart-box" id="trendChart"></div>
+    </div>
+  </div>
+  
+  <button style="width:100%;padding:12px;border:none;background:transparent;color:var(--primary);font-weight:600;margin-bottom:10px" onclick="openHistModal()">+ 补录历史数据</button>
+  
+  <div class="glass-card">
+    <div style="font-weight:700; font-size:15px; margin-bottom:12px; color:var(--text)">📋 所有的录入记录 (历史走势)</div>
+    <div id="histList"></div>
+  </div>
+</div>
+
+<div id="view-cal" class="view">
+  <div class="glass-card" style="overflow:visible">
+    <div class="cal-header">
+      <div onclick="changeMonth(-1)" style="cursor:pointer;padding:10px">❮</div>
+      <div id="calTitle"></div>
+      <div onclick="changeMonth(1)" style="cursor:pointer;padding:10px">❯</div>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-head-day">日</div><div class="cal-head-day">一</div><div class="cal-head-day">二</div>
+      <div class="cal-head-day">三</div><div class="cal-head-day">四</div><div class="cal-head-day">五</div><div class="cal-head-day">六</div>
+    </div>
+    <div id="calDays" class="cal-grid"></div>
+    <div id="calDetail" class="cal-detail-box">
+      <div style="font-weight:700;margin-bottom:8px" id="calDetailDate"></div>
+      <div id="calDetailContent"></div>
+    </div>
+  </div>
+</div>
+
+<div id="view-sim" class="view">
+  <div class="sim-top-row">
+    <div class="sim-box">
+      <div class="sim-box-title">当前均价</div>
+      <div class="sim-box-val" id="simCurAvg" style="color:var(--cost-color)">--</div>
+      <div class="sim-box-sub" id="simCurHold">-- g</div>
+    </div>
+    <div class="sim-arrow">➔</div>
+    <div class="sim-box" style="background:var(--glass-bg)">
+      <div class="sim-box-title">推演后成本</div>
+      <div class="sim-box-val sim-res-highlight" id="simNewAvg">--</div>
+      <div class="sim-box-sub" id="simNewHold">-- g</div>
     </div>
   </div>
 
-  <!-- 详情（删除只在这里） -->
-  <div class="overlay" id="detailOverlay" role="dialog" aria-modal="true">
-    <div class="modal">
-      <div class="modalHead">
-        <div class="modalTitle">
-          <div class="modalIcon" aria-hidden="true">🗑️</div>
-          <div style="min-width:0">
-            <h2 id="detailTitle">记录详情</h2>
-            <p id="detailSub"></p>
-          </div>
+  <div class="glass-card" id="simResultCard">
+    <div class="sim-error-box" id="simErrorMsg"></div>
+    <div class="sim-data-row">
+      <span class="sim-label">回本起跑线</span>
+      <span class="sim-val-bold" id="resBreakEven">--</span>
+    </div>
+    <div class="sim-profit-box" id="simProfitBox" style="display:none">
+        <span style="font-size:13px;color:#2d6a4f">若未来涨至 <span id="resSellPrice" style="font-weight:700">--</span></span>
+        <div style="text-align:right">
+            <div class="sim-profit-val" id="resNetProfit">RM 0.00</div>
+            <div style="font-size:11px;color:#2d6a4f;opacity:0.8" id="resROI">0.00%</div>
         </div>
-        <div class="closeBtn" id="closeDetail" aria-label="关闭">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-      </div>
-
-      <div class="detailBody">
-        <div class="detailCard">
-          <div class="detailTop">
-            <div class="leftBlock">
-              <div class="bigPair">
-                <span class="num" id="detailTwd">0</span>
-                <span class="u">TWD</span>
-              </div>
-              <div class="meta" id="detailMetaLeft"></div>
-            </div>
-            <div class="rightBlock">
-              <div class="bigPair rm">
-                <span class="num" id="detailRm">0.00</span>
-                <span class="u">RM</span>
-              </div>
-              <div class="meta" id="detailMetaRight"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="detailBtns">
-          <button class="primaryClose" id="detailCloseBtn" type="button">关闭</button>
-          <button class="deleteBtn" id="detailDeleteBtn" type="button">删除</button>
-        </div>
-      </div>
     </div>
   </div>
 
-  <!-- 金库：新增记录弹窗（去换钱 / 记开销） -->
-  <div class="overlay" id="vaultOverlay" role="dialog" aria-modal="true">
-    <div class="modal">
-      <div class="modalHead">
-        <div class="modalTitle">
-          <div class="modalIcon" id="vaultModalIcon" aria-hidden="true">🔄</div>
-          <div style="min-width:0">
-            <h2 id="vaultModalTitle">新增记录</h2>
-            <p id="vaultModalSub">输入数字即可</p>
-          </div>
-        </div>
-        <div class="closeBtn" id="closeVault" aria-label="关闭">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-      </div>
-
-      <div class="detailBody">
-        <div class="detailCard" style="background: color-mix(in srgb, var(--card) 96%, transparent);">
-          <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
-            <div class="chip" id="vaultModeChip">🔄 换汇存入</div>
-            <div class="chip" id="vaultModeHint">输入 TWD</div>
-          </div>
-
-          <div style="margin-top:14px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;">
-            <div style="font-size:52px;font-weight:950;letter-spacing:-1.4px;" id="vaultInputPreview">0</div>
-            <div style="font-size:16px;font-weight:950;color:rgba(11,19,36,.42);" id="vaultInputUnit">TWD</div>
-          </div>
-
-          <div style="margin-top:10px;color:var(--muted);font-weight:850;font-size:13px;" id="vaultCalcHint"></div>
-
-          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;" id="emojiPick">
-            <span class="chip" data-emo="🍔">🍔 吃喝</span>
-            <span class="chip" data-emo="🚗">🚗 交通</span>
-            <span class="chip" data-emo="🎮">🎮 玩乐</span>
-            <span class="chip" data-emo="🛍️">🛍️ 购物</span>
-            <span class="chip" data-emo="🏨">🏨 住宿</span>
-            <span class="chip" data-emo="🎁">🎁 其他</span>
-          </div>
-        </div>
-
-        <div class="detailBtns">
-          <button class="primaryClose" id="vaultCancelBtn" type="button">取消</button>
-          <button class="saveBtn" id="vaultConfirmBtn" type="button" style="flex:1;justify-content:center;">确认</button>
-        </div>
-      </div>
+  <div class="sim-input-area">
+    <div class="sim-toggle">
+        <div class="sim-tab active" id="tab-mode-amt" onclick="setSimMode('amt')">按投入金额</div>
+        <div class="sim-tab" id="tab-mode-target" onclick="setSimMode('target')">按目标成本</div>
     </div>
+
+    <div class="form-group">
+      <label class="form-label">假设买入单价 (RM/g)</label>
+      <input type="number" id="simPrice" class="form-input" placeholder="0.00">
+    </div>
+    
+    <div class="form-group" id="input-grp-amt">
+      <label class="form-label">计划投入金额 (RM)</label>
+      <input type="number" id="simAmt" class="form-input" placeholder="准备买多少钱?">
+    </div>
+    <div class="form-group" id="input-grp-target" style="display:none">
+      <label class="form-label">想把成本降到多少 (RM/g)</label>
+      <input type="number" id="simTargetCost" class="form-input" placeholder="目标平均价">
+      <div class="sim-hint" id="simHintTarget"></div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:0;margin-top:20px;padding-top:20px;border-top:1px dashed rgba(0,0,0,0.1)">
+      <label class="form-label">目标卖出价 (可选)</label>
+      <input type="number" id="simSellPrice" class="form-input" placeholder="预测未来卖出价">
+    </div>
+
+    <button class="sim-calc-btn" onclick="runSim()">开始推演</button>
   </div>
+</div>
 
-  <script>
-    // =====================
-    // Theme
-    // =====================
-    const themeBtn = document.getElementById("themeBtn");
-    function loadTheme(){
-      const t = localStorage.getItem("fx_theme");
-      document.body.dataset.theme = (t === "dark") ? "dark" : "light";
-    }
-    function toggleTheme(){
-      const next = (document.body.dataset.theme === "dark") ? "light" : "dark";
-      document.body.dataset.theme = next;
-      localStorage.setItem("fx_theme", next);
-    }
-    themeBtn.addEventListener("click", toggleTheme);
-    loadTheme();
+<div class="dock">
+  <div class="dock-btn active" id="nav-home" onclick="switchTab('home')">
+    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+  </div>
+  <div class="dock-btn" id="nav-chart" onclick="switchTab('chart')">
+    <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+  </div>
+  <div class="dock-btn" id="nav-cal" onclick="switchTab('cal')">
+    <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+  </div>
+  <div class="dock-btn" id="nav-sim" onclick="switchTab('sim')">
+    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 2h5v5h-5V5zm-5 5h5v5H7v-5zm0-5h5v5H7V5zm5 14H7v-5h5v5zm5 0h-5v-5h5v5zm0-7h-5v-5h5v5z"/></svg>
+  </div>
+</div>
 
-    // =====================
-    // Rate (当前汇率)
-    // =====================
-    let currentRate = 7.949; // TWD per MYR
-    const rateLabel = document.getElementById("rateLabel");
-    const rateSmall = document.getElementById("rateSmall");
-    const vaultRateBadge = document.getElementById("vaultRateBadge");
-    function renderRate(){
-      const txt = `1 : ${Number(currentRate).toFixed(3)}`;
-      rateLabel.textContent = txt;
-      rateSmall.textContent = txt;
-      vaultRateBadge.textContent = txt;
-    }
-    renderRate();
+<div class="fab" id="fabBtn" onclick="openTxModal()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+</div>
 
-    // =====================
-    // History (换算保存记录) - 保留旧记录迁移
-    // =====================
-    const HISTORY_KEY = "fx_history_v2";
-    const LEGACY_KEYS = ["fx_history","history","convert_history","records","exchange_history"];
+<div class="modal-overlay" id="shareModal">
+  <div class="modal-card" style="background:white">
+    <div class="share-card-container">
+      <div class="share-title">TNG 黄金战绩</div>
+      <div class="share-amount" id="shareVal">0.00</div>
+      <div class="share-grid">
+        <div class="share-item"><div class="share-label">持仓 (g)</div><div class="share-val" id="shareHold">0</div></div>
+        <div class="share-item"><div class="share-label">盈亏</div><div class="share-val" id="sharePL">0</div></div>
+        <div class="share-item"><div class="share-label">平均成本</div><div class="share-val" id="shareAvg">0</div></div>
+        <div class="share-item"><div class="share-label">收益率</div><div class="share-val" id="sharePct">0%</div></div>
+      </div>
+      <div class="share-footer">Designed by TNG 黄金管家</div>
+    </div>
+    <div style="text-align:center;font-size:12px;color:#999;margin-bottom:15px">截图此卡片即可分享</div>
+    <button class="btn-main" onclick="closeModal('shareModal')">关闭</button>
+  </div>
+</div>
 
-    function normalizeRecord(raw) {
-      if (!raw) return null;
-      const ts = Number(raw.ts ?? raw.time ?? raw.timestamp ?? Date.now());
-      const rate = Number(raw.rate ?? raw.fxRate ?? raw.exchangeRate ?? 0);
-      const twd = Number(raw.twd ?? raw.inputTWD ?? raw.amountTWD ?? raw.input ?? 0);
-      const rm  = Number(raw.rm  ?? raw.outputRM ?? raw.amountRM ?? raw.output ?? 0);
-      const note = (raw.note ?? raw.remark ?? raw.memo ?? "").toString();
-      const category = (raw.category ?? raw.type ?? raw.tag ?? "").toString();
-      const id = raw.id ?? `${Math.round(ts/1000)}_${rate}_${twd}_${rm}`;
-      if (!Number.isFinite(ts) || !Number.isFinite(rate) || !Number.isFinite(twd) || !Number.isFinite(rm)) return null;
-      return { id, ts, rate, twd, rm, category, note };
-    }
-    function safeParse(json){ try { return JSON.parse(json); } catch { return null; } }
-    function readArrayFromKey(key){
-      const txt = localStorage.getItem(key);
-      if (!txt) return [];
-      const parsed = safeParse(txt);
-      if (!parsed) return [];
-      const arr = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.list) ? parsed.list : []);
-      return arr.map(normalizeRecord).filter(Boolean);
-    }
-    function mergeUnique(a,b){
-      const map = new Map();
-      [...a, ...b].forEach(r => { if (r) map.set(r.id, r); });
-      return Array.from(map.values()).sort((x,y)=> y.ts - x.ts);
-    }
-    function migrateHistoryOnce(){
-      const cur = readArrayFromKey(HISTORY_KEY);
-      let merged = [...cur];
-      LEGACY_KEYS.forEach(k=>{
-        if (k === HISTORY_KEY) return;
-        const legacy = readArrayFromKey(k);
-        if (legacy.length) merged = mergeUnique(merged, legacy);
-      });
-      if (merged.length !== cur.length) localStorage.setItem(HISTORY_KEY, JSON.stringify(merged));
-      return merged;
-    }
-    function loadHistory(){ return migrateHistoryOnce(); }
-    function saveHistory(list){ localStorage.setItem(HISTORY_KEY, JSON.stringify(list)); }
-    function addHistory(record){
-      const list = loadHistory();
-      const n = normalizeRecord(record);
-      if (!n) return list;
-      const merged = mergeUnique(list, [n]);
-      saveHistory(merged);
-      return merged;
-    }
+<div class="modal-overlay" id="txModal">
+  <div class="modal-card">
+    <h3 style="text-align:center; margin-bottom:24px">记一笔交易</h3>
+    <div class="form-group"><label class="form-label">日期</label><input type="date" class="form-input" id="tDate"></div>
+    <div class="form-group"><label class="form-label">总金额 (RM)</label><input type="number" class="form-input" id="tAmt" placeholder="0.00" inputmode="decimal" step="any" oninput="calcG()"></div>
+    <div style="display:flex; gap:12px">
+      <div class="form-group" style="flex:1"><label class="form-label">单价 (RM/g)</label><input type="number" class="form-input" id="tPrice" placeholder="0.00" inputmode="decimal" step="any" oninput="calcG()"></div>
+      <div class="form-group" style="flex:1"><label class="form-label">克数</label><input type="number" class="form-input" id="tGrams" placeholder="自动计算" disabled></div>
+    </div>
+    <button class="btn-main" onclick="saveTx()">保存记录</button>
+    <div style="text-align:center; margin-top:16px; color:#ff3b30; font-size:14px; display:none" id="btnDelTx" onclick="delTx()">删除此记录</div>
+    <div style="text-align:center; margin-top:16px; color:var(--sub); font-size:14px" onclick="closeModal('txModal')">取消</div>
+  </div>
+</div>
 
-    // =====================
-    // Vault Records (金库流水：换汇存入 + 开销)
-    // =====================
-    const VAULT_KEY = "vault_records_v1";
+<div class="modal-overlay" id="histModal">
+  <div class="modal-card">
+    <h3 style="text-align:center; margin-bottom:24px">补录历史资产</h3>
+    <div class="form-group"><label class="form-label">日期</label><input type="date" class="form-input" id="hDate"></div>
+    <div class="form-group"><label class="form-label">时间</label><input type="time" class="form-input" id="hTime"></div>
+    <div class="form-group"><label class="form-label">总市值 (RM)</label><input type="number" class="form-input" id="hTotalVal" placeholder="0.00" inputmode="decimal" step="any"></div>
+    <button class="btn-main" onclick="saveHist()">保存</button>
+    <div style="text-align:center; margin-top:16px; color:#ff3b30; font-size:14px; display:none" id="btnDelHist" onclick="delHist()">删除</div>
+    <div style="text-align:center; margin-top:16px; color:var(--sub); font-size:14px" onclick="closeModal('histModal')">取消</div>
+  </div>
+</div>
 
-    function loadVault(){
-      const txt = localStorage.getItem(VAULT_KEY);
-      const parsed = safeParse(txt);
-      const arr = Array.isArray(parsed) ? parsed : [];
-      return arr.map(x=>{
-        return {
-          id: x.id ?? `${x.ts}_${x.kind}_${x.amount}`,
-          ts: Number(x.ts ?? Date.now()),
-          kind: x.kind ?? "exchange_in", // exchange_in | expense
-          amount: Number(x.amount ?? 0), // TWD for exchange_in, RM for expense (这里用 RM 更直观)
-          emo: (x.emo ?? "🔄").toString(),
-          note: (x.note ?? "").toString(),
-          rate: Number(x.rate ?? currentRate)
-        };
-      }).sort((a,b)=>b.ts-a.ts);
-    }
-    function saveVault(list){ localStorage.setItem(VAULT_KEY, JSON.stringify(list)); }
-    function addVault(rec){
-      const list = loadVault();
-      list.unshift(rec);
-      saveVault(list);
-      return list;
-    }
-    function deleteVault(id){
-      const list = loadVault().filter(x=>x.id!==id);
-      saveVault(list);
-      return list;
-    }
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-card">
+    <h3 style="text-align:center; margin-bottom:24px">数据管理</h3>
+    <div class="settings-list">
+      <button class="settings-item" onclick="exportData()"><span>📤 备份数据</span></button>
+      <div style="position:relative"><button class="settings-item"><span>📥 恢复备份</span></button><input type="file" onchange="importData(this)" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer"></div>
+      <button class="settings-item" onclick="resetAll()"><span style="color:var(--red)">🗑️ 清空所有数据</span></button>
+    </div>
+    <button class="btn-main" onclick="closeModal('settingsModal')" style="background:#eee; color:#333; margin-top:20px">关闭</button>
+  </div>
+</div>
 
-    // =====================
-    // Calc input & keypad
-    // =====================
-    let expr = "0";
-    let lastExprStack = [];
-    const twdValueEl = document.getElementById("twdValue");
-    const rmValueEl  = document.getElementById("rmValue");
+<div class="modal-overlay" id="calcDetailModal">
+  <div class="modal-card">
+    <h3 style="text-align:center; margin-bottom:20px">平均成本计算</h3>
+    <div class="calc-detail-box">
+      <div class="calc-row"><span>总投入金额</span><span id="detailCost">0.00</span></div>
+      <div class="calc-row"><span>总持有克数</span><span id="detailGrams">0.000000</span></div>
+      <div class="calc-row"><span>平均成本</span><span id="detailAvg">0.00</span></div>
+    </div>
+    <button class="btn-main" onclick="closeModal('calcDetailModal')">我知道了</button>
+  </div>
+</div>
 
-    function clampExpr(s){
-      if (!s || s === "") return "0";
-      if (s.length > 18) return s.slice(0,18);
-      return s;
-    }
-    function safeEval(s){
-      if (!/^[0-9.+\-*/() ]+$/.test(s)) return 0;
-      try{
-        return Function("return (" + s + ")")();
-      }catch{ return 0; }
-    }
-    function prettyNum(n){
-      const x = Number(n);
-      if (!Number.isFinite(x)) return "0";
-      const isInt = Math.abs(x - Math.round(x)) < 1e-10;
-      return isInt ? String(Math.round(x)) : String(x);
-    }
-    function calcRM(twd){
-      const v = Number(twd) || 0;
-      const rate = Number(currentRate) || 1;
-      return v / rate;
-    }
-    function renderCalc(){
-      const twd = safeEval(expr);
-      const rm = calcRM(twd);
-      twdValueEl.textContent = prettyNum(twd);
-      rmValueEl.textContent = (Number.isFinite(rm) ? rm : 0).toFixed(2);
-    }
-    renderCalc();
+<script>
+  // Updated with 07.02.2026 data + NEW 08.02, 09.02, 10.02
+  const PRELOAD_TX = [
+{
+"ts": 1769197202982,
+"type": "buy",
+"date": "2025-05-18",
+"amount": 10,
+"grams": 0.022438,
+"price": 445.669382
+},
+{
+"ts": 1769197251472,
+"type": "buy",
+"date": "2025-12-25",
+"amount": 10,
+"grams": 0.016995,
+"price": 588.417299
+},
+{
+"ts": 1769197276233,
+"type": "buy",
+"date": "2025-12-31",
+"amount": 10,
+"grams": 0.017494,
+"price": 571.610734
+},
+{
+"ts": 1769197303771,
+"type": "buy",
+"date": "2026-01-21",
+"amount": 500,
+"grams": 0.796725,
+"price": 627.568989
+},
+{
+"ts": 1769197324261,
+"type": "buy",
+"date": "2026-01-23",
+"amount": 1000,
+"grams": 1.553877,
+"price": 643.551401
+},
+{
+"ts": 1769679188602,
+"type": "buy",
+"date": "2025-04-23",
+"amount": 10,
+"grams": 0.021294,
+"price": 469.623106
+},
+{
+"ts": 1769679209117,
+"type": "buy",
+"date": "2025-05-10",
+"amount": 10,
+"grams": 0.021391,
+"price": 467.48292
+},
+{
+"ts": 1770188908558,
+"type": "buy",
+"date": "2026-01-31",
+"amount": "10",
+"grams": "0.014681",
+"price": "681.146353"
+},
+{
+"ts": 1770188927873,
+"type": "buy",
+"date": "2026-01-30",
+"amount": "10",
+"grams": "0.014713",
+"price": "679.665226"
+}
+];
+  const PRELOAD_HIST = [
+{
+"ts": 1770000000000,
+"date": "2026-01-22",
+"time": "00:00",
+"val": 558.05
+},
+{
+"ts": 1770000000001,
+"date": "2026-01-23",
+"time": "00:00",
+"val": 1547.97
+},
+{
+"ts": 1770000000002,
+"date": "2026-01-24",
+"time": "00:00",
+"val": 1559.44
+},
+{
+"ts": 1770000000003,
+"date": "2026-01-25",
+"time": "00:00",
+"val": 1558.89
+},
+{
+"ts": 1769570138096,
+"date": "2026-01-26",
+"time": "10:00",
+"val": 1580.48
+},
+{
+"ts": 1769570149763,
+"date": "2026-01-27",
+"time": "10:00",
+"val": 1571.57
+},
+{
+"ts": 1769570157362,
+"date": "2026-01-28",
+"time": "10:00",
+"val": 1597.82
+},
+{
+"ts": 1769708569185,
+"date": "2026-01-29",
+"time": "01:42",
+"val": 1648.4774752351618
+},
+{
+"ts": 1769679309649,
+"date": "2026-01-29",
+"time": "10:00",
+"val": 1623.05
+},
+{
+"ts": 1769679322265,
+"date": "2026-01-29",
+"time": "11:00",
+"val": 1627.36
+},
+{
+"ts": 1769679331450,
+"date": "2026-01-29",
+"time": "12:00",
+"val": 1708.71
+},
+{
+"ts": 1769679360449,
+"date": "2026-01-29",
+"time": "17:00",
+"val": 1696.79
+},
+{
+"ts": 1769738400000,
+"date": "2026-01-30",
+"time": "10:00",
+"val": 1648.48
+},
+{
+"ts": 1769742000000,
+"date": "2026-01-30",
+"time": "11:00",
+"val": 1647.24
+},
+{
+"ts": 1769745600000,
+"date": "2026-01-30",
+"time": "12:00",
+"val": 1615.23
+},
+{
+"ts": 1769749200000,
+"date": "2026-01-30",
+"time": "13:00",
+"val": 1567.28
+},
+{
+"ts": 1769922467213,
+"date": "2026-01-31",
+"time": "10:00",
+"val": 1499.76
+},
+{
+"ts": 1769922479699,
+"date": "2026-02-01",
+"time": "10:00",
+"val": 1537.53
+},
+{
+"ts": 1770188969456,
+"date": "2026-02-03",
+"time": "10:00",
+"val": 1523.45
+},
+{
+"ts": 1770199200000,
+"date": "2026-02-04",
+"time": "10:00",
+"val": 1551.36
+},
+{
+"ts": 1770202800000,
+"date": "2026-02-04",
+"time": "11:00",
+"val": 1578.0
+},
+{
+"ts": 1770285600000,
+"date": "2026-02-05",
+"time": "10:00",
+"val": 1528.71
+},
+{
+"ts": 1770289200000,
+"date": "2026-02-05",
+"time": "11:00",
+"val": 1515.3
+},
+{
+"ts": 1770372000000,
+"date": "2026-02-06",
+"time": "10:00",
+"val": 1519.28
+},
+{
+"ts": 1770458400000,
+"date": "2026-02-07",
+"time": "10:00",
+"val": 1548.65
+},
+{
+"ts": 1770544800000,
+"date": "2026-02-08",
+"time": "10:00",
+"val": 1548.65
+},
+{
+"ts": 1770631200000,
+"date": "2026-02-09",
+"time": "10:00",
+"val": 1563.72
+},
+{
+"ts": 1770717600000,
+"date": "2026-02-10",
+"time": "10:00",
+"val": 1564.98
+}
+];
+  const KEY = { TX: 'tng_tx_v65', HS: 'tng_hs_v65', MK: 'tng_mk_v65' };
+  const el = id => document.getElementById(id);
+  
+  let editId = null, editHistId = null, chartFilter = '1m'; 
+  let sortMode = 'date-desc', chartVis = { val: true, cost: true }, privacyMode = false;
+  let curCalYear = new Date().getFullYear(), curCalMonth = new Date().getMonth();
+  let selectedDate = null;
+  let simMode = 'amt';
 
-    const pad = document.getElementById("pad");
-    pad.addEventListener("click", (e)=>{
-      const btn = e.target.closest(".key");
-      if (!btn) return;
-      const act = btn.dataset.act;
+  function init(){
+    if(!localStorage.getItem(KEY.TX)) localStorage.setItem(KEY.TX, JSON.stringify(PRELOAD_TX));
+    if(!localStorage.getItem(KEY.HS)) localStorage.setItem(KEY.HS, JSON.stringify(PRELOAD_HIST));
+    el('tDate').value = new Date().toISOString().split('T')[0];
+    const savedP = localStorage.getItem(KEY.MK);
+    if(savedP) el('marketPrice').value = savedP;
+    render();
+  }
 
-      lastExprStack.push(expr);
-      if (lastExprStack.length > 40) lastExprStack.shift();
-
-      if (act === "ac"){ expr = "0"; lastExprStack = []; renderCalc(); return; }
-      if (act === "back"){
-        expr = (expr.length<=1) ? "0" : expr.slice(0,-1);
-        expr = clampExpr(expr);
-        renderCalc(); return;
+  function getDB(){ return { tx: JSON.parse(localStorage.getItem(KEY.TX)||'[]'), hs: JSON.parse(localStorage.getItem(KEY.HS)||'[]') }; }
+  
+  function getHoldingAt(dateStr = null){
+    const tx = getDB().tx.sort((a,b)=> a.date.localeCompare(b.date) || a.ts - b.ts);
+    let h = 0, totalCost = 0;
+    for(let t of tx){
+      if(dateStr && t.date > dateStr) break;
+      const g = Number(t.grams), a = Number(t.amount);
+      if(t.type === 'buy'){ h += g; totalCost += a; }
+      else { 
+        if(h > 0){ const avg = totalCost / h; totalCost -= (g * avg); }
+        h -= g; 
       }
-      if (act === "dot"){
-        expr = (expr === "0") ? "0." : (expr + ".");
-        expr = clampExpr(expr);
-        renderCalc(); return;
+    }
+    if(h < 0.000001) { h = 0; totalCost = 0; }
+    return { h, c: totalCost };
+  }
+
+  function render(previewOnly = false){
+    const {h, c} = getHoldingAt();
+    const mp = parseFloat(el('marketPrice').value)||0;
+    const avg = h > 0 ? (c / h) : 0;
+    
+    const blurClass = privacyMode ? 'blur-mode' : '';
+    el('kpiHolding').className = blurClass; el('kpiHolding').innerText = h.toFixed(6);
+    el('kpiAvg').className = blurClass; el('kpiAvg').innerText = "RM " + avg.toFixed(2);
+    el('kpiVal').className = "hero-val " + blurClass;
+
+    if(mp && h){
+      const val = h * mp;
+      const profit = val - c;
+      const pct = c > 0 ? (profit / c) * 100 : 0;
+      const color = profit >= 0 ? 'var(--green)' : 'var(--red)';
+      const sign = profit >= 0 ? '+' : '';
+      if(!privacyMode) el('kpiVal').innerText = val.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+      el('kpiProfit').innerHTML = `盈亏 <strong style="color:${color}; margin-left:4px">RM ${sign}${profit.toFixed(2)} (${pct.toFixed(2)}%)</strong>`;
+    } else {
+      if(!privacyMode) el('kpiVal').innerText = '0.00';
+      el('kpiProfit').innerText = '盈亏: ---';
+    }
+
+    if(!previewOnly){
+        let txs = getDB().tx;
+        if(sortMode === 'date-desc') txs.sort((a,b) => b.date.localeCompare(a.date));
+        else if(sortMode === 'date-asc') txs.sort((a,b) => a.date.localeCompare(b.date));
+        else if(sortMode === 'price-desc') txs.sort((a,b) => b.price - a.price);
+        else if(sortMode === 'price-asc') txs.sort((a,b) => a.price - b.price);
+
+        const list = el('txList'); list.innerHTML = '';
+        txs.slice(0, 10).forEach(t => {
+        list.innerHTML += `<div class="list-row" onclick="editT(${t.ts})">
+            <div class="row-l"><div style="font-weight:600;font-size:16px;color:var(--text)"><span class="tag ${t.type}">${t.type==='buy'?'买':'卖'}</span>RM ${Number(t.amount).toFixed(2)}</div><div style="font-size:12px;color:var(--sub)">${t.date}</div></div>
+            <div class="row-r"><div style="font-weight:700;font-size:15px;color:var(--text)">${Number(t.grams).toFixed(6)} g</div><div style="font-size:12px;color:var(--sub)">@ ${Number(t.price).toFixed(2)}</div></div></div>`;
+        });
+
+        // POPULATE HIST LIST
+        const hList = el('histList'); hList.innerHTML = '';
+        const hs = getDB().hs.sort((a,b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
+        hs.forEach(h => {
+            const stats = getHoldingAt(h.date);
+            const impliedPrice = stats.h > 0 ? (h.val / stats.h) : 0;
+            hList.innerHTML += `<div class="hist-item" onclick="editHist('${h.ts}')">
+                <div class="hist-top"><div class="hist-date">${h.date} <span class="hist-time">${h.time || '00:00'}</span></div><div class="hist-val">RM ${Number(h.val).toFixed(2)}</div></div>
+                <div class="hist-btm"><span>持仓 ${stats.h.toFixed(6)}g</span><span>当时金价约 ${impliedPrice.toFixed(2)}/g</span></div></div>`;
+        });
+    }
+  }
+
+  // --- Simulator ---
+  function setSimMode(m){
+      simMode = m;
+      el('tab-mode-amt').className = m=='amt' ? 'sim-tab active' : 'sim-tab';
+      el('tab-mode-target').className = m=='target' ? 'sim-tab active' : 'sim-tab';
+      el('input-grp-amt').style.display = m=='amt' ? 'block' : 'none';
+      el('input-grp-target').style.display = m=='target' ? 'block' : 'none';
+      runSim();
+  }
+
+  function runSim(){
+      const simP = parseFloat(el('simPrice').value);
+      const sellP = parseFloat(el('simSellPrice').value);
+      const {h, c} = getHoldingAt();
+      const curAvg = h > 0 ? c/h : 0;
+      el('simCurAvg').innerText = "RM " + curAvg.toFixed(2);
+      el('simCurHold').innerText = h.toFixed(4) + " g";
+      el('simHintTarget').style.display = 'none';
+      el('simProfitBox').style.display = 'none';
+      el('simErrorMsg').style.display = 'none';
+
+      let simAmt = 0;
+      let valid = false;
+      let error = "";
+
+      if(simP > 0) {
+          if(simMode === 'amt'){
+              simAmt = parseFloat(el('simAmt').value);
+              if(simAmt > 0) valid = true;
+          } else {
+              const targetCost = parseFloat(el('simTargetCost').value);
+              if(targetCost > 0){
+                  if(targetCost < curAvg){
+                      el('simHintTarget').style.display = 'block';
+                      el('simHintTarget').innerText = `💡 提示：买入价必须低于 RM ${targetCost.toFixed(2)} 才能实现`;
+                  }
+                  if(targetCost < curAvg && simP < targetCost){ 
+                      if(Math.abs(1 - targetCost/simP) > 0.001){
+                          simAmt = (targetCost*h - c) / (1 - targetCost/simP);
+                          if(simAmt > 0) valid = true;
+                      }
+                  } else if (targetCost > curAvg && simP > targetCost) {
+                      simAmt = (targetCost*h - c) / (1 - targetCost/simP);
+                      if(simAmt > 0) valid = true;
+                  } else {
+                      error = "目标成本不可达成";
+                  }
+              }
+          }
       }
-      if (act === "add") { expr += "+"; expr = clampExpr(expr); renderCalc(); return; }
-      if (act === "sub") { expr += "-"; expr = clampExpr(expr); renderCalc(); return; }
-      if (act === "mul") { expr += "*"; expr = clampExpr(expr); renderCalc(); return; }
-      if (act === "div") { expr += "/"; expr = clampExpr(expr); renderCalc(); return; }
-      if (act === "eq"){
-        const v = safeEval(expr);
-        expr = String(Number.isFinite(v) ? v : 0);
-        expr = clampExpr(expr);
-        renderCalc(); return;
-      }
-      if (/^\d$/.test(act)){
-        expr = (expr === "0") ? act : (expr + act);
-        expr = clampExpr(expr);
-        renderCalc(); return;
-      }
-    });
 
-    document.getElementById("undoBtn").addEventListener("click", ()=>{
-      const prev = lastExprStack.pop();
-      if (prev !== undefined) expr = prev;
-      renderCalc();
-    });
+      if(valid){
+          const newG = simAmt / simP;
+          const totalC = c + simAmt;
+          const totalH = h + newG;
+          const newAvg = totalC / totalH;
+          el('simNewAvg').innerText = "RM " + newAvg.toFixed(2);
+          el('simNewHold').innerText = totalH.toFixed(4) + " g";
+          const riseNeed = ((newAvg - simP) / simP) * 100;
+          if(newAvg > simP) el('resBreakEven').innerHTML = `需涨 <span style="color:var(--red);font-weight:700">${riseNeed.toFixed(2)}%</span> 回本`;
+          else el('resBreakEven').innerHTML = `当前已盈 <span style="color:var(--green);font-weight:700">${Math.abs(riseNeed).toFixed(2)}%</span>`;
 
-    // 保存换算到历史
-    document.getElementById("saveBtn").addEventListener("click", ()=>{
-      const twd = safeEval(expr);
-      const rm = calcRM(twd);
-      addHistory({
-        ts: Date.now(),
-        rate: Number(currentRate),
-        twd: Number(twd),
-        rm: Number((Number.isFinite(rm) ? rm : 0).toFixed(2)),
-        category: "",
-        note: ""
-      });
-      flashSub("已保存到历史记录");
-    });
-
-    function flashSub(text){
-      const sub = document.getElementById("subTitle");
-      const old = sub.textContent;
-      sub.textContent = text;
-      setTimeout(()=> sub.textContent = old, 900);
-    }
-
-    // =====================
-    // Switch pages (REAL switch)
-    // =====================
-    const tabVault = document.getElementById("tabVault");
-    const tabCalc  = document.getElementById("tabCalc");
-    const pageVault = document.getElementById("pageVault");
-    const pageCalc  = document.getElementById("pageCalc");
-    const pageTitle = document.getElementById("pageTitle");
-    const pillRow   = document.getElementById("pillRow");
-
-    function showCalc(){
-      tabCalc.classList.add("active");
-      tabVault.classList.remove("active");
-      pageCalc.classList.add("show");
-      pageVault.classList.remove("show");
-      pageTitle.textContent = "换算";
-      document.getElementById("subTitle").textContent = "输入 TWD，右侧自动折合 RM";
-      pillRow.style.display = "flex";
-    }
-    function showVault(){
-      tabVault.classList.add("active");
-      tabCalc.classList.remove("active");
-      pageVault.classList.add("show");
-      pageCalc.classList.remove("show");
-      pageTitle.textContent = "金库";
-      document.getElementById("subTitle").textContent = "记录换汇与开销，保持清晰";
-      pillRow.style.display = "none"; // 金库页不用显示汇率胶囊/历史
-      renderVault();
-    }
-
-    tabCalc.addEventListener("click", showCalc);
-    tabVault.addEventListener("click", showVault);
-
-    // =====================
-    // History modal (换算历史)
-    // =====================
-    const historyOverlay = document.getElementById("historyOverlay");
-    const historyList = document.getElementById("historyList");
-    function fmtTime(ts){
-      const d = new Date(ts);
-      const mm = String(d.getMonth()+1).padStart(2,"0");
-      const dd = String(d.getDate()).padStart(2,"0");
-      const hh = String(d.getHours()).padStart(2,"0");
-      const mi = String(d.getMinutes()).padStart(2,"0");
-      return `${mm}-${dd} ${hh}:${mi}`;
-    }
-    function renderHistory(){
-      const list = loadHistory();
-      historyList.innerHTML = "";
-      if (!list.length){
-        const div = document.createElement("div");
-        div.className = "empty";
-        div.textContent = "暂无记录";
-        historyList.appendChild(div);
-        return;
-      }
-      list.forEach(rec=>{
-        const item = document.createElement("div");
-        item.className = "item";
-        item.dataset.id = rec.id;
-
-        const left = document.createElement("div");
-        left.className = "itemLeft";
-        left.innerHTML = `
-          <div class="line1">
-            <span class="twd">${Number(rec.twd)}<small>TWD</small></span>
-          </div>
-          <div class="line2">
-            <span>${fmtTime(rec.ts)}</span>
-            <span>Rate ${Number(rec.rate).toFixed(3)}</span>
-          </div>
-        `;
-
-        const right = document.createElement("div");
-        right.className = "itemRight";
-        right.innerHTML = `<div class="rm">${Number(rec.rm).toFixed(2)}<small>RM</small></div>`;
-
-        item.appendChild(left);
-        item.appendChild(right);
-        item.addEventListener("click", ()=> openDetail(rec.id, "history"));
-        historyList.appendChild(item);
-      });
-    }
-
-    document.getElementById("openHistory").addEventListener("click", ()=>{
-      renderHistory();
-      historyOverlay.classList.add("show");
-    });
-    document.getElementById("closeHistory").addEventListener("click", ()=>{
-      historyOverlay.classList.remove("show");
-    });
-    historyOverlay.addEventListener("click", (e)=>{
-      if (e.target === historyOverlay) historyOverlay.classList.remove("show");
-    });
-
-    document.getElementById("exportBtn").addEventListener("click", ()=>{
-      const list = loadHistory();
-      const blob = new Blob([JSON.stringify(list, null, 2)], {type:"application/json"});
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "fx_history.json";
-      a.click();
-      URL.revokeObjectURL(a.href);
-    });
-
-    document.getElementById("clearBtn").addEventListener("click", ()=>{
-      if (!confirm("确定清空全部历史记录？")) return;
-      saveHistory([]);
-      renderHistory();
-    });
-
-    // =====================
-    // Detail modal (for both history & vault)
-    // =====================
-    const detailOverlay = document.getElementById("detailOverlay");
-    const detailTwd = document.getElementById("detailTwd");
-    const detailRm  = document.getElementById("detailRm");
-    const detailSub = document.getElementById("detailSub");
-    const metaLeft  = document.getElementById("detailMetaLeft");
-    const metaRight = document.getElementById("detailMetaRight");
-    const detailTitle = document.getElementById("detailTitle");
-    let currentDetailId = null;
-    let currentDetailSource = "history"; // history | vault
-
-    function getHistoryById(id){
-      const list = loadHistory();
-      return list.find(x=>x.id===id) || null;
-    }
-    function getVaultById(id){
-      const list = loadVault();
-      return list.find(x=>x.id===id) || null;
-    }
-
-    function openDetail(id, source){
-      currentDetailId = id;
-      currentDetailSource = source;
-
-      if (source === "history"){
-        const rec = getHistoryById(id);
-        if (!rec) return;
-        detailTitle.textContent = "换算记录详情";
-        detailTwd.textContent = Number(rec.twd);
-        detailRm.textContent = Number(rec.rm).toFixed(2);
-        detailSub.textContent = `${fmtTime(rec.ts)} · Rate ${Number(rec.rate).toFixed(3)}`;
-        metaLeft.innerHTML = `<span class="chip">输入（TWD）</span><span class="chip">可编辑</span>`;
-        metaRight.innerHTML = `<span class="chip">换算（RM）</span><span class="chip">仅显示</span>`;
+          if(sellP > 0){
+              const revenue = totalH * sellP;
+              const profit = revenue - totalC;
+              el('simProfitBox').style.display = 'flex';
+              el('resNetProfit').innerText = (profit>=0?'+':'') + "RM " + profit.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+              el('resNetProfit').style.color = profit>=0 ? 'var(--green)' : 'var(--red)';
+          }
       } else {
-        const rec = getVaultById(id);
-        if (!rec) return;
+          el('simNewAvg').innerText = "--";
+          el('simNewHold').innerText = "-- g";
+          el('resBreakEven').innerText = "--";
+          if(error && simP) { el('simErrorMsg').style.display = 'block'; el('simErrorMsg').innerText = error; }
+      }
+  }
 
-        detailTitle.textContent = (rec.kind === "exchange_in") ? "金库 · 换汇存入详情" : "金库 · 开销详情";
-        detailSub.textContent = `${fmtTime(rec.ts)}${rec.kind === "exchange_in" ? ` · Rate ${Number(rec.rate).toFixed(3)}` : ""}`;
+  // --- Chart Logic ---
+  function setChartFilter(range){
+      chartFilter = range;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      el('filter-'+range).classList.add('active');
+      drawChart();
+  }
 
-        // 左侧显示 TWD（对称卡片感）
-        if (rec.kind === "exchange_in"){
-          detailTwd.textContent = Number(rec.amount);
-          detailRm.textContent = (Number(rec.amount) / Number(rec.rate || currentRate)).toFixed(2);
-          metaLeft.innerHTML = `<span class="chip">${rec.emo} 存入</span><span class="chip">TWD</span>`;
-          metaRight.innerHTML = `<span class="chip">折合 RM</span><span class="chip">仅显示</span>`;
-        }else{
-          // 开销：左侧用 RM，右侧用「—」保持视觉平衡（但仍显示数值）
-          detailTwd.textContent = "—";
-          detailRm.textContent = Number(rec.amount).toFixed(2);
-          metaLeft.innerHTML = `<span class="chip">${rec.emo} 开销</span><span class="chip">不换算</span>`;
-          metaRight.innerHTML = `<span class="chip">RM</span><span class="chip">已支出</span>`;
+  function drawChart(){
+    const {hs} = getDB();
+    const box = el('trendChart'); 
+    const wrapper = el('chartWrapper');
+    box.innerHTML = '';
+    
+    if(hs.length < 2) { box.innerHTML='<div style="text-align:center;padding-top:120px;color:var(--sub)">暂无数据</div>'; return; }
+    
+    let data = hs.sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+    
+    // Filter Data
+    const now = new Date();
+    if(chartFilter === '1d'){
+        const latestDate = data[data.length-1].date;
+        data = data.filter(d => d.date === latestDate);
+        if(data.length === 0) { box.innerHTML='<div style="text-align:center;padding-top:120px;color:var(--sub)">暂无今日数据</div>'; return; }
+    } else if(chartFilter === '1w'){
+        const cut = new Date(); cut.setDate(now.getDate() - 7);
+        data = data.filter(d => new Date(d.date) >= cut);
+    } else if(chartFilter === '1m'){
+        const cut = new Date(); cut.setMonth(now.getMonth() - 1);
+        data = data.filter(d => new Date(d.date) >= cut);
+    } else if(chartFilter === '3m'){
+        const cut = new Date(); cut.setMonth(now.getMonth() - 3);
+        data = data.filter(d => new Date(d.date) >= cut);
+    } else if(chartFilter === '6m'){
+        const cut = new Date(); cut.setMonth(now.getMonth() - 6);
+        data = data.filter(d => new Date(d.date) >= cut);
+    }
+    
+    if(data.length === 0) { box.innerHTML='<div style="text-align:center;padding-top:120px;color:var(--sub)">该时段无数据</div>'; return; }
+
+    const mappedData = data.map(h=>{ 
+        const s=getHoldingAt(h.date); 
+        return {date:h.date, time:h.time, val:h.val, cost:s.c, hold:s.h}; 
+    });
+    
+    // V66 Logic: Total Asset vs Total Cost
+    const candles = mappedData.filter(d => d.hold > 0).map(d => {
+        // Now using TOTAL values directly
+        const totalAsset = d.val;
+        const totalCost = d.cost;
+        return { ...d, totalAsset, totalCost };
+    });
+    
+    if(candles.length === 0) { box.innerHTML='<div style="text-align:center;padding-top:120px;color:var(--sub)">无持仓数据</div>'; return; }
+
+    const allValues = candles.map(d => d.totalAsset).concat(candles.map(d => d.totalCost));
+    const minP = Math.min(...allValues) * 0.98;
+    const maxP = Math.max(...allValues) * 1.02;
+    const range = maxP - minP;
+    const h = 340;
+    
+    const minBarWidth = 45; 
+    const totalW = Math.max(wrapper.offsetWidth, candles.length * minBarWidth);
+    const groupW = totalW / candles.length;
+    const barW = Math.max(8, groupW * 0.4); 
+
+    let svg = `<svg style="width:${totalW}px;height:${h}px">`;
+    
+    // Grid
+    for(let i=0; i<=5; i++){
+        const y = h - 30 - (i/5)*(h-60);
+        svg += `<line x1="0" y1="${y}" x2="${totalW}" y2="${y}" class="grid-line" />`;
+    }
+
+    let assetPath = "";
+    let costPath = "";
+
+    candles.forEach((d, i) => {
+        const x = i * groupW + groupW/2;
+        
+        const yAsset = h - 30 - ((d.totalAsset - minP) / range) * (h - 60);
+        const yCost = h - 30 - ((d.totalCost - minP) / range) * (h - 60);
+        
+        // Candle Logic: Top is Cost, Bottom is Asset (or vice versa)
+        // If Asset > Cost (Profit): Green bar from Cost up to Asset
+        // If Asset < Cost (Loss): Red bar from Asset up to Cost
+        
+        const yTop = Math.min(yAsset, yCost);
+        const height = Math.abs(yAsset - yCost);
+        const isProfit = d.totalAsset >= d.totalCost;
+        const colorClass = isProfit ? "green" : "red";
+        
+        // Draw Bar representing P/L
+        svg += `<rect x="${x - barW/2}" y="${yTop}" width="${barW}" height="${Math.max(2, height)}" class="candle-body ${colorClass}" rx="2" onclick="alert('${d.date} ${d.time}\\n总资产: ${d.totalAsset.toFixed(2)}\\n总成本: ${d.totalCost.toFixed(2)}')"></rect>`;
+        
+        // Paths for Lines
+        if(i === 0) { assetPath += `M ${x} ${yAsset}`; costPath += `M ${x} ${yCost}`; }
+        else { assetPath += ` L ${x} ${yAsset}`; costPath += ` L ${x} ${yCost}`; }
+        
+        const skip = Math.ceil(candles.length / (totalW / 60));
+        if (i % skip === 0 || i === candles.length - 1) {
+             const lbl = chartFilter === '1d' ? d.time : d.date.slice(5);
+             svg += `<text x="${x}" y="${h - 5}" class="axis-label" style="text-anchor:middle">${lbl}</text>`;
+             // Label shows PROFIT/LOSS amount
+             const pl = d.totalAsset - d.totalCost;
+             const sign = pl >= 0 ? "+" : "";
+             svg += `<text x="${x}" y="${yTop - 5}" class="val-label" style="fill:${isProfit?'var(--green)':'var(--red)'}">${sign}${pl.toFixed(0)}</text>`;
         }
-      }
-
-      detailOverlay.classList.add("show");
-    }
-
-    function closeDetail(){
-      detailOverlay.classList.remove("show");
-      currentDetailId = null;
-      currentDetailSource = "history";
-    }
-    document.getElementById("closeDetail").addEventListener("click", closeDetail);
-    document.getElementById("detailCloseBtn").addEventListener("click", closeDetail);
-    detailOverlay.addEventListener("click", (e)=>{
-      if (e.target === detailOverlay) closeDetail();
     });
 
-    document.getElementById("detailDeleteBtn").addEventListener("click", ()=>{
-      if (!currentDetailId) return;
+    svg += `<path d="${assetPath}" class="line-trend" />`; // Blue solid line (Asset)
+    svg += `<path d="${costPath}" class="line-cost" />`;  // Orange dashed line (Cost)
+    
+    box.innerHTML = svg + '</svg>';
+    setTimeout(() => { wrapper.scrollLeft = wrapper.scrollWidth; }, 50);
+  }
 
-      if (currentDetailSource === "history"){
-        if (!confirm("确定删除这条换算记录？")) return;
-        const next = loadHistory().filter(x=>x.id !== currentDetailId);
-        saveHistory(next);
-        renderHistory();
-      }else{
-        if (!confirm("确定删除这条金库记录？")) return;
-        deleteVault(currentDetailId);
-        renderVault();
-      }
-      closeDetail();
-    });
+  function saveTx(){ const d=el('tDate').value, a=el('tAmt').value, p=el('tPrice').value, g=el('tGrams').value; if(!a||!g)return alert("完整填写"); let tx=getDB().tx; const rec={ts:Date.now(), type:'buy', date:d, amount:a, grams:g, price:p}; tx.push(rec); localStorage.setItem(KEY.TX,JSON.stringify(tx)); closeModal('txModal'); render(); }
+  function saveHist(){ const d=el('hDate').value, time=el('hTime').value, v=parseFloat(el('hTotalVal').value); if(!v)return alert("输入金额"); let hs=getDB().hs; if(editHistId){const i=hs.findIndex(x=>x.ts==editHistId);if(i>-1)hs[i]={...hs[i],date:d,time:time,val:v};}else{hs.push({ts:Date.now(), date:d, time:time||"00:00", val:v});} localStorage.setItem(KEY.HS,JSON.stringify(hs)); closeModal('histModal'); render(); drawChart(); }
+  function delTx(){ if(confirm("删除?")){ localStorage.setItem(KEY.TX,JSON.stringify(getDB().tx.filter(x=>x.ts!=editId))); closeModal('txModal'); render(); } }
+  function delHist(){ if(confirm("删除?")){ localStorage.setItem(KEY.HS,JSON.stringify(getDB().hs.filter(x=>x.ts!=editHistId))); closeModal('histModal'); render(); drawChart(); } }
+  function calcG(){ const a=parseFloat(el('tAmt').value), p=parseFloat(el('tPrice').value); if(a&&p)el('tGrams').value=(a/p).toFixed(6); }
+  function openModal(id){ el(id).classList.add('show'); }
+  function closeModal(id){ el(id).classList.remove('show'); }
+  function openTxModal(){ el('tAmt').value=''; el('tPrice').value=''; el('tGrams').value=''; openModal('txModal'); }
+  function openHistModal(){ el('hDate').value=new Date().toISOString().split('T')[0]; el('hTime').value="10:00"; el('hTotalVal').value=''; openModal('histModal'); }
+  function editHist(ts){ const h=getDB().hs.find(x=>x.ts==ts); if(!h)return; editHistId=ts; el('hDate').value=h.date; el('hTime').value=h.time||"00:00"; el('hTotalVal').value=h.val; openModal('histModal'); }
+  function openSettings(){ openModal('settingsModal'); }
+  function switchTab(t){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); el('view-'+t).classList.add('active'); el('nav-home').className=t=='home'?'dock-btn active':'dock-btn'; el('nav-chart').className=t=='chart'?'dock-btn active':'dock-btn'; el('nav-cal').className=t=='cal'?'dock-btn active':'dock-btn'; el('nav-sim').className=t=='sim'?'dock-btn active':'dock-btn'; el('fabBtn').style.display=t=='home'?'flex':'none'; if(t=='chart')drawChart(); if(t=='cal')renderCalendar(); if(t=='sim') runSim(); }
+  function exportData(){ const d=new Date().toISOString().split('T')[0]; const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(getDB())],{type:'application/json'})); a.download='TNG_Gold_'+d+'.json'; a.click(); }
+  function importData(i){ const r=new FileReader(); r.onload=e=>{ try{const d=JSON.parse(e.target.result); if(d.tx)localStorage.setItem(KEY.TX,JSON.stringify(d.tx)); if(d.hs)localStorage.setItem(KEY.HS,JSON.stringify(d.hs)); location.reload();}catch{alert('Error');} }; r.readAsText(i.files[0]); }
+  function resetAll(){ if(confirm('清空?')){ localStorage.clear(); location.reload(); } }
+  function toggleChart(t){ chartVis[t]=!chartVis[t]; el('lg-'+t).className=chartVis[t]?'legend-item':'legend-item hidden'; drawChart(); }
+  function changeSort(){ sortMode=el('sortSelect').value; render(); }
+  function showCalcDetail(){ const {h,c}=getHoldingAt(); const avg=h>0?(c/h):0; el('detailCost').innerText="RM "+c.toFixed(2); el('detailGrams').innerText=h.toFixed(6)+" g"; el('detailAvg').innerText="RM "+avg.toFixed(2)+" /g"; openModal('calcDetailModal'); }
+  function openShareModal(){ const {h, c} = getHoldingAt(); const mp = parseFloat(el('marketPrice').value)||0; const avg = h > 0 ? (c / h) : 0; if(mp && h){ const val = h * mp; const profit = val - c; const pct = c > 0 ? (profit / c) * 100 : 0; el('shareVal').innerText = "RM " + val.toLocaleString('en-US',{minimumFractionDigits:2}); el('shareHold').innerText = h.toFixed(4); el('sharePL').innerText = (profit>=0?'+':'') + profit.toFixed(2); el('shareAvg').innerText = avg.toFixed(2); el('sharePct').innerText = (profit>=0?'+':'') + pct.toFixed(2) + "%"; } else { el('shareVal').innerText = "RM 0.00"; } openModal('shareModal'); }
+  function togglePrivacy(){ privacyMode = !privacyMode; render(true); }
+  function confirmSave(){ const p=parseFloat(el('marketPrice').value); if(!p||p<=0)return alert("请输入有效金价"); if(confirm(`确认写入今日金价 RM ${p.toFixed(2)}?`)) saveAndChart(p); }
+  function saveAndChart(p){ localStorage.setItem(KEY.MK,p); const {h}=getHoldingAt(); if(h>0){ const now = new Date(); const d = now.toISOString().split('T')[0]; const time = now.toTimeString().slice(0,5); let hs=getDB().hs; hs.push({ts: Date.now(), date:d, time:time, val:h*p}); localStorage.setItem(KEY.HS,JSON.stringify(hs)); } render(); switchTab('chart'); }
 
-    // =====================
-    // Vault UI
-    // =====================
-    const vaultBalanceEl = document.getElementById("vaultBalance");
-    const vaultCashEl = document.getElementById("vaultCash");
-    const vaultCardEl = document.getElementById("vaultCard");
-    const vaultListEl = document.getElementById("vaultList");
+  // Calendar Logic
+  function changeMonth(delta){ curCalMonth += delta; if(curCalMonth > 11) { curCalMonth=0; curCalYear++; } if(curCalMonth < 0) { curCalMonth=11; curCalYear--; } renderCalendar(); }
+  function renderCalendar(){ const y = curCalYear, m = curCalMonth; el('calTitle').innerText = `${y}年 ${m+1 < 10 ? '0'+(m+1) : m+1}月`; const firstDay = new Date(y, m, 1).getDay(); const daysInMonth = new Date(y, m+1, 0).getDate(); const tx = getDB().tx; let html = ''; for(let i=0; i<firstDay; i++) html += '<div></div>'; for(let i=1; i<=daysInMonth; i++){ const dateStr = `${y}-${(m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`; const hasTx = tx.some(t => t.date === dateStr); const isToday = (new Date().toDateString() === new Date(y,m,i).toDateString()); html += `<div class="cal-cell ${isToday?'today':''} ${hasTx?'has-tx':''}" onclick="showCalDetail('${dateStr}', this)">${i} ${hasTx?'<div class="cal-dot green"></div>':''}</div>`; } el('calDays').innerHTML = html; }
+  function showCalDetail(dateStr, cell){ document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('selected')); if(cell) cell.classList.add('selected'); const tx = getDB().tx.filter(t => t.date === dateStr); el('calDetailDate').innerText = dateStr; if(tx.length===0){ el('calDetailContent').innerHTML='<div style="text-align:center;color:var(--sub);padding:10px">当日无交易</div>'; return; } el('calDetailContent').innerHTML = tx.map(t=>`<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;border-bottom:1px solid #eee;padding-bottom:8px"><span style="color:${t.type=='buy'?'var(--green)':'var(--red)'};font-weight:700">${t.type=='buy'?'买入':'卖出'} RM ${Number(t.amount).toFixed(2)}</span><span>${Number(t.grams).toFixed(4)}g</span></div>`).join(''); }
 
-    function sumVault(){
-      const list = loadVault();
-      let twdBalance = 0;
-      let cash = 0;
-      let card = 0;
-
-      // 简化：开销不再区分现金/卡片（你要求去掉方式选择）
-      // 所以 cash/card 先都显示 0，或你要的话也可以把它们合并成「已花 RM」
-      list.forEach(r=>{
-        if (r.kind === "exchange_in") twdBalance += Number(r.amount || 0);
-      });
-
-      return {twdBalance, cash, card, list};
-    }
-
-    function renderVault(){
-      const {twdBalance, cash, card, list} = sumVault();
-      vaultBalanceEl.textContent = String(Math.round(twdBalance));
-      vaultCashEl.textContent = String(cash);
-      vaultCardEl.textContent = String(card);
-
-      vaultListEl.innerHTML = "";
-      if (!list.length){
-        const empty = document.createElement("div");
-        empty.className = "empty";
-        empty.textContent = "暂无金库记录";
-        vaultListEl.appendChild(empty);
-        return;
-      }
-
-      list.forEach(r=>{
-        const row = document.createElement("div");
-        row.className = "vaultItem";
-        row.dataset.id = r.id;
-
-        const left = document.createElement("div");
-        left.className = "left";
-        const emo = document.createElement("div");
-        emo.className = "emoji";
-        emo.textContent = r.emo || (r.kind==="exchange_in" ? "🔄" : "🧾");
-
-        const txt = document.createElement("div");
-        txt.className = "txt";
-        const name = document.createElement("div");
-        name.className = "name";
-        name.textContent = (r.kind==="exchange_in") ? "换汇存入" : "开销";
-
-        const meta = document.createElement("div");
-        meta.className = "meta";
-        meta.textContent = `${fmtTime(r.ts)}${r.kind==="exchange_in" ? ` · Rate ${Number(r.rate).toFixed(3)}` : ""}`;
-
-        txt.appendChild(name);
-        txt.appendChild(meta);
-
-        left.appendChild(emo);
-        left.appendChild(txt);
-
-        const amt = document.createElement("div");
-        amt.className = "amt";
-        amt.textContent = (r.kind==="exchange_in") ? `+${Number(r.amount)} TWD` : `-${Number(r.amount).toFixed(2)} RM`;
-
-        row.appendChild(left);
-        row.appendChild(amt);
-
-        row.addEventListener("click", ()=> openDetail(r.id, "vault"));
-        vaultListEl.appendChild(row);
-      });
-    }
-
-    // =====================
-    // Vault add modal (去换钱 / 记开销 with emoji)
-    // =====================
-    const vaultOverlay = document.getElementById("vaultOverlay");
-    const vaultModalIcon = document.getElementById("vaultModalIcon");
-    const vaultModalTitle = document.getElementById("vaultModalTitle");
-    const vaultModalSub = document.getElementById("vaultModalSub");
-    const vaultModeChip = document.getElementById("vaultModeChip");
-    const vaultModeHint = document.getElementById("vaultModeHint");
-    const vaultInputPreview = document.getElementById("vaultInputPreview");
-    const vaultInputUnit = document.getElementById("vaultInputUnit");
-    const vaultCalcHint = document.getElementById("vaultCalcHint");
-    const vaultConfirmBtn = document.getElementById("vaultConfirmBtn");
-    const emojiPick = document.getElementById("emojiPick");
-
-    let vaultMode = "exchange_in"; // exchange_in | expense
-    let vaultAmount = 0;
-    let vaultEmo = "🔄";
-
-    function openVaultModal(mode){
-      vaultMode = mode;
-      vaultAmount = 0;
-      vaultEmo = (mode==="exchange_in") ? "🔄" : "🍔";
-
-      if (mode==="exchange_in"){
-        vaultModalIcon.textContent = "🔄";
-        vaultModalTitle.textContent = "换汇存入";
-        vaultModalSub.textContent = "输入 TWD 数字即可";
-        vaultModeChip.textContent = "🔄 换汇存入";
-        vaultModeHint.textContent = "输入 TWD";
-        vaultInputUnit.textContent = "TWD";
-        vaultCalcHint.textContent = `将按当前汇率 1:${Number(currentRate).toFixed(3)} 折合 RM`;
-        emojiPick.style.display = "none";
-      }else{
-        vaultModalIcon.textContent = "🧾";
-        vaultModalTitle.textContent = "记录开销";
-        vaultModalSub.textContent = "选一个表情分类，再输入 RM 数字";
-        vaultModeChip.textContent = "🧾 开销";
-        vaultModeHint.textContent = "输入 RM";
-        vaultInputUnit.textContent = "RM";
-        vaultCalcHint.textContent = "不需要备注，点进详情才会看到备注（此处默认空）";
-        emojiPick.style.display = "flex";
-      }
-
-      vaultInputPreview.textContent = "0";
-      vaultOverlay.classList.add("show");
-    }
-    function closeVaultModal(){
-      vaultOverlay.classList.remove("show");
-    }
-
-    document.getElementById("vaultGoExchange").addEventListener("click", ()=> openVaultModal("exchange_in"));
-    document.getElementById("vaultAddExpense").addEventListener("click", ()=> openVaultModal("expense"));
-
-    document.getElementById("closeVault").addEventListener("click", closeVaultModal);
-    document.getElementById("vaultCancelBtn").addEventListener("click", closeVaultModal);
-    vaultOverlay.addEventListener("click", (e)=>{
-      if (e.target === vaultOverlay) closeVaultModal();
-    });
-
-    emojiPick.addEventListener("click", (e)=>{
-      const chip = e.target.closest(".chip");
-      if (!chip) return;
-      const emo = chip.dataset.emo;
-      if (!emo) return;
-      vaultEmo = emo;
-
-      // 选中态
-      [...emojiPick.querySelectorAll(".chip")].forEach(c=>{
-        c.style.outline = "none";
-      });
-      chip.style.outline = "2px solid rgba(20,168,116,.35)";
-      chip.style.outlineOffset = "2px";
-    });
-
-    // 这里为了简单：金库弹窗直接用 prompt 输入数字（你要我做漂亮数字键盘我也能做）
-    vaultConfirmBtn.addEventListener("click", ()=>{
-      const label = (vaultMode==="exchange_in") ? "请输入存入的 TWD 数字" : "请输入开销的 RM 数字";
-      const v = prompt(label, "0");
-      const num = Number(v);
-      if (!Number.isFinite(num) || num <= 0) return;
-
-      vaultAmount = num;
-      vaultInputPreview.textContent = String(num);
-
-      const rec = {
-        id: `${Date.now()}_${vaultMode}_${num}`,
-        ts: Date.now(),
-        kind: vaultMode,
-        amount: num,
-        emo: vaultEmo,
-        note: "",
-        rate: Number(currentRate)
-      };
-      addVault(rec);
-      renderVault();
-      closeVaultModal();
-    });
-
-    // =====================
-    // Init
-    // =====================
-    migrateHistoryOnce();
-    renderVault();
-    showCalc(); // 默认在换算页
-  </script>
+  init();
+</script>
 </body>
 </html>
