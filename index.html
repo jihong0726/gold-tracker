@@ -548,17 +548,17 @@
 "ts": 1770188908558,
 "type": "buy",
 "date": "2026-01-31",
-"amount": 10,
-"grams": 0.014681,
-"price": 681.146353
+"amount": "10",
+"grams": "0.014681",
+"price": "681.146353"
 },
 {
 "ts": 1770188927873,
 "type": "buy",
 "date": "2026-01-30",
-"amount": 10,
-"grams": 0.014713,
-"price": 679.665226
+"amount": "10",
+"grams": "0.014713",
+"price": "679.665226"
 }
 ];
   const PRELOAD_HIST = [
@@ -939,15 +939,19 @@
         return {date:h.date, time:h.time, val:h.val, cost:s.c, hold:s.h}; 
     });
     
+    // V66 Logic: Total Asset vs Total Cost
     const candles = mappedData.filter(d => d.hold > 0).map(d => {
-        const marketPrice = d.val / d.hold;
-        const avgCost = d.cost / d.hold;
-        return { ...d, mp: marketPrice, ac: avgCost };
+        // Now using TOTAL values directly
+        const totalAsset = d.val;
+        const totalCost = d.cost;
+        return { ...d, totalAsset, totalCost };
     });
     
-    const allPrices = candles.map(d => d.mp).concat(candles.map(d => d.ac));
-    const minP = Math.min(...allPrices) * 0.98;
-    const maxP = Math.max(...allPrices) * 1.02;
+    if(candles.length === 0) { box.innerHTML='<div style="text-align:center;padding-top:120px;color:var(--sub)">无持仓数据</div>'; return; }
+
+    const allValues = candles.map(d => d.totalAsset).concat(candles.map(d => d.totalCost));
+    const minP = Math.min(...allValues) * 0.98;
+    const maxP = Math.max(...allValues) * 1.02;
     const range = maxP - minP;
     const h = 340;
     
@@ -958,39 +962,50 @@
 
     let svg = `<svg style="width:${totalW}px;height:${h}px">`;
     
+    // Grid
     for(let i=0; i<=5; i++){
         const y = h - 30 - (i/5)*(h-60);
         svg += `<line x1="0" y1="${y}" x2="${totalW}" y2="${y}" class="grid-line" />`;
     }
 
-    let trendPath = "";
+    let assetPath = "";
     let costPath = "";
 
     candles.forEach((d, i) => {
         const x = i * groupW + groupW/2;
-        const yMP = h - 30 - ((d.mp - minP) / range) * (h - 60);
-        const yAC = h - 30 - ((d.ac - minP) / range) * (h - 60);
         
-        const yTop = Math.min(yMP, yAC);
-        const height = Math.abs(yMP - yAC);
-        const isProfit = d.mp >= d.ac;
+        const yAsset = h - 30 - ((d.totalAsset - minP) / range) * (h - 60);
+        const yCost = h - 30 - ((d.totalCost - minP) / range) * (h - 60);
+        
+        // Candle Logic: Top is Cost, Bottom is Asset (or vice versa)
+        // If Asset > Cost (Profit): Green bar from Cost up to Asset
+        // If Asset < Cost (Loss): Red bar from Asset up to Cost
+        
+        const yTop = Math.min(yAsset, yCost);
+        const height = Math.abs(yAsset - yCost);
+        const isProfit = d.totalAsset >= d.totalCost;
         const colorClass = isProfit ? "green" : "red";
         
-        svg += `<rect x="${x - barW/2}" y="${yTop}" width="${barW}" height="${Math.max(2, height)}" class="candle-body ${colorClass}" rx="2" onclick="alert('${d.date} ${d.time}\\n市价: ${d.mp.toFixed(2)}\\n成本: ${d.ac.toFixed(2)}')"></rect>`;
+        // Draw Bar representing P/L
+        svg += `<rect x="${x - barW/2}" y="${yTop}" width="${barW}" height="${Math.max(2, height)}" class="candle-body ${colorClass}" rx="2" onclick="alert('${d.date} ${d.time}\\n总资产: ${d.totalAsset.toFixed(2)}\\n总成本: ${d.totalCost.toFixed(2)}')"></rect>`;
         
-        if(i === 0) { trendPath += `M ${x} ${yMP}`; costPath += `M ${x} ${yAC}`; }
-        else { trendPath += ` L ${x} ${yMP}`; costPath += ` L ${x} ${yAC}`; }
+        // Paths for Lines
+        if(i === 0) { assetPath += `M ${x} ${yAsset}`; costPath += `M ${x} ${yCost}`; }
+        else { assetPath += ` L ${x} ${yAsset}`; costPath += ` L ${x} ${yCost}`; }
         
         const skip = Math.ceil(candles.length / (totalW / 60));
         if (i % skip === 0 || i === candles.length - 1) {
              const lbl = chartFilter === '1d' ? d.time : d.date.slice(5);
              svg += `<text x="${x}" y="${h - 5}" class="axis-label" style="text-anchor:middle">${lbl}</text>`;
-             svg += `<text x="${x}" y="${yTop - 5}" class="val-label">${d.mp.toFixed(0)}</text>`;
+             // Label shows PROFIT/LOSS amount
+             const pl = d.totalAsset - d.totalCost;
+             const sign = pl >= 0 ? "+" : "";
+             svg += `<text x="${x}" y="${yTop - 5}" class="val-label" style="fill:${isProfit?'var(--green)':'var(--red)'}">${sign}${pl.toFixed(0)}</text>`;
         }
     });
 
-    svg += `<path d="${trendPath}" class="line-trend" />`;
-    svg += `<path d="${costPath}" class="line-cost" />`; 
+    svg += `<path d="${assetPath}" class="line-trend" />`; // Blue solid line (Asset)
+    svg += `<path d="${costPath}" class="line-cost" />`;  // Orange dashed line (Cost)
     
     box.innerHTML = svg + '</svg>';
     setTimeout(() => { wrapper.scrollLeft = wrapper.scrollWidth; }, 50);
