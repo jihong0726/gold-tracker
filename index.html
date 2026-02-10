@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V65</title>
+  <title>TNG 黄金管家 V66</title>
   <style>
     :root{
       --primary: #007aff; 
@@ -171,7 +171,7 @@
     .sim-hint { font-size: 12px; color: var(--cost-color); margin-top: 6px; font-weight: 500; display: none; background: rgba(255,159,10,0.1); padding: 8px; border-radius: 8px; }
     .sim-error-box { background: rgba(255,59,48,0.1); color: var(--red); padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 600; text-align: center; margin-bottom: 10px; display: none; }
 
-    /* Calendar */
+    /* Calendar (FIXED) */
     .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-weight: 700; font-size: 16px; color: var(--text); }
     .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; width: 100%; }
     .cal-head-day { font-size: 11px; color: var(--sub); font-weight: 600; margin-bottom: 8px; }
@@ -300,8 +300,8 @@
       <div class="chart-legend">
         <div class="legend-item"><div style="width:10px;height:10px;background:var(--green);border-radius:2px"></div> 盈利</div>
         <div class="legend-item"><div style="width:10px;height:10px;background:var(--red);border-radius:2px"></div> 亏损</div>
-        <div class="legend-item"><div style="width:12px;height:2px;background:var(--primary);border-radius:2px"></div> 市价</div>
-        <div class="legend-item"><div style="width:12px;height:2px;background:var(--cost-color);border-radius:2px;border-bottom:2px dashed var(--cost-color)"></div> 成本</div>
+        <div class="legend-item"><div style="width:12px;height:2px;background:var(--primary);border-radius:2px"></div> 总资产</div>
+        <div class="legend-item"><div style="width:12px;height:2px;background:var(--cost-color);border-radius:2px;border-bottom:2px dashed var(--cost-color)"></div> 总成本</div>
       </div>
     </div>
 
@@ -548,17 +548,17 @@
 "ts": 1770188908558,
 "type": "buy",
 "date": "2026-01-31",
-"amount": "10",
-"grams": "0.014681",
-"price": "681.146353"
+"amount": 10,
+"grams": 0.014681,
+"price": 681.146353
 },
 {
 "ts": 1770188927873,
 "type": "buy",
 "date": "2026-01-30",
-"amount": "10",
-"grams": "0.014713",
-"price": "679.665226"
+"amount": 10,
+"grams": 0.014713,
+"price": 679.665226
 }
 ];
   const PRELOAD_HIST = [
