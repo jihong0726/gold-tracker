@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V75</title>
+  <title>TNG 黄金管家 V75.1</title>
   <style>
     /* --- 基础变量 --- */
     :root{
@@ -102,14 +102,13 @@
     .row-l { display: flex; flex-direction: column; gap: 4px; }
     .row-r { text-align: right; display: flex; flex-direction: column; gap: 4px; }
 
-    /* Chart V75 Fixed */
+    /* Chart V75.1 */
     .chart-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .chart-title { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
     .filter-tabs { display: flex; background: rgba(120,120,128,0.08); padding: 4px; border-radius: 10px; }
     .filter-btn { padding: 6px 12px; font-size: 12px; border-radius: 8px; border:none; background:transparent; color:var(--sub); font-weight:600; transition:0.2s; cursor:pointer; }
     .filter-btn.active { background: var(--glass-bg); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
     
-    /* Important: touch-action: none prevents scrolling while interacting with chart */
     .chart-box { height: 320px; width: 100%; position: relative; cursor: crosshair; touch-action: none; overflow: hidden; }
     .chart-scroll-wrapper { overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
     
@@ -120,13 +119,13 @@
     .axis-label { font-size: 10px; fill: var(--sub); font-weight: 500; }
     .val-label { font-size: 9px; font-weight: 700; fill: var(--text); text-anchor: middle; opacity: 1; }
     
-    /* V75 Tooltip Styling */
+    /* Tooltip */
     .chart-tooltip {
-      position: absolute; top: 10px; left: 50%; transform: translateX(-50%); pointer-events: none;
+      position: absolute; top: 10px; left: 50%; pointer-events: none;
       background: rgba(255,255,255,0.95); border: 1px solid var(--glass-border);
       box-shadow: 0 8px 30px rgba(0,0,0,0.12); border-radius: 16px; padding: 12px 16px;
       font-size: 12px; z-index: 200; opacity: 0; transition: opacity 0.1s;
-      min-width: 160px; backdrop-filter: blur(12px);
+      min-width: 160px; backdrop-filter: blur(12px); transform: translateX(0); /* Handled by JS */
     }
     @media (prefers-color-scheme: dark) { .chart-tooltip { background: rgba(30,30,32,0.95); border: 1px solid rgba(255,255,255,0.1); } }
 
@@ -137,7 +136,7 @@
     .tt-label { color: var(--sub); }
     .tt-val { font-weight: 700; color: var(--text); font-size: 13px; }
     
-    /* V75 Crosshair */
+    /* Crosshair */
     .crosshair { stroke: var(--text); stroke-width: 1; stroke-dasharray: 4,4; opacity: 0; pointer-events: none; transition: opacity 0.1s; }
     .crosshair.show { opacity: 0.5; }
     .active-dot { fill: var(--glass-bg); stroke: var(--primary); stroke-width: 3; r: 6; opacity: 0; transition: opacity 0.1s; pointer-events: none; }
@@ -225,7 +224,8 @@
       
       <div class="chart-scroll-wrapper" id="chartWrapper">
         <div class="chart-box" id="trendChart">
-             </div>
+             <div id="chartTooltip" class="chart-tooltip"></div>
+        </div>
       </div>
       
       <div style="display:flex;justify-content:center;gap:15px;margin-top:15px;font-size:11px;color:var(--sub)">
@@ -297,13 +297,12 @@
 </div>
 
 <script>
-  // Data V74 (22nd Deleted)
-  const KEY = { TX: 'tng_tx_v74', HS: 'tng_hs_v74' };
+  const KEY = { TX: 'tng_tx_v75', HS: 'tng_hs_v75' };
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401},{"ts":1769679188602,"type":"buy","date":"2025-04-23","amount":10,"grams":0.021294,"price":469.623106},{"ts":1769679209117,"type":"buy","date":"2025-05-10","amount":10,"grams":0.021391,"price":467.48292},{"ts":1770188908558,"type":"buy","date":"2026-01-31","amount":10,"grams":0.014681,"price":681.146353},{"ts":1770188927873,"type":"buy","date":"2026-01-30","amount":10,"grams":0.014713,"price":679.665226}];
   const PRELOAD_HIST = [{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89},{"ts":1769570138096,"date":"2026-01-26","time":"10:00","val":1580.48},{"ts":1769570149763,"date":"2026-01-27","time":"10:00","val":1571.57},{"ts":1769570157362,"date":"2026-01-28","time":"10:00","val":1597.82},{"ts":1769708569185,"date":"2026-01-29","time":"01:42","val":1648.48},{"ts":1769679309649,"date":"2026-01-29","time":"10:00","val":1623.05},{"ts":1769679322265,"date":"2026-01-29","time":"11:00","val":1627.36},{"ts":1769679331450,"date":"2026-01-29","time":"12:00","val":1708.71},{"ts":1769679360449,"date":"2026-01-29","time":"17:00","val":1696.79},{"ts":1769738400000,"date":"2026-01-30","time":"10:00","val":1648.48},{"ts":1769742000000,"date":"2026-01-30","time":"11:00","val":1647.24},{"ts":1769745600000,"date":"2026-01-30","time":"12:00","val":1615.23},{"ts":1769749200000,"date":"2026-01-30","time":"13:00","val":1567.28},{"ts":1769922467213,"date":"2026-01-31","time":"10:00","val":1499.76},{"ts":1769922479699,"date":"2026-02-01","time":"10:00","val":1537.53},{"ts":1770188969456,"date":"2026-02-03","time":"10:00","val":1523.45},{"ts":1770199200000,"date":"2026-02-04","time":"10:00","val":1551.36},{"ts":1770202800000,"date":"2026-02-04","time":"11:00","val":1578.0},{"ts":1770285600000,"date":"2026-02-05","time":"10:00","val":1528.71},{"ts":1770289200000,"date":"2026-02-05","time":"11:00","val":1515.3},{"ts":1770372000000,"date":"2026-02-06","time":"10:00","val":1519.28},{"ts":1770458400000,"date":"2026-02-07","time":"10:00","val":1548.65},{"ts":1770544800000,"date":"2026-02-08","time":"10:00","val":1548.65},{"ts":1770631200000,"date":"2026-02-09","time":"10:00","val":1563.72},{"ts":1770717600000,"date":"2026-02-10","time":"10:00","val":1564.98}];
   const el = id => document.getElementById(id);
   let editId=null, editHistId=null, chartFilter='1m', privacyMode=false;
-  let chartData = []; // Global data for tooltip
+  let chartData = []; 
 
   function init(){
     if(!localStorage.getItem(KEY.TX)) localStorage.setItem(KEY.TX, JSON.stringify(PRELOAD_TX));
@@ -415,22 +414,25 @@
     else if(chartFilter === '1w'){ const cut=new Date(); cut.setDate(now.getDate()-7); data = data.filter(d=>new Date(d.date)>=cut); }
     else if(chartFilter === '1m'){ const cut=new Date(); cut.setMonth(now.getMonth()-1); data = data.filter(d=>new Date(d.date)>=cut); }
     else if(chartFilter === '3m'){ const cut=new Date(); cut.setMonth(now.getMonth()-3); data = data.filter(d=>new Date(d.date)>=cut); }
+    else if(chartFilter === 'all'){ }
     
     if(data.length===0){ box.innerHTML='<div style="display:flex;height:100%;align-items:center;justify-content:center;color:var(--sub)">无数据</div>'; return; }
 
-    // Prepare Global Chart Data for Tooltip
     chartData = data.map(d => {
         const s = getHoldingAt(d.date);
-        return { 
-            date: d.date, time: d.time, asset: d.val, cost: s.c, unitP: s.h>0?d.val/s.h:0 
-        };
+        return { date: d.date, time: d.time, asset: d.val, cost: s.c, unitP: s.h>0?d.val/s.h:0 };
     }).filter(c=>c.cost>0);
 
     const candles = chartData;
     const allVals = candles.map(c=>c.asset).concat(candles.map(c=>c.cost));
     const minVal=Math.min(...allVals), maxVal=Math.max(...allVals);
     const range=maxVal-minVal, minY=Math.max(0,minVal-range*0.1), maxY=maxVal+range*0.1;
-    const H=320, W=Math.max(wrapper.offsetWidth, candles.length*50), step=W/candles.length;
+    const H=320;
+    
+    // Future Padding: Add 15% space to the right
+    const W = Math.max(wrapper.offsetWidth, candles.length * 50) + (wrapper.offsetWidth * 0.15); 
+    const step = (W - (wrapper.offsetWidth * 0.15)) / candles.length;
+    
     const getY=(v)=>H-20-((v-minY)/(maxY-minY))*(H-40);
 
     let pathAsset="", pathCost="";
@@ -443,7 +445,6 @@
     const firstX=step/2, lastX=(candles.length-1)*step+step/2, bottomY=H-20;
     const pathCostArea = pathCost + ` L ${lastX} ${bottomY} L ${firstX} ${bottomY} Z`;
     
-    // Inject Tooltip Container (Hidden by default)
     let svg=`<svg width="${W}px" height="${H}px"><defs><linearGradient id="gradProfit" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--green)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--green)" stop-opacity="0.05"/></linearGradient><linearGradient id="gradLoss" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--red)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--red)" stop-opacity="0.05"/></linearGradient></defs>`;
     
     // Grid
@@ -458,16 +459,17 @@
     });
     svg+=`<path d="${pathAsset}" class="line-asset"/>`;
     
+    // Interactive Elements
     candles.forEach((c,i)=>{
         const x=i*step+step/2, yA=getY(c.asset), diff=c.asset-c.cost;
         
-        // Interactive Elements (V75)
-        // Crosshair Line
+        // V75 Interactive Elements
         svg += `<line id="crosshair-${i}" class="crosshair" x1="${x}" y1="0" x2="${x}" y2="${H}" />`;
-        // Active Dot
         svg += `<circle id="dot-${i}" class="active-dot" cx="${x}" cy="${yA}" />`;
         
-        const skip=Math.ceil(candles.length/(wrapper.offsetWidth/70));
+        // Axis Labels (skip logic)
+        // Adjust skip logic based on visual density
+        const skip=Math.ceil(candles.length/(wrapper.offsetWidth/80));
         if(i%skip===0||i===candles.length-1){
              svg+=`<text x="${x}" y="${H-5}" class="axis-label" text-anchor="middle">${c.date.slice(5)}</text>`;
         }
@@ -477,27 +479,46 @@
     setTimeout(()=>{wrapper.scrollLeft=wrapper.scrollWidth},50);
   }
 
-  // --- V75 Tooltip Logic (No Click Required) ---
-  function handleTouch(e){
-      e.preventDefault(); 
-      const touch = e.touches[0];
-      showTooltipAt(touch.clientX);
-  }
-  function handleMouse(e){
-      e.preventDefault();
-      showTooltipAt(e.clientX);
-  }
+  // --- Tooltip Logic (Fixed) ---
+  function handleTouch(e){ e.preventDefault(); const touch = e.touches[0]; showTooltipAt(touch.clientX); }
+  function handleMouse(e){ e.preventDefault(); showTooltipAt(e.clientX); }
   
   function showTooltipAt(clientX){
       if(!chartData.length) return;
       const box = el('trendChart');
       const rect = box.getBoundingClientRect();
-      const x = clientX - rect.left + el('chartWrapper').scrollLeft; // Correct scroll offset
+      const xInBox = clientX - rect.left;
+      const scrollLeft = el('chartWrapper').scrollLeft;
+      const xTotal = xInBox + scrollLeft; // Absolute X in SVG
       
       const W = box.firstChild.width.baseVal.value; 
-      const step = W / chartData.length;
+      // Need to use the same 'W' calculation logic as in drawChart
+      // Since we don't have scope access to 'W' from drawChart easily without global, 
+      // let's re-calculate step based on current svg width.
       
-      let idx = Math.floor(x / step);
+      // Calculate step width again:
+      const candlesCount = chartData.length;
+      // W is the SVG width. 
+      // But wait, "future padding" adds extra width.
+      // The chart logic: W = max(wrapper, len*50) + padding. 
+      // Actual data width = W - padding.
+      // Step = (W - padding) / candlesCount
+      
+      // Better way: Re-derive step from SVG width directly?
+      // Or just look at SVG width?
+      // Let's assume step is uniform.
+      
+      // Re-calculate step approximately or store it globally?
+      // Storing globally is cleaner.
+      // But let's try to infer:
+      // The actual data area width = W * (1 / 1.15) if we added 15%. No, math is: W = DataW + DataW*0.15 => W = 1.15 * DataW.
+      // So DataW = W / 1.15.
+      // Step = DataW / candlesCount.
+      
+      const dataWidth = W / 1.15;
+      const step = dataWidth / candlesCount;
+      
+      let idx = Math.floor(xTotal / step);
       if(idx < 0) idx = 0;
       if(idx >= chartData.length) idx = chartData.length - 1;
       
@@ -511,22 +532,23 @@
         <div class="tt-row"><span class="tt-label">总资产</span><span class="tt-val">RM ${c.asset.toFixed(2)}</span></div>
         <div class="tt-row"><span class="tt-label">总成本</span><span class="tt-val">RM ${c.cost.toFixed(2)}</span></div>
         <div class="tt-row"><span class="tt-label">折合单价</span><span class="tt-val">RM ${c.unitP.toFixed(2)}</span></div>
-        <div class="tt-row">
-            <span class="tt-label">盈亏</span>
-            <span class="tt-val" style="color:${plColor}">${pl>=0?'+':''}${pl.toFixed(2)}</span>
-        </div>
+        <div class="tt-row"><span class="tt-label">盈亏</span><span class="tt-val" style="color:${plColor}">${pl>=0?'+':''}${pl.toFixed(2)}</span></div>
       `;
       
       // Position calculation
-      const chartX = idx * step + step/2;
-      // Keep tooltip within bounds
-      let left = chartX;
-      // Simple bound check (visual only)
-      tt.style.left = left + "px";
+      // We want tooltip to be near the touch point visually, but stay inside box.
+      // X position: relative to the VIEWPORT box (not SVG absolute)
+      let tipLeft = xInBox; 
+      
+      // Smart Position: Flip to left if too close to right edge
+      if(xInBox > rect.width / 2) tipLeft -= 170; // 160 width + margin
+      else tipLeft += 20;
+
+      tt.style.left = tipLeft + "px";
       tt.style.top = "10px";
       tt.classList.add('show');
       
-      // Toggle Crosshair & Dot
+      // Highlight Crosshair
       document.querySelectorAll('.crosshair').forEach(l => l.classList.remove('show'));
       document.querySelectorAll('.active-dot').forEach(d => d.classList.remove('show'));
       const line = document.getElementById(`crosshair-${idx}`);
