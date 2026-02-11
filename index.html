@@ -1,622 +1,565 @@
-<!DOCTYPE html>
-<html lang="zh-CN" class="light">
+<!doctype html>
+<html lang="zh-Hans">
 <head>
-  <meta charset="UTF-8" />
-  <title>UsTrip Finance v17.2</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#ffffff" id="theme-color">
-  
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/10543/10543323.png">
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config = { darkMode: 'class' }</script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet" />
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>TNG 黄金管家 V76</title>
   <style>
-    /* 1. 全局锁定 */
-    html, body { height: 100dvh; margin: 0; padding: 0; overflow: hidden; }
-    body { font-family: "Noto Sans SC", sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
-    
-    /* 2. App 容器 */
-    #app { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 480px; margin: 0 auto; background: #fff; }
-    
-    input, button { outline: none !important; }
-    .mono { font-family: 'JetBrains Mono', monospace; }
-    .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-
-    /* ================= 🟢 金库页面 (Scrollable) ================= */
-    .page-scrollable {
-      flex: 1; 
-      overflow-y: auto; 
-      overflow-x: hidden;
-      padding: 80px 20px 20px;
+    /* --- 基础变量 --- */
+    :root{
+      --primary: #007aff; 
+      --cost-color: #8e8e93; 
+      --text: #1c1c1e; --sub: #8e8e93;
+      --glass-bg: #ffffff; 
+      --glass-border: 1px solid rgba(0,0,0,0.05);
+      --glass-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      --nav-h: 65px; --safe-pb: env(safe-area-inset-bottom);
+      --green: #34c759; --red: #ff3b30;
+      --bg-color: #f5f5f7;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root{
+        --text: #f2f2f7; --sub: #98989d;
+        --glass-bg: #1c1c1e;
+        --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+        --bg-color: #000;
+        --cost-color: #636366;
+      }
     }
 
-    /* ================= 🔵 计算页面 (Fixed Layout) ================= */
-    .page-fixed {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      margin: 0; background: var(--bg-color); color: var(--text);
+      font-family: -apple-system, "SF Pro Display", sans-serif;
+      height: 100vh; display: flex; flex-direction: column; 
       overflow: hidden;
-      position: relative;
     }
 
-    /* 上半区：显示屏 */
-    .calc-display-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 80px 24px 10px;
-      min-height: 0;
+    /* --- 布局 --- */
+    .top-bar { 
+      flex: 0 0 60px; z-index: 90; 
+      background: var(--glass-bg); border-bottom: var(--glass-border); 
+      display: flex; justify-content: space-between; align-items: flex-end; 
+      padding: 0 24px 12px;
     }
-    .font-clamp-big { font-size: clamp(3rem, 12vw, 5rem); line-height: 1; }
-    .font-clamp-mid { font-size: clamp(2rem, 8vw, 3.5rem); line-height: 1.1; }
+    .app-title { font-size: 20px; font-weight: 700; }
+    .icon-btn-top { font-size: 20px; padding: 4px 8px; opacity: 0.7; cursor: pointer; }
 
-    /* 下半区：键盘 */
-    .calc-keyboard-area {
-      flex: 0 0 auto;
-      height: 55%;
-      background: rgb(241 245 249);
-      border-top-left-radius: 2.5rem;
-      border-top-right-radius: 2.5rem;
-      position: relative;
-      z-index: 20;
-      padding-top: 2.5rem;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
-      transition: background-color .3s;
-    }
-    html.dark .calc-keyboard-area { background: rgb(15 23 42); }
+    .app-content { flex: 1; overflow-y: auto; padding: 20px; -webkit-overflow-scrolling: touch; }
+    .view { display: none; animation: fadeIn 0.3s; padding-bottom: 20px; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* 历史胶囊 (悬浮按钮) */
-    .history-capsule {
-      position: absolute; top: 0.8rem; left: 50%; transform: translateX(-50%);
-      background: #fff; padding: .5rem 1rem; border-radius: 99px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      border: 1px solid rgb(226 232 240);
-      display: flex; align-items: center; gap: .5rem; cursor: pointer; z-index: 50; /* 提高层级 */
-      transition: all 0.2s;
+    .dock { 
+      flex: 0 0 calc(var(--nav-h) + var(--safe-pb));
+      background: var(--glass-bg); border-top: var(--glass-border);
+      display: grid; grid-template-columns: 1fr 1fr; 
+      padding-bottom: var(--safe-pb); z-index: 100;
     }
-    .history-capsule:active { transform: translateX(-50%) scale(0.95); }
-    html.dark .history-capsule { background: rgb(30 41 59); border-color: rgb(51 65 85); }
-    .capsule-text { font-size: .65rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: rgb(71 85 105); }
-    html.dark .capsule-text { color: rgb(203 213 225); }
+    .dock-btn { 
+      display: flex; flex-direction: column; align-items: center; justify-content: center; 
+      height: 100%; color: var(--sub); transition: 0.2s; cursor: pointer;
+    }
+    .dock-btn.active { color: var(--primary); background: rgba(0,122,255,0.03); }
+    .dock-btn svg { width: 26px; height: 26px; fill: currentColor; margin-bottom: 4px; }
+    .dock-label { font-size: 11px; font-weight: 600; }
 
-    /* 🌟 历史记录滑动列表 (Swipe Actions) */
-    .swipe-list-item {
-      position: relative;
-      overflow: hidden;
-      border-radius: 1rem;
-      margin-bottom: 0.75rem;
+    /* --- 组件 --- */
+    .glass-card {
+      background: var(--glass-bg); border-radius: 24px; 
+      border: var(--glass-border); box-shadow: var(--glass-shadow);
+      padding: 24px; margin-bottom: 20px; position: relative; overflow: visible;
     }
-    .swipe-content {
-      position: relative;
-      z-index: 10;
-      background: white;
-      transition: transform 0.2s ease-out;
-      display: flex;
-      align-items: center;
-      padding: 1rem;
-      border: 1px solid #f1f5f9;
+
+    .hero-card {
+      text-align: center; padding: 32px 20px;
+      background: linear-gradient(135deg, #007aff, #0055ff);
+      color: white; border: none; box-shadow: 0 8px 25px rgba(0,122,255,0.3);
     }
-    html.dark .swipe-content { background: #1e293b; border-color: #334155; }
+    .hero-label { font-size: 13px; opacity: 0.9; font-weight: 500; margin-bottom: 8px; }
+    .hero-val { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin: 4px 0 16px 0; }
+    .hero-pill { font-size: 13px; background: rgba(255,255,255,0.9); padding: 6px 14px; border-radius: 20px; font-weight: 600; color: #333; }
+    .eye-btn { font-size: 16px; cursor: pointer; opacity: 0.8; margin-left: 5px; }
+    .blur-mode { filter: blur(8px); opacity: 0.5; }
+
+    .input-wrapper { background: var(--glass-bg); padding: 20px; border-radius: 20px; box-shadow: var(--glass-shadow); margin-bottom: 20px; }
+    .input-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .input-row input { border: none; background: transparent; text-align: right; font-size: 24px; font-weight: 700; color: var(--primary); width: 140px; outline: none; }
+    .save-btn { width: 40px; height: 40px; background: var(--primary); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: none; box-shadow: 0 4px 10px rgba(0,122,255,0.3); }
+    .implied-price { text-align: right; font-size: 12px; color: var(--sub); font-weight: 500; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .stat-item { padding: 20px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+    .stat-label { font-size: 12px; color: var(--sub); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
+    .stat-val { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
     
-    /* 滑动操作背景层 */
-    .swipe-actions {
-      position: absolute;
-      top: 0; bottom: 0; left: 0; right: 0;
-      display: flex;
-      justify-content: space-between;
-      z-index: 1;
-    }
-    .action-left { background: #eab308; width: 50%; display: flex; align-items: center; padding-left: 1.5rem; color: white; font-weight: bold; }
-    .action-right { background: #ef4444; width: 50%; display: flex; align-items: center; justify-content: flex-end; padding-right: 1.5rem; color: white; font-weight: bold; }
+    .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .list-title { font-weight: 700; font-size: 15px; color: var(--text); }
+    .list-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 0.5px solid rgba(0,0,0,0.05); cursor: pointer; }
+    .row-l { display: flex; flex-direction: column; gap: 4px; }
+    .row-r { text-align: right; display: flex; flex-direction: column; gap: 4px; }
 
-    /* 计算器网格 */
-    .calc-grid { 
-      display: grid; 
-      grid-template-columns: repeat(4, 1fr); 
-      grid-template-rows: repeat(5, 1fr); 
-      gap: 10px; 
-      padding: 0 16px 16px; 
-      flex: 1; 
-    }
-    .calc-btn { 
-      @apply rounded-[1.2rem] flex items-center justify-center text-2xl font-bold transition-all duration-75 active:scale-95 shadow-sm border-b-2 border-slate-200 dark:border-slate-800; 
-      height: 100%; width: 100%;
-    }
-    .btn-num { @apply bg-white text-slate-800 dark:bg-slate-800 dark:text-slate-100; font-size: 1.6rem; }
-    .btn-op { @apply bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 text-2xl font-black border-indigo-100 dark:border-indigo-900; }
-    .btn-ac { @apply bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400 text-lg font-black border-red-100 dark:border-red-900; }
-    .btn-eq { @apply bg-emerald-500 text-white shadow-lg shadow-emerald-200/50 dark:shadow-none text-2xl active:bg-emerald-600 border-none; }
-
-    /* ================= 🌟 弹窗优化 ================= */
-    .rate-card {
-      @apply bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 flex justify-between items-center mb-6;
-    }
+    /* Chart V76: Added Padding */
+    .chart-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .chart-title { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
+    .filter-tabs { display: flex; background: rgba(120,120,128,0.08); padding: 4px; border-radius: 10px; }
+    .filter-btn { padding: 6px 12px; font-size: 12px; border-radius: 8px; border:none; background:transparent; color:var(--sub); font-weight:600; transition:0.2s; cursor:pointer; }
+    .filter-btn.active { background: var(--glass-bg); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
     
-    /* 🌟 智能变色输入框 */
-    .exchange-input-box {
-      @apply rounded-3xl p-2 border-2 border-transparent transition-all flex items-center shadow-sm;
-    }
-    /* 蓝色模式 (MYR) */
-    .box-myr { @apply bg-blue-50 dark:bg-blue-900/20 focus-within:border-blue-300 dark:focus-within:border-blue-700; }
-    /* 橙色模式 (TWD) */
-    .box-twd { @apply bg-orange-50 dark:bg-orange-900/20 focus-within:border-orange-300 dark:focus-within:border-orange-700; }
-
-    .exchange-input {
-      @apply flex-1 bg-transparent font-black text-4xl outline-none text-slate-900 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 ml-4 py-4 min-w-0;
-    }
-    .currency-toggle {
-      @apply flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-sm transition-all cursor-pointer select-none active:scale-95 ml-2 mr-1 shadow-sm border border-transparent;
-    }
-    .toggle-twd { @apply bg-orange-100 text-orange-600 border-orange-200 dark:bg-orange-800 dark:text-orange-100; }
-    .toggle-myr { @apply bg-blue-100 text-blue-600 border-blue-200 dark:bg-blue-800 dark:text-blue-100; }
-
-    .cat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
-    .cat-item {
-      @apply flex flex-col items-center justify-center p-2 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 cursor-pointer transition-all active:scale-90;
-    }
-    .cat-item.active { @apply bg-indigo-50 dark:bg-indigo-900/30 border-indigo-200 dark:border-indigo-700; }
-    .cat-emoji { font-size: 24px; margin-bottom: 4px; }
-    .cat-name { font-size: 10px; font-weight: bold; color: #64748b; }
-    .active .cat-name { @apply text-indigo-600 dark:text-indigo-300; }
-
-    /* 底部 Tab */
-    .bottom-nav {
-      flex: 0 0 auto;
-      background: rgba(255,255,255,0.95);
-      border-top: 1px solid #f1f5f9;
-      padding-top: 10px;
-      padding-bottom: calc(10px + env(safe-area-inset-bottom));
-      z-index: 40;
-    }
-    html.dark .bottom-nav { background: rgba(15,23,42,0.95); border-color: #1e293b; }
-
-    .transaction-item { transition: all 0.2s ease; border-left: 3px solid transparent; }
-    .item-exchange { border-left-color: #10b981; }
-    .item-expense { border-left-color: #6366f1; }
+    .chart-box { height: 320px; width: 100%; position: relative; cursor: crosshair; touch-action: none; overflow: hidden; }
+    .chart-scroll-wrapper { overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
     
-    .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
-    .fade-enter-from, .fade-leave-to { opacity: 0; }
-    .slide-enter-active, .slide-leave-active { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-    .slide-enter-from, .slide-leave-to { transform: translateY(100%); }
+    .area-cost { fill: var(--cost-color); opacity: 0.05; }
+    .line-asset { fill: none; stroke: var(--primary); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .line-cost { fill: none; stroke: var(--cost-color); stroke-width: 1.5; stroke-dasharray: 6,4; opacity: 0.6; }
+    .grid-line { stroke: var(--text); stroke-opacity: 0.05; stroke-width: 1; }
+    .axis-label { font-size: 10px; fill: var(--sub); font-weight: 500; }
+    .val-label { font-size: 9px; font-weight: 700; fill: var(--text); text-anchor: middle; opacity: 1; }
+    
+    .chart-tooltip {
+      position: absolute; top: 10px; left: 50%; transform: translateX(-50%); pointer-events: none;
+      background: rgba(255,255,255,0.95); border: 1px solid var(--glass-border);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12); border-radius: 16px; padding: 12px 16px;
+      font-size: 12px; z-index: 200; opacity: 0; transition: opacity 0.1s;
+      min-width: 160px; backdrop-filter: blur(12px);
+    }
+    @media (prefers-color-scheme: dark) { .chart-tooltip { background: rgba(30,30,32,0.95); border: 1px solid rgba(255,255,255,0.1); } }
+
+    .chart-tooltip.show { opacity: 1; }
+    .tt-date { font-weight: 700; color: var(--sub); margin-bottom: 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .tt-row { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: center; }
+    .tt-row:last-child { margin-bottom: 0; padding-top: 6px; border-top: 1px solid rgba(0,0,0,0.05); margin-top: 6px; }
+    .tt-label { color: var(--sub); }
+    .tt-val { font-weight: 700; color: var(--text); font-size: 13px; }
+    
+    .crosshair { stroke: var(--text); stroke-width: 1; stroke-dasharray: 4,4; opacity: 0; pointer-events: none; transition: opacity 0.1s; }
+    .crosshair.show { opacity: 0.5; }
+    .active-dot { fill: var(--glass-bg); stroke: var(--primary); stroke-width: 3; r: 6; opacity: 0; transition: opacity 0.1s; pointer-events: none; }
+    .active-dot.show { opacity: 1; }
+
+    /* Summary Card */
+    .chart-summary { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    .cs-item { background: rgba(120,120,128,0.03); padding: 16px; border-radius: 16px; text-align: center; }
+    .cs-label { font-size: 11px; color: var(--sub); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
+    .cs-val { font-size: 14px; font-weight: 800; white-space: nowrap; }
+
+    /* Modals & Utils */
+    .fab { position: fixed; bottom: calc(90px + var(--safe-pb)); right: 24px; width: 56px; height: 56px; background: var(--primary); border-radius: 50%; color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 25px rgba(0,122,255,0.4); z-index: 90; cursor: pointer; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+    .modal-overlay.show { display: flex; }
+    .modal-card { width: 85%; max-width: 320px; background: var(--glass-bg); border-radius: 24px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.25); }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--sub); margin-bottom: 6px; }
+    input.form-input { width: 100%; padding: 12px; background: rgba(120,120,128,0.08); border: none; border-radius: 12px; font-size: 16px; color: var(--text); outline: none; font-weight: 600; }
+    .btn-main { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 14px; font-weight: 700; font-size: 16px; cursor: pointer; }
   </style>
 </head>
-<body class="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
+<body>
 
-<div id="app">
+<div class="top-bar">
+  <div class="app-title">TNG 黄金管家</div>
+  <div><span class="icon-btn-top" onclick="openSettings()">⚙️</span></div>
+</div>
 
-  <header class="absolute top-0 left-0 right-0 z-50 px-6 py-4 flex justify-between items-center pointer-events-none">
-    <div class="flex items-center gap-3 pointer-events-auto">
-      <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg transition-all duration-300" 
-           :class="currentTab === 'assets' ? 'bg-slate-800 dark:bg-slate-700' : 'bg-emerald-500'">
-        <i class="fas" :class="currentTab === 'assets' ? 'fa-wallet' : 'fa-calculator'"></i>
-      </div>
-      <h1 v-if="currentTab==='assets'" class="text-xl font-black tracking-tight text-slate-900 dark:text-white">我的金库</h1>
+<div class="app-content">
+
+  <div id="view-home" class="view active">
+    <div class="glass-card hero-card">
+      <div class="hero-label">当前持仓总值 (RM) <span class="eye-btn" onclick="togglePrivacy()">👁️</span></div>
+      <div class="hero-val" id="kpiVal">0.00</div>
+      <div class="hero-pill" id="kpiProfit">盈亏: ---</div>
     </div>
-    <div class="flex gap-4 text-slate-400 pointer-events-auto">
-      <button @click="toggleDark" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center transition-colors active:scale-90 hover:bg-slate-200 dark:hover:bg-slate-700"><i class="fas text-sm" :class="isDark ? 'fa-sun text-yellow-400' : 'fa-moon'"></i></button>
-      <template v-if="currentTab === 'assets'">
-        <button @click="exportAllData" class="w-10 h-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800/60 flex items-center justify-center transition-colors"><i class="fas fa-save"></i></button>
-        <button @click="triggerImport" class="w-10 h-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800/60 flex items-center justify-center transition-colors"><i class="fas fa-upload"></i></button>
-      </template>
-    </div>
-  </header>
-
-  <div v-show="currentTab === 'assets'" class="page-scrollable">
-    <section class="bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-900 dark:to-slate-950 p-8 rounded-[2.5rem] text-white shadow-2xl shadow-slate-200 dark:shadow-none relative overflow-hidden mb-6">
-      <div class="relative z-10">
-        <div class="flex justify-between items-start mb-8">
-          <div>
-            <p class="text-xs font-bold opacity-60 uppercase tracking-widest mb-2">台币剩余</p>
-            <h2 class="text-6xl font-black mono leading-none tracking-tight">{{ Math.round(twdBalance) }}</h2>
-          </div>
-          <div class="text-right">
-            <span class="text-[10px] font-bold opacity-60 uppercase block mb-1">平均汇率</span>
-            <span class="text-xs font-bold mono text-emerald-400 bg-white/10 px-2.5 py-1 rounded-md backdrop-blur-md">1 : {{ averageRate }}</span>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-6 border-t border-white/10 pt-6">
-          <div><p class="text-[10px] opacity-50 uppercase mb-1 font-bold">现金已花</p><p class="text-xl font-bold mono opacity-90">{{ totalCashSpent }}</p></div>
-          <div><p class="text-[10px] opacity-50 uppercase mb-1 font-bold">卡片已花</p><p class="text-xl font-bold mono opacity-90">{{ totalCardSpent }}</p></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="grid grid-cols-2 gap-4 mb-4">
-      <button @click="openModal('exchange')" class="bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 p-5 rounded-3xl flex items-center gap-4 active:scale-95 transition hover:bg-slate-100 dark:hover:bg-slate-800">
-        <div class="w-12 h-12 bg-emerald-100/80 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center shadow-sm"><i class="fas fa-sync text-lg"></i></div>
-        <div class="text-left"><p class="text-base font-black dark:text-white">去换钱</p><p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Exchange</p></div>
-      </button>
-      <button @click="openModal('expense')" class="bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 p-5 rounded-3xl flex items-center gap-4 active:scale-95 transition hover:bg-slate-100 dark:hover:bg-slate-800">
-        <div class="w-12 h-12 bg-indigo-100/80 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center shadow-sm"><i class="fas fa-shopping-bag text-lg"></i></div>
-        <div class="text-left"><p class="text-base font-black dark:text-white">记开销</p><p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Expense</p></div>
-      </button>
-    </section>
-
-    <div class="space-y-3">
-      <div v-for="item in allTransactions" :key="item.id" class="transaction-item bg-white dark:bg-slate-900/80 p-4 rounded-2xl flex justify-between items-center border border-slate-50 dark:border-slate-800/50 shadow-sm" :class="getTranClass(item)">
-        <div class="flex items-center gap-4">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-base" :class="getIconColor(item)"><i :class="getIcon(item)"></i></div>
-          <div>
-            <p class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ item.type === 'exchange' ? '换台币' : item.name }}</p>
-            <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mono mt-0.5">{{ item.date }} · {{ item.type==='exchange' ? 'Rate '+item.rate : 'Expense' }}</p>
-          </div>
-        </div>
-        <div class="text-right">
-          <p class="text-base font-black mono" :class="item.type === 'exchange' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'">{{ item.type === 'exchange' ? '+' : '-' }}{{ item.type === 'exchange' ? item.targetAmount : item.amount }}</p>
-          <button @click="deleteItem(item)" class="text-[9px] text-slate-300 hover:text-red-400 font-bold px-1 py-1 opacity-60 hover:opacity-100">DEL</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div v-show="currentTab === 'calc'" class="page-fixed">
     
-    <div class="calc-display-area">
-      <div class="flex justify-between items-center mb-auto opacity-80 pointer-events-auto">
-         <span class="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 px-3 py-1.5 rounded-full">Rate: {{ averageRate }}</span>
-      </div>
-
-      <input v-model="calcNote" class="w-full bg-transparent text-right text-sm font-bold text-slate-400 placeholder-slate-200 dark:placeholder-slate-700 outline-none transition-all focus:placeholder-slate-400 mb-2 pointer-events-auto" placeholder="备注...">
-
-      <div class="flex flex-col items-end gap-1">
-        <div class="h-6 text-slate-400 font-bold text-lg mono opacity-50">{{ calcExpr }}</div>
-        
-        <div class="font-clamp-big font-black text-slate-900 dark:text-white tracking-tighter break-all text-right w-full mb-3 drop-shadow-sm" style="word-break: break-all;">
-          {{ calcInput || '0' }}
-          <span class="text-2xl text-slate-300 dark:text-slate-600 font-bold ml-1">TWD</span>
+    <div class="input-wrapper">
+        <div class="input-row">
+            <div style="display:flex;align-items:center;gap:8px;font-weight:700">当前总市值</div>
+            <div style="display:flex;align-items:center;gap:10px">
+                <input type="number" id="inputTotalVal" placeholder="0.00" inputmode="decimal" oninput="calcImpliedPrice()">
+                <button class="save-btn" onclick="confirmSave()">➔</button>
+            </div>
         </div>
-
-        <div class="w-full bg-emerald-500 dark:bg-emerald-600 text-white rounded-[1.8rem] p-4 shadow-xl shadow-emerald-200/40 dark:shadow-none flex flex-col items-end justify-center active:scale-[0.98] transition-all cursor-pointer hover:shadow-2xl hover:bg-emerald-500/90 gap-0.5 pointer-events-auto" @click="saveCalculation">
-          <div class="font-clamp-mid font-black mono tracking-tight leading-none">
-            {{ calcResult }}
-          </div>
-          <div class="flex items-center gap-1 opacity-80">
-            <span class="text-[10px] font-bold uppercase tracking-wider">折合马币 (RM)</span>
-            <i class="fas fa-save text-xs ml-1"></i>
-          </div>
-        </div>
-      </div>
+        <div class="implied-price" id="impliedPriceLabel">自动换算单价: -- /g</div>
     </div>
 
-    <div class="calc-keyboard-area pb-safe">
-      
-      <div class="history-capsule" @click="toggleHistory">
-        <i class="fas fa-history text-emerald-500 text-sm"></i>
-        <span class="capsule-text">历史记录</span>
-        <i class="fas text-slate-300 text-xs" :class="showHistory ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
+    <div class="grid-2">
+      <div class="glass-card stat-item">
+        <div class="stat-label">持有克数</div>
+        <div class="stat-val"><span id="kpiHolding">0.0000</span> <span style="font-size:12px">g</span></div>
       </div>
-
-      <transition name="slide">
-        <div v-if="showHistory" class="absolute inset-0 bg-slate-50 dark:bg-slate-900 rounded-t-[2.5rem] z-20 pt-14 px-6 overflow-y-auto border-t border-slate-200 dark:border-slate-800 flex flex-col">
-          
-          <div class="space-y-3 pb-safe">
-              <div v-if="calcHistory.length===0" class="text-center py-10 text-slate-300 text-sm">暂无记录</div>
-              
-              <div v-for="(rec,i) in calcHistory" :key="rec.time" 
-                   class="swipe-list-item"
-                   @touchstart="touchStart($event, i)"
-                   @touchmove="touchMove($event, i)"
-                   @touchend="touchEnd($event, i)">
-                
-                <div class="swipe-actions">
-                  <div class="action-left" @click="pinItem(i)">置顶</div>
-                  <div class="action-right" @click="delItem(i)">删除</div>
-                </div>
-
-                <div class="swipe-content" :style="{ transform: `translateX(${swipeOffsets[i] || 0}px)` }">
-                  <div class="flex-1">
-                    <div class="font-bold text-sm text-slate-700 dark:text-slate-200">{{ rec.note || '未备注' }}</div>
-                    <div class="text-xs text-slate-400 mt-0.5">{{ rec.twd }} TWD (Rate: {{rec.rateUsed}})</div>
-                  </div>
-                  <div class="text-right">
-                    <div class="font-black text-emerald-600 dark:text-emerald-400 text-lg">{{ rec.myr }}</div>
-                    <div class="text-[9px] text-slate-300 font-bold">{{ rec.time }}</div>
-                  </div>
-                </div>
-              </div>
-          </div>
-        </div>
-      </transition>
-
-      <div class="calc-grid">
-        <button @click="key('AC')" class="calc-btn btn-ac">AC</button>
-        <button @click="key('DEL')" class="calc-btn btn-op"><i class="fas fa-backspace"></i></button>
-        <button @click="key('%')" class="calc-btn btn-op">%</button>
-        <button @click="key('/')" class="calc-btn btn-op">÷</button>
-        
-        <button @click="key('7')" class="calc-btn btn-num">7</button>
-        <button @click="key('8')" class="calc-btn btn-num">8</button>
-        <button @click="key('9')" class="calc-btn btn-num">9</button>
-        <button @click="key('*')" class="calc-btn btn-op">×</button>
-
-        <button @click="key('4')" class="calc-btn btn-num">4</button>
-        <button @click="key('5')" class="calc-btn btn-num">5</button>
-        <button @click="key('6')" class="calc-btn btn-num">6</button>
-        <button @click="key('-')" class="calc-btn btn-op">-</button>
-
-        <button @click="key('1')" class="calc-btn btn-num">1</button>
-        <button @click="key('2')" class="calc-btn btn-num">2</button>
-        <button @click="key('3')" class="calc-btn btn-num">3</button>
-        <button @click="key('+')" class="calc-btn btn-op">+</button>
-
-        <button @click="key('0')" class="calc-btn btn-num">0</button>
-        <button @click="key('00')" class="calc-btn btn-num">00</button>
-        <button @click="key('.')" class="calc-btn btn-num">.</button>
-        <button @click="key('=')" class="calc-btn btn-eq">=</button>
+      <div class="glass-card stat-item">
+        <div class="stat-label">平均成本</div>
+        <div class="stat-val"><span id="kpiAvg">0.00</span> <span style="font-size:12px">/g</span></div>
       </div>
+    </div>
+    
+    <div class="glass-card">
+      <div class="list-header">
+        <div class="list-title">最近交易</div>
+        <div style="font-size:12px;color:var(--primary);cursor:pointer" onclick="openTxModal()">+ 记一笔</div>
+      </div>
+      <div id="txList"></div>
     </div>
   </div>
 
-  <nav class="bottom-nav flex justify-around items-center bg-white/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 transition-colors duration-300">
-    <button @click="currentTab='assets'" class="flex flex-col items-center gap-1 transition active:scale-95 px-6" :class="currentTab==='assets'?'text-slate-900 dark:text-white':'text-slate-400 dark:text-slate-500'">
-      <i class="fas fa-wallet text-xl"></i><span class="text-[10px] font-bold">金库</span>
-    </button>
-    <button @click="currentTab='calc'" class="flex flex-col items-center gap-1 transition active:scale-95 px-6" :class="currentTab==='calc'?'text-emerald-500':'text-slate-400 dark:text-slate-500'">
-      <i class="fas fa-calculator text-xl"></i><span class="text-[10px] font-bold">换算</span>
-    </button>
-  </nav>
-
-  <input type="file" ref="importInput" class="hidden" @change="handleImport" accept=".json">
-  
-  <transition name="fade">
-    <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6">
-      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showModal=false"></div>
-      
-      <transition name="slide" appear>
-      <div class="bg-white dark:bg-slate-950 w-full max-w-[340px] rounded-[2rem] p-6 relative z-10 shadow-2xl transition-colors border border-slate-100 dark:border-slate-800">
-        
-        <h3 class="text-lg font-black mb-6 text-slate-900 dark:text-white flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm" :class="modalType==='exchange'?'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400':'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400'">
-             <i class="fas text-sm" :class="modalType==='exchange'?'fa-sync-alt':'fa-pen'"></i>
-          </div>
-          {{ modalType==='exchange'?'存入资金':'记录开销' }}
-        </h3>
-        
-        <div v-if="modalType==='exchange'" class="mb-6">
-          <div class="rate-card">
-              <div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Jags Rate (Sell)</span>
-                <a href="https://www.jagsmoney.com/daily-rates/" target="_blank" class="text-[10px] text-blue-500 font-bold underline">查看官网</a>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-slate-400 dark:text-slate-500">100 TWD = </span>
-                <input type="number" v-model="jagsRate" class="w-24 bg-white dark:bg-slate-800 p-2 rounded-lg text-xl font-black outline-none text-center shadow-sm dark:text-white border border-slate-100 dark:border-slate-700" placeholder="12.63">
-                <span class="text-xs font-bold text-slate-400 dark:text-slate-500">MYR</span>
-              </div>
-          </div>
-        </div>
-
-        <div v-if="modalType==='exchange'" class="space-y-4">
-          <div>
-            <label class="text-[10px] font-bold text-slate-400 mb-2 block ml-2 uppercase tracking-wide">输入金额</label>
-            <div class="exchange-input-box" :class="exMode==='MYR'?'box-myr':'box-twd'">
-              <input type="number" v-model.number="exInputAmount" class="exchange-input" placeholder="0">
-              <button @click="toggleExMode" class="currency-toggle" :class="exMode==='MYR' ? 'toggle-myr' : 'toggle-twd'">
-                {{ exMode }}
-                <i class="fas fa-exchange-alt text-xs opacity-60"></i>
-              </button>
-            </div>
-          </div>
-          
-          <div class="flex justify-center -my-3 relative z-10"><i class="fas fa-arrow-down bg-white dark:bg-slate-900 text-slate-300 rounded-full p-1 border dark:border-slate-800 text-xs"></i></div>
-          
-          <div class="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-4 flex justify-between items-center border border-slate-100 dark:border-slate-800/50">
-            <span class="text-xs font-bold text-slate-400">自动换算为</span>
-            <div class="text-xl font-black" :class="exMode==='MYR'?'text-orange-500':'text-blue-500'">
-               {{ exResult }} <span class="text-sm">{{ exMode==='MYR'?'TWD':'MYR' }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div v-if="modalType==='expense'" class="space-y-6">
-          <div>
-            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide ml-1">选择分类</label>
-            <div class="cat-grid">
-              <div v-for="cat in categories" :key="cat.name" 
-                   class="cat-item" 
-                   :class="selectedCat.name === cat.name ? 'active' : ''"
-                   @click="selectedCat = cat">
-                <div class="cat-emoji">{{ cat.emoji }}</div>
-                <div class="cat-name">{{ cat.name }}</div>
-              </div>
-            </div>
-          </div>
-
-          <div>
-             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide ml-1 mb-2 block">消费金额 (TWD)</label>
-             <div class="exchange-input-box box-twd !p-1">
-                <input type="number" v-model.number="newItem.amount" class="exchange-input !ml-2" placeholder="0.00">
-                <span class="text-sm font-bold text-slate-400 mr-4">TWD</span>
-             </div>
-          </div>
-          
-          <div class="px-2">
-             <input v-model="newItem.name" class="w-full bg-transparent border-b border-slate-200 dark:border-slate-800 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 outline-none placeholder-slate-300" placeholder="添加备注 (可选)...">
-          </div>
-        </div>
-
-        <button @click="saveItem" class="w-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-bold py-3.5 rounded-xl mt-8 shadow-lg active:scale-95 transition flex justify-center items-center gap-2"><i class="fas fa-check"></i> 确认保存</button>
+  <div id="view-chart" class="view">
+    <div class="glass-card">
+      <div class="chart-summary">
+        <div class="cs-item"><div class="cs-label">总投入</div><div class="cs-val" id="chartTotalCost">--</div></div>
+        <div class="cs-item"><div class="cs-label">当前市值</div><div class="cs-val" style="color:var(--primary)" id="chartTotalVal">--</div></div>
+        <div class="cs-item"><div class="cs-label">总盈亏</div><div class="cs-val" id="chartTotalPL">--</div></div>
       </div>
-      </transition>
+      <div class="chart-head-row">
+        <div class="chart-title">资产走势</div>
+        <div class="filter-tabs">
+          <button class="filter-btn active" id="filter-1m" onclick="setChartFilter('1m')">1月</button>
+          <button class="filter-btn" id="filter-3m" onclick="setChartFilter('3m')">3月</button>
+          <button class="filter-btn" id="filter-all" onclick="setChartFilter('all')">全</button>
+        </div>
+      </div>
+      
+      <div class="chart-scroll-wrapper" id="chartWrapper">
+        <div class="chart-box" id="trendChart">
+             <div id="chartTooltip" class="chart-tooltip"></div>
+        </div>
+      </div>
+      
+      <div style="display:flex;justify-content:center;gap:15px;margin-top:15px;font-size:11px;color:var(--sub)">
+          <div style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--green);border-radius:2px;opacity:0.6"></span>盈利</div>
+          <div style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--red);border-radius:2px;opacity:0.6"></span>亏损</div>
+          <div style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:2px;background:var(--primary)"></span>市值</div>
+          <div style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:2px;background:var(--cost-color);border-bottom:2px dashed var(--cost-color)"></span>成本</div>
+      </div>
     </div>
-  </transition>
+    
+    <div style="text-align:center">
+        <button class="btn-main" style="width:auto;padding:10px 20px;font-size:14px;background:rgba(120,120,128,0.1);color:var(--text)" onclick="openHistModal()">+ 补录历史市值</button>
+    </div>
+    <div class="glass-card" style="margin-top:20px">
+        <div class="list-title" style="margin-bottom:12px">数据明细</div>
+        <div id="histList"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="dock">
+  <div class="dock-btn active" id="nav-home" onclick="switchTab('home')">
+    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    <span class="dock-label">首页</span>
+  </div>
+  <div class="dock-btn" id="nav-chart" onclick="switchTab('chart')">
+    <svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
+    <span class="dock-label">走势</span>
+  </div>
+</div>
+
+<div class="modal-overlay" id="txModal">
+  <div class="modal-card">
+    <h3 style="text-align:center;margin-bottom:20px">买入/卖出</h3>
+    <div class="form-group"><label class="form-label">日期</label><input type="date" class="form-input" id="tDate"></div>
+    <div class="form-group"><label class="form-label">总金额 (RM)</label><input type="number" class="form-input" id="tAmt" placeholder="例如: 10.00" oninput="calcG()"></div>
+    <div style="display:flex;gap:10px">
+        <div class="form-group" style="flex:1"><label class="form-label">买入单价</label><input type="number" class="form-input" id="tPrice" oninput="calcG()"></div>
+        <div class="form-group" style="flex:1"><label class="form-label">克数</label><input type="number" class="form-input" id="tGrams" disabled></div>
+    </div>
+    <button class="btn-main" onclick="saveTx()">保存记录</button>
+    <div style="text-align:center;margin-top:15px;color:var(--sub);cursor:pointer" onclick="document.getElementById('txModal').classList.remove('show')">取消</div>
+    <div id="btnDelTx" style="text-align:center;margin-top:10px;color:var(--red);cursor:pointer;display:none" onclick="delTx()">删除</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="histModal">
+  <div class="modal-card">
+    <h3 style="text-align:center;margin-bottom:20px">补录当日总市值</h3>
+    <div class="form-group"><label class="form-label">日期</label><input type="date" class="form-input" id="hDate"></div>
+    <div class="form-group"><label class="form-label">时间</label><input type="time" class="form-input" id="hTime"></div>
+    <div class="form-group"><label class="form-label">总市值 (RM)</label><input type="number" class="form-input" id="hTotalVal" placeholder="注意：是总值"></div>
+    <button class="btn-main" onclick="saveHist()">保存</button>
+    
+    <div style="display:flex; justify-content:space-between; margin-top:15px; align-items:center">
+        <div id="btnDelHist" style="color:var(--red);font-size:13px;cursor:pointer;display:none" onclick="delHist()">🗑️ 删除</div>
+        <div style="font-size:13px;color:var(--sub);cursor:pointer" onclick="document.getElementById('histModal').classList.remove('show')">取消</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-card">
+    <h3 style="text-align:center;margin-bottom:20px">数据管理</h3>
+    <div class="settings-list">
+        <div class="settings-item" onclick="exportData()"><span>📤 备份数据</span></div>
+        <div class="settings-item" style="position:relative"><span>📥 恢复数据</span><input type="file" onchange="importData(this)" style="position:absolute;left:0;top:0;width:100%;height:100%;opacity:0"></div>
+        <div class="settings-item" onclick="resetAll()"><span style="color:var(--red)">🗑️ 清空数据</span></div>
+    </div>
+    <button class="btn-main" style="background:#eee;color:#333;margin-top:20px" onclick="document.getElementById('settingsModal').classList.remove('show')">关闭</button>
+  </div>
 </div>
 
 <script>
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
-  const { createApp, ref, computed, onMounted, reactive } = Vue;
-  createApp({
-    setup() {
-      const STORAGE_KEY = "ustrip_v17_2_swipe";
-      const currentTab = ref("assets");
-      const isDark = ref(false);
-      const showHistory = ref(false);
-      
-      const toggleDark = () => { 
-        isDark.value = !isDark.value; 
-        const meta = document.getElementById('theme-color');
-        if(isDark.value) { document.documentElement.classList.add('dark'); if(meta) meta.setAttribute('content', '#0f172a'); }
-        else { document.documentElement.classList.remove('dark'); if(meta) meta.setAttribute('content', '#ffffff'); }
-        save(); 
-      };
-      const toggleHistory = () => showHistory.value = !showHistory.value;
+  // Data V76 (22nd Deleted)
+  const KEY = { TX: 'tng_tx_v76', HS: 'tng_hs_v76' };
+  const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401},{"ts":1769679188602,"type":"buy","date":"2025-04-23","amount":10,"grams":0.021294,"price":469.623106},{"ts":1769679209117,"type":"buy","date":"2025-05-10","amount":10,"grams":0.021391,"price":467.48292},{"ts":1770188908558,"type":"buy","date":"2026-01-31","amount":10,"grams":0.014681,"price":681.146353},{"ts":1770188927873,"type":"buy","date":"2026-01-30","amount":10,"grams":0.014713,"price":679.665226}];
+  const PRELOAD_HIST = [{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89},{"ts":1769570138096,"date":"2026-01-26","time":"10:00","val":1580.48},{"ts":1769570149763,"date":"2026-01-27","time":"10:00","val":1571.57},{"ts":1769570157362,"date":"2026-01-28","time":"10:00","val":1597.82},{"ts":1769708569185,"date":"2026-01-29","time":"01:42","val":1648.48},{"ts":1769679309649,"date":"2026-01-29","time":"10:00","val":1623.05},{"ts":1769679322265,"date":"2026-01-29","time":"11:00","val":1627.36},{"ts":1769679331450,"date":"2026-01-29","time":"12:00","val":1708.71},{"ts":1769679360449,"date":"2026-01-29","time":"17:00","val":1696.79},{"ts":1769738400000,"date":"2026-01-30","time":"10:00","val":1648.48},{"ts":1769742000000,"date":"2026-01-30","time":"11:00","val":1647.24},{"ts":1769745600000,"date":"2026-01-30","time":"12:00","val":1615.23},{"ts":1769749200000,"date":"2026-01-30","time":"13:00","val":1567.28},{"ts":1769922467213,"date":"2026-01-31","time":"10:00","val":1499.76},{"ts":1769922479699,"date":"2026-02-01","time":"10:00","val":1537.53},{"ts":1770188969456,"date":"2026-02-03","time":"10:00","val":1523.45},{"ts":1770199200000,"date":"2026-02-04","time":"10:00","val":1551.36},{"ts":1770202800000,"date":"2026-02-04","time":"11:00","val":1578.0},{"ts":1770285600000,"date":"2026-02-05","time":"10:00","val":1528.71},{"ts":1770289200000,"date":"2026-02-05","time":"11:00","val":1515.3},{"ts":1770372000000,"date":"2026-02-06","time":"10:00","val":1519.28},{"ts":1770458400000,"date":"2026-02-07","time":"10:00","val":1548.65},{"ts":1770544800000,"date":"2026-02-08","time":"10:00","val":1548.65},{"ts":1770631200000,"date":"2026-02-09","time":"10:00","val":1563.72},{"ts":1770717600000,"date":"2026-02-10","time":"10:00","val":1564.98}];
+  const el = id => document.getElementById(id);
+  let editId=null, editHistId=null, chartFilter='1m', privacyMode=false;
+  let chartData = []; 
 
-      const showModal = ref(false); const modalType = ref(""); const newItem = ref({}); const importInput = ref(null);
-      const exchangeRecords = ref([]); const expenseRecords = ref([]);
-      const calcInput = ref("0"); const calcExpr = ref(""); const calcNote = ref(""); const calcHistory = ref([]);
-      
-      const jagsRate = ref(12.63);
-      const exMode = ref("MYR"); 
-      const exInputAmount = ref("");
-      const categories = [ { name: '饮食', emoji: '🍔' }, { name: '交通', emoji: '🚗' }, { name: '购物', emoji: '🛍️' }, { name: '娱乐', emoji: '🎮' }, { name: '住宿', emoji: '🏨' }, { name: '零食', emoji: '🍦' }, { name: '其他', emoji: '📦' } ];
-      const selectedCat = ref(categories[0]);
-
-      // 🌟 滑动逻辑
-      const swipeOffsets = reactive({});
-      let startX = 0;
-      let activeIndex = null;
-
-      const touchStart = (e, i) => { startX = e.touches[0].clientX; activeIndex = i; };
-      const touchMove = (e, i) => {
-        if(activeIndex !== i) return;
-        const diff = e.touches[0].clientX - startX;
-        // 限制滑动范围 -100 (Delete) 到 100 (Pin)
-        if(diff < -100) swipeOffsets[i] = -100;
-        else if(diff > 100) swipeOffsets[i] = 100;
-        else swipeOffsets[i] = diff;
-      };
-      const touchEnd = (e, i) => {
-        if(Math.abs(swipeOffsets[i]) > 60) {
-           swipeOffsets[i] = swipeOffsets[i] > 0 ? 100 : -100; // 吸附
-        } else {
-           swipeOffsets[i] = 0; // 回弹
-        }
-      };
-      
-      const delItem = (i) => { calcHistory.value.splice(i, 1); delete swipeOffsets[i]; save(); };
-      const pinItem = (i) => { 
-        const item = calcHistory.value.splice(i, 1)[0];
-        calcHistory.value.unshift(item);
-        delete swipeOffsets[i];
-        save();
-      };
-
-      const twdPerMyrFromJags = computed(() => {
-        const x = parseFloat(String(jagsRate.value));
-        if(!x) return 7.900;
-        return (100 / x);
-      });
-
-      const toggleExMode = () => {
-        exMode.value = exMode.value === "MYR" ? "TWD" : "MYR";
-        exInputAmount.value = "";
-      };
-
-      const exResult = computed(() => {
-        const val = parseFloat(exInputAmount.value);
-        if(!val) return "0";
-        const rate = twdPerMyrFromJags.value;
-        if (exMode.value === "MYR") return Math.round(val * rate);
-        else return (val / rate).toFixed(2);
-      });
-
-      const twdBalance = computed(() => {
-        const i = exchangeRecords.value.reduce((s,r)=>s+(parseFloat(r.targetAmount)||0),0);
-        const o = expenseRecords.value.reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
-        return Math.max(0, i-o);
-      });
-      const averageRate = computed(() => {
-        const b = exchangeRecords.value.reduce((s,r)=>s+(parseFloat(r.baseAmount)||0),0);
-        const t = exchangeRecords.value.reduce((s,r)=>s+(parseFloat(r.targetAmount)||0),0);
-        return b>0?(t/b).toFixed(3):"7.100";
-      });
-      const calcResult = computed(() => {
-        try { return (eval(calcInput.value.replace(/[^-()\d/*+.]/g,''))/parseFloat(averageRate.value)).toFixed(2); } catch { return "0.00"; }
-      });
-      const totalCardSpent = computed(() => expenseRecords.value.filter(e=>e.catEmoji==='🛍️').reduce((s,e)=>s+(parseFloat(e.amount)||0),0).toFixed(2));
-      const totalCashSpent = computed(() => expenseRecords.value.reduce((s,e)=>s+(parseFloat(e.amount)||0),0));
-      const allTransactions = computed(() => [...exchangeRecords.value.map(r=>({...r,type:'exchange'})), ...expenseRecords.value.map(r=>({...r,type:'expense'}))].sort((a,b)=>b.id-a.id));
-      
-      const key = (k) => {
-        if(k==='AC'){calcInput.value="0";calcExpr.value="";return;}
-        if(k==='DEL'){calcInput.value=calcInput.value.length>1?calcInput.value.slice(0,-1):"0";return;}
-        if(k==='%'){ try{ calcInput.value = String(eval(calcInput.value)/100); }catch{} return; }
-        if(k==='='){try{calcInput.value=String(eval(calcInput.value.replace(/[^-()\d/*+.]/g,'')));calcExpr.value="";}catch{}return;}
-        if(['+','-','*','/'].includes(k)){calcExpr.value=calcInput.value;calcInput.value+=k;}
-        else{calcInput.value=(calcInput.value==='0'&&k!=='.')?k:calcInput.value+k;}
-      };
-      const saveCalculation = () => {
-        const v = parseFloat(calcInput.value); if(!v)return;
-        const d = new Date();
-        calcHistory.value.unshift({twd:v, myr:calcResult.value, note:calcNote.value, time:`${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`});
-        calcNote.value=""; calcInput.value="0"; calcExpr.value=""; save(); 
-      };
-      const clearHistory = () => { if(confirm("清空?")){calcHistory.value=[];save();} };
-      const exportHistoryCSV = () => {
-        let csv = "Time,Note,TWD,MYR,Rate\n";
-        calcHistory.value.forEach(r => csv += `${r.time},${r.note},${r.twd},${r.myr},${averageRate.value}\n`);
-        const link = document.createElement("a"); link.href = encodeURI("data:text/csv;charset=utf-8,\uFEFF"+csv); link.download = "shopping_list.csv"; link.click();
-      };
-
-      const openModal = (t) => { modalType.value=t; newItem.value=t==='exchange'?{}:{amount:"",name:""}; showModal.value=true; };
-      
-      const saveItem = () => {
-        const id=Date.now(); const d=new Date().toLocaleDateString('zh-CN',{month:'2-digit',day:'2-digit'}).replace('/','-');
-        
-        if(modalType.value==='exchange') {
-           const val = parseFloat(exInputAmount.value);
-           if(!val) return;
-           if(exMode.value === 'MYR') exchangeRecords.value.unshift({id, date:d, baseAmount: val, targetAmount: parseFloat(exResult.value)});
-           else exchangeRecords.value.unshift({id, date:d, baseAmount: parseFloat(exResult.value), targetAmount: val});
-        } else {
-           if(!newItem.value.amount) return;
-           expenseRecords.value.unshift({
-             ...newItem.value, id, date:d, 
-             name: (newItem.value.name || selectedCat.value.name) + ' ' + selectedCat.value.emoji
-           });
-        }
-        save(); showModal.value=false;
-      };
-      
-      const deleteItem = (i) => { if(!confirm("删?"))return; if(i.type==='exchange')exchangeRecords.value=exchangeRecords.value.filter(r=>r.id!==i.id); else expenseRecords.value=expenseRecords.value.filter(r=>r.id!==i.id); save(); };
-      
-      const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify({ex:exchangeRecords.value, ep:expenseRecords.value, ch:calcHistory.value, dark:isDark.value, jrate:jagsRate.value}));
-      const exportAllData = () => { const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([localStorage.getItem(STORAGE_KEY)],{type:"application/json"})); a.download="UsTrip.json"; a.click(); };
-      const triggerImport = () => importInput.value.click();
-      const handleImport = (e) => { const r=new FileReader(); r.onload=(ev)=>{try{const d=JSON.parse(ev.target.result);exchangeRecords.value=d.ex||[];expenseRecords.value=d.ep||[];calcHistory.value=d.ch||[];save();alert("OK");}catch{alert("Err");}}; r.readAsText(e.target.files[0]); };
-
-      onMounted(() => {
-        const d = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
-        exchangeRecords.value=d.ex||[]; expenseRecords.value=d.ep||[]; calcHistory.value=d.ch||[]; isDark.value=d.dark||false;
-        if(d.jrate) jagsRate.value = d.jrate;
-        const meta = document.getElementById('theme-color');
-        if(isDark.value) { document.documentElement.classList.add('dark'); if(meta) meta.setAttribute('content', '#0f172a'); }
-        else { if(meta) meta.setAttribute('content', '#ffffff'); }
-        if(exchangeRecords.value.length===0) { exchangeRecords.value.push({id:1,date:'02-04',baseAmount:402.55,targetAmount:3200}); save(); }
-      });
-
-      return { 
-        currentTab, isDark, toggleDark, showHistory, toggleHistory, showModal, modalType, newItem, twdBalance, averageRate, 
-        totalCardSpent, totalCashSpent, allTransactions, calcInput, calcExpr, calcResult, calcNote, calcHistory, 
-        key, saveCalculation, clearHistory, openModal, closeModal:()=>showModal.value=false, saveItem, deleteItem, exportAllData, triggerImport, handleImport, importInput, exportHistoryCSV,
-        getTranClass: (i)=>i.type==='exchange'?'item-exchange':(i.method==='card'?'item-card':'item-expense'),
-        getIcon: (i)=>i.type==='exchange'?'fas fa-sync':(i.method==='card'?'fas fa-credit-card':'fas fa-wallet'),
-        getIconColor: (i)=>i.type==='exchange'?'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400' : 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400',
-        jagsRate, 
-        exMode, toggleExMode, exInputAmount, exResult,
-        categories, selectedCat,
-        touchStart, touchMove, touchEnd, swipeOffsets, delItem, pinItem
-      };
+  function init(){
+    if(!localStorage.getItem(KEY.TX)) localStorage.setItem(KEY.TX, JSON.stringify(PRELOAD_TX));
+    if(!localStorage.getItem(KEY.HS)) localStorage.setItem(KEY.HS, JSON.stringify(PRELOAD_HIST));
+    el('tDate').value = new Date().toISOString().split('T')[0];
+    el('hDate').value = new Date().toISOString().split('T')[0];
+    el('hTime').value = "10:00";
+    render();
+    
+    // Bind Chart Events Explicitly
+    const chartBox = el('trendChart');
+    if(chartBox) {
+        chartBox.addEventListener('touchstart', handleTouch, {passive: false});
+        chartBox.addEventListener('touchmove', handleTouch, {passive: false});
+        chartBox.addEventListener('touchend', hideTip);
+        chartBox.addEventListener('mousemove', handleMouse);
+        chartBox.addEventListener('mouseleave', hideTip);
     }
-  }).mount("#app");
+  }
+
+  function getDB(){ return { tx: JSON.parse(localStorage.getItem(KEY.TX)||'[]'), hs: JSON.parse(localStorage.getItem(KEY.HS)||'[]') }; }
+  
+  function getHoldingAt(dateStr = null){
+    const tx = getDB().tx.sort((a,b)=> a.date.localeCompare(b.date) || a.ts - b.ts);
+    let h = 0, totalCost = 0;
+    for(let t of tx){
+      if(dateStr && t.date > dateStr) break;
+      const g = Number(t.grams), a = Number(t.amount);
+      if(t.type === 'buy'){ h += g; totalCost += a; }
+      else { if(h > 0){ const avg = totalCost / h; totalCost -= (g * avg); } h -= g; }
+    }
+    return { h, c: totalCost };
+  }
+
+  function calcImpliedPrice(){
+      const val = parseFloat(el('inputTotalVal').value);
+      const {h} = getHoldingAt();
+      if(val > 0 && h > 0){
+          el('impliedPriceLabel').innerText = `自动换算单价: RM ${(val/h).toFixed(2)} /g`;
+      } else {
+          el('impliedPriceLabel').innerText = `自动换算单价: -- /g`;
+      }
+  }
+
+  function render(previewOnly = false){
+    const {h, c} = getHoldingAt();
+    let currentVal = 0;
+    const hs = getDB().hs;
+    if(hs.length > 0) {
+        const sorted = hs.sort((a,b)=>b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
+        currentVal = sorted[0].val;
+    }
+    
+    const blurClass = privacyMode ? 'blur-mode' : '';
+    el('kpiHolding').className = blurClass; el('kpiHolding').innerText = h.toFixed(4);
+    el('kpiAvg').className = blurClass; el('kpiAvg').innerText = "RM " + (h>0?c/h:0).toFixed(2);
+    el('kpiVal').className = "hero-val " + blurClass;
+
+    const profit = currentVal - c;
+    const pct = c>0 ? (profit/c)*100 : 0;
+    const color = profit>=0 ? 'var(--green)' : 'var(--red)';
+    
+    if(!privacyMode) el('kpiVal').innerText = currentVal.toLocaleString('en-US',{minimumFractionDigits:2});
+    el('kpiProfit').innerHTML = `盈亏 <strong style="color:${color}">RM ${profit>=0?'+':''}${profit.toFixed(2)} (${pct.toFixed(2)}%)</strong>`;
+
+    if(!previewOnly){
+        const list = el('txList'); list.innerHTML = '';
+        let txs = getDB().tx.sort((a,b)=>b.date.localeCompare(a.date));
+        txs.forEach(t=>{
+            list.innerHTML += `<div class="list-row" onclick="editT(${t.ts})">
+                <div class="row-l"><div style="font-weight:600">${t.date}</div><div style="font-size:12px;color:var(--sub)">${t.type=='buy'?'买入':'卖出'}</div></div>
+                <div class="row-r"><div style="font-weight:700">RM ${Number(t.amount).toFixed(2)}</div><div style="font-size:12px;color:var(--sub)">@${Number(t.price).toFixed(2)}</div></div>
+            </div>`;
+        });
+        
+        const hList = el('histList'); hList.innerHTML='';
+        const sortedHs = getDB().hs.sort((a,b)=>b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
+        sortedHs.forEach(h=>{
+            const s = getHoldingAt(h.date);
+            const unit = s.h>0 ? h.val/s.h : 0;
+            hList.innerHTML += `<div class="list-row" onclick="editHist(${h.ts})">
+                <div class="row-l"><div style="font-weight:600">${h.date}</div><div style="font-size:12px;color:var(--sub)">${h.time}</div></div>
+                <div class="row-r"><div style="font-weight:700">RM ${Number(h.val).toFixed(2)}</div><div style="font-size:12px;color:var(--sub)">~${unit.toFixed(2)}/g</div></div>
+            </div>`;
+        });
+        updateChartSummary();
+    }
+  }
+
+  function updateChartSummary(){
+     const {h, c} = getHoldingAt();
+     let currentVal = 0;
+     const hs = getDB().hs;
+     if(hs.length>0) currentVal = hs.sort((a,b)=>b.date.localeCompare(a.date) || b.time.localeCompare(a.time))[0].val;
+     const pl = currentVal - c;
+     const color = pl >= 0 ? 'var(--green)' : 'var(--red)';
+     el('chartTotalCost').innerText = "RM " + c.toLocaleString('en-US',{minimumFractionDigits:2});
+     el('chartTotalVal').innerText = "RM " + currentVal.toLocaleString('en-US',{minimumFractionDigits:2});
+     el('chartTotalPL').innerHTML = `<span style="color:${color}">${pl>=0?'+':''}${pl.toLocaleString('en-US',{minimumFractionDigits:2})}</span>`;
+  }
+
+  function setChartFilter(range){ chartFilter = range; document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); el('filter-'+range).classList.add('active'); drawChart(); }
+  
+  function drawChart(){
+    const {hs} = getDB(); const box = el('trendChart'); const wrapper = el('chartWrapper'); box.innerHTML = '';
+    let data = hs.sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+    const now = new Date();
+    if(chartFilter === '1d'){ const last=data[data.length-1]; data = data.filter(d=>d.date===last.date); }
+    else if(chartFilter === '1w'){ const cut=new Date(); cut.setDate(now.getDate()-7); data = data.filter(d=>new Date(d.date)>=cut); }
+    else if(chartFilter === '1m'){ const cut=new Date(); cut.setMonth(now.getMonth()-1); data = data.filter(d=>new Date(d.date)>=cut); }
+    else if(chartFilter === '3m'){ const cut=new Date(); cut.setMonth(now.getMonth()-3); data = data.filter(d=>new Date(d.date)>=cut); }
+    
+    if(data.length===0){ box.innerHTML='<div style="display:flex;height:100%;align-items:center;justify-content:center;color:var(--sub)">无数据</div>'; return; }
+
+    chartData = data.map(d => {
+        const s = getHoldingAt(d.date);
+        return { date: d.date, time: d.time, asset: d.val, cost: s.c, unitP: s.h>0?d.val/s.h:0 };
+    }).filter(c=>c.cost>0);
+
+    const candles = chartData;
+    const allVals = candles.map(c=>c.asset).concat(candles.map(c=>c.cost));
+    const minVal=Math.min(...allVals), maxVal=Math.max(...allVals);
+    const range=maxVal-minVal, minY=Math.max(0,minVal-range*0.1), maxY=maxVal+range*0.1;
+    const H=320; 
+    
+    // V76: Add Right Padding
+    const W = Math.max(wrapper.offsetWidth, candles.length * 50) + (wrapper.offsetWidth * 0.2); 
+    const step = (W - (wrapper.offsetWidth * 0.2)) / candles.length;
+    
+    const getY=(v)=>H-20-((v-minY)/(maxY-minY))*(H-40);
+
+    let pathAsset="", pathCost="";
+    candles.forEach((c,i)=>{
+        const x=i*step+step/2, yA=getY(c.asset), yC=getY(c.cost);
+        if(i===0){ pathAsset=`M ${x} ${yA}`; pathCost=`M ${x} ${yC}`; }
+        else{ pathAsset+=` L ${x} ${yA}`; pathCost+=` L ${x} ${yC}`; }
+    });
+    
+    const firstX=step/2, lastX=(candles.length-1)*step+step/2, bottomY=H-20;
+    const pathCostArea = pathCost + ` L ${lastX} ${bottomY} L ${firstX} ${bottomY} Z`;
+    
+    let svg=`<svg width="${W}px" height="${H}px"><defs><linearGradient id="gradProfit" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--green)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--green)" stop-opacity="0.05"/></linearGradient><linearGradient id="gradLoss" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--red)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--red)" stop-opacity="0.05"/></linearGradient></defs>`;
+    
+    for(let i=0;i<=4;i++){ const y=H-20-(i/4)*(H-40); svg+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" class="grid-line"/>`; }
+    
+    svg+=`<path d="${pathCostArea}" class="area-cost"/><path d="${pathCost}" class="line-cost"/>`;
+    
+    candles.forEach((c,i)=>{
+        const x=i*step+step/2, yA=getY(c.asset), yC=getY(c.cost);
+        const yTop=Math.min(yA,yC), hBar=Math.abs(yA-yC);
+        svg+=`<rect x="${x-step/2}" y="${yTop}" width="${step}" height="${Math.max(1,hBar)}" fill="${c.asset>=c.cost?'url(#gradProfit)':'url(#gradLoss)'}"/>`;
+    });
+    svg+=`<path d="${pathAsset}" class="line-asset"/>`;
+    
+    candles.forEach((c,i)=>{
+        const x=i*step+step/2, yA=getY(c.asset), diff=c.asset-c.cost;
+        
+        svg += `<line id="crosshair-${i}" class="crosshair" x1="${x}" y1="0" x2="${x}" y2="${H}" />`;
+        svg += `<circle id="dot-${i}" class="active-dot" cx="${x}" cy="${yA}" />`;
+        
+        const skip=Math.ceil(candles.length/(wrapper.offsetWidth/70));
+        if(i%skip===0||i===candles.length-1){
+             svg+=`<text x="${x}" y="${H-5}" class="axis-label" text-anchor="middle">${c.date.slice(5)}</text>`;
+        }
+    });
+    
+    box.innerHTML=svg+'<div id="chartTooltip" class="chart-tooltip"></div></svg>'; 
+    setTimeout(()=>{wrapper.scrollLeft=wrapper.scrollWidth},50);
+  }
+
+  // --- Tooltip Logic ---
+  function handleTouch(e){ e.preventDefault(); const touch = e.touches[0]; showTooltipAt(touch.clientX); }
+  function handleMouse(e){ e.preventDefault(); showTooltipAt(e.clientX); }
+  
+  function showTooltipAt(clientX){
+      if(!chartData.length) return;
+      const box = el('trendChart');
+      const rect = box.getBoundingClientRect();
+      const xInBox = clientX - rect.left;
+      const scrollLeft = el('chartWrapper').scrollLeft;
+      const xTotal = xInBox + scrollLeft; 
+      
+      const W = box.firstChild.width.baseVal.value; 
+      
+      // Re-calc step based on Data + Padding logic
+      // Total W = DataArea + Padding
+      // DataArea = W / 1.2
+      const dataArea = W / 1.2;
+      const step = dataArea / chartData.length;
+      
+      let idx = Math.floor(xTotal / step);
+      if(idx < 0) idx = 0;
+      if(idx >= chartData.length) idx = chartData.length - 1;
+      
+      const c = chartData[idx];
+      const pl = c.asset - c.cost;
+      const plColor = pl >= 0 ? 'var(--green)' : 'var(--red)';
+      
+      const tt = el('chartTooltip');
+      tt.innerHTML = `
+        <div class="tt-date">${c.date} ${c.time}</div>
+        <div class="tt-row"><span class="tt-label">总资产</span><span class="tt-val">RM ${c.asset.toFixed(2)}</span></div>
+        <div class="tt-row"><span class="tt-label">总成本</span><span class="tt-val">RM ${c.cost.toFixed(2)}</span></div>
+        <div class="tt-row"><span class="tt-label">折合单价</span><span class="tt-val">RM ${c.unitP.toFixed(2)}</span></div>
+        <div class="tt-row">
+            <span class="tt-label">盈亏</span>
+            <span class="tt-val" style="color:${plColor}">${pl>=0?'+':''}${pl.toFixed(2)}</span>
+        </div>
+      `;
+      
+      // Position calculation
+      let leftPos = xInBox; 
+      if(xInBox > rect.width / 2) leftPos = xInBox - 170; 
+      else leftPos += 20;
+
+      tt.style.left = leftPos + "px";
+      tt.style.top = "10px";
+      tt.classList.add('show');
+      
+      // Highlight Crosshair
+      document.querySelectorAll('.crosshair').forEach(l => l.classList.remove('show'));
+      document.querySelectorAll('.active-dot').forEach(d => d.classList.remove('show'));
+      const line = document.getElementById(`crosshair-${idx}`);
+      const dot = document.getElementById(`dot-${idx}`);
+      if(line) line.classList.add('show');
+      if(dot) dot.classList.add('show');
+  }
+
+  function hideTip(){
+      el('chartTooltip').classList.remove('show');
+      document.querySelectorAll('.crosshair').forEach(l => l.classList.remove('show'));
+      document.querySelectorAll('.active-dot').forEach(d => d.classList.remove('show'));
+  }
+
+  // Common Functions
+  function confirmSave(){ const v = parseFloat(el('inputTotalVal').value); if(!v) return; if(confirm(`确认录入今日总市值: RM ${v.toFixed(2)} ?`)){ let hs=getDB().hs; hs.push({ts:Date.now(), date:new Date().toISOString().split('T')[0], time:new Date().toTimeString().slice(0,5), val:v}); localStorage.setItem(KEY.HS,JSON.stringify(hs)); alert("已保存"); el('inputTotalVal').value=''; render(); } }
+  function saveTx(){ const t={ ts:Date.now(), type:'buy', date:el('tDate').value, amount:el('tAmt').value, price:el('tPrice').value, grams:el('tGrams').value }; let db=getDB(); db.tx.push(t); localStorage.setItem(KEY.TX,JSON.stringify(db.tx)); el('txModal').classList.remove('show'); render(); }
+  function saveHist(){ const h={ ts:Date.now(), date:el('hDate').value, time:el('hTime').value, val:parseFloat(el('hTotalVal').value) }; let db=getDB(); if(editHistId){const i=db.hs.findIndex(x=>x.ts==editHistId);if(i>-1)db.hs[i]={...db.hs[i],date:h.date,time:h.time,val:h.val};}else{db.hs.push(h);} localStorage.setItem(KEY.HS,JSON.stringify(db.hs)); el('histModal').classList.remove('show'); drawChart(); render(); }
+  function delTx(){ if(confirm('删?')){ let db=getDB(); db.tx=db.tx.filter(x=>x.ts!=editId); localStorage.setItem(KEY.TX,JSON.stringify(db.tx)); el('txModal').classList.remove('show'); render(); } }
+  function delHist(){ if(confirm('删除此条市值记录?')){ let db=getDB(); db.hs=db.hs.filter(x=>x.ts!=editHistId); localStorage.setItem(KEY.HS,JSON.stringify(db.hs)); el('histModal').classList.remove('show'); drawChart(); render(); } }
+  function calcG(){ const a=parseFloat(el('tAmt').value), p=parseFloat(el('tPrice').value); if(a && p) el('tGrams').value = (a/p).toFixed(6); }
+  function openTxModal(){ el('txModal').classList.add('show'); el('tDate').value=new Date().toISOString().split('T')[0]; el('btnDelTx').style.display='none'; }
+  function editT(ts){ editId=ts; const t=getDB().tx.find(x=>x.ts==ts); el('tDate').value=t.date; el('tAmt').value=t.amount; el('tPrice').value=t.price; calcG(); el('txModal').classList.add('show'); el('btnDelTx').style.display='block'; }
+  function openHistModal(){ editHistId=null; el('histModal').classList.add('show'); el('hDate').value=new Date().toISOString().split('T')[0]; el('hTime').value="10:00"; el('hTotalVal').value=''; el('btnDelHist').style.display='none'; }
+  function editHist(ts){ editHistId=ts; const h=getDB().hs.find(x=>x.ts==ts); el('hDate').value=h.date; el('hTime').value=h.time; el('hTotalVal').value=h.val; el('histModal').classList.add('show'); el('btnDelHist').style.display='block'; }
+  function openSettings(){ el('settingsModal').classList.add('show'); }
+  function openShareModal(){ alert('截图即可分享'); }
+  function togglePrivacy(){ privacyMode=!privacyMode; render(true); }
+  function switchTab(t){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.querySelectorAll('.dock-btn').forEach(b=>b.classList.remove('active')); el('view-'+t).classList.add('active'); el('nav-'+t).classList.add('active'); if(t=='chart'){drawChart(); updateChartSummary();} }
+  function exportData(){ const blob=new Blob([JSON.stringify(getDB())],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='tng_backup.json'; a.click(); }
+  function importData(e){ const r=new FileReader(); r.onload=ev=>{ const d=JSON.parse(ev.target.result); localStorage.setItem(KEY.TX,JSON.stringify(d.tx)); localStorage.setItem(KEY.HS,JSON.stringify(d.hs)); location.reload(); }; r.readAsText(e.files[0]); }
+  function resetAll(){ if(confirm('清空?')) { localStorage.clear(); location.reload(); } }
+
+  init();
 </script>
 </body>
 </html>
