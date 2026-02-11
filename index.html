@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V69 (逻辑修复版)</title>
+  <title>TNG 黄金管家 V69</title>
   <style>
     :root{
       --primary: #007aff; 
@@ -478,10 +478,10 @@
 
 <div class="modal-overlay" id="histModal">
   <div class="modal-card">
-    <h3 style="text-align:center; margin-bottom:24px">补录历史总市值</h3>
+    <h3 style="text-align:center; margin-bottom:24px">补录历史资产</h3>
     <div class="form-group"><label class="form-label">日期</label><input type="date" class="form-input" id="hDate"></div>
     <div class="form-group"><label class="form-label">时间</label><input type="time" class="form-input" id="hTime"></div>
-    <div class="form-group"><label class="form-label">当日总市值 (RM)</label><input type="number" class="form-input" id="hTotalVal" placeholder="注意：是总值，非单价" inputmode="decimal" step="any"></div>
+    <div class="form-group"><label class="form-label">总市值 (RM)</label><input type="number" class="form-input" id="hTotalVal" placeholder="0.00" inputmode="decimal" step="any"></div>
     <button class="btn-main" onclick="saveHist()">保存</button>
     <div style="text-align:center; margin-top:16px; color:#ff3b30; font-size:14px; display:none" id="btnDelHist" onclick="delHist()">删除</div>
     <div style="text-align:center; margin-top:16px; color:var(--sub); font-size:14px" onclick="closeModal('histModal')">取消</div>
@@ -515,176 +515,7 @@
 <script>
   // Updated with 07.02.2026 data + NEW 08.02, 09.02, 10.02
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401},{"ts":1769679188602,"type":"buy","date":"2025-04-23","amount":10,"grams":0.021294,"price":469.623106},{"ts":1769679209117,"type":"buy","date":"2025-05-10","amount":10,"grams":0.021391,"price":467.48292},{"ts":1770188908558,"type":"buy","date":"2026-01-31","amount":10,"grams":0.014681,"price":681.146353},{"ts":1770188927873,"type":"buy","date":"2026-01-30","amount":10,"grams":0.014713,"price":679.665226}];
-  const PRELOAD_HIST = [
-  {
-    "ts": 1770000000000,
-    "date": "2026-01-22",
-    "time": "00:00",
-    "val": 558.05
-  },
-  {
-    "ts": 1770000000001,
-    "date": "2026-01-23",
-    "time": "00:00",
-    "val": 1547.97
-  },
-  {
-    "ts": 1770000000002,
-    "date": "2026-01-24",
-    "time": "00:00",
-    "val": 1559.44
-  },
-  {
-    "ts": 1770000000003,
-    "date": "2026-01-25",
-    "time": "00:00",
-    "val": 1558.89
-  },
-  {
-    "ts": 1769570138096,
-    "date": "2026-01-26",
-    "time": "10:00",
-    "val": 1580.48
-  },
-  {
-    "ts": 1769570149763,
-    "date": "2026-01-27",
-    "time": "10:00",
-    "val": 1571.57
-  },
-  {
-    "ts": 1769570157362,
-    "date": "2026-01-28",
-    "time": "10:00",
-    "val": 1597.82
-  },
-  {
-    "ts": 1769708569185,
-    "date": "2026-01-29",
-    "time": "01:42",
-    "val": 1648.4774752351618
-  },
-  {
-    "ts": 1769679309649,
-    "date": "2026-01-29",
-    "time": "10:00",
-    "val": 1623.05
-  },
-  {
-    "ts": 1769679322265,
-    "date": "2026-01-29",
-    "time": "11:00",
-    "val": 1627.36
-  },
-  {
-    "ts": 1769679331450,
-    "date": "2026-01-29",
-    "time": "12:00",
-    "val": 1708.71
-  },
-  {
-    "ts": 1769679360449,
-    "date": "2026-01-29",
-    "time": "17:00",
-    "val": 1696.79
-  },
-  {
-    "ts": 1769738400000,
-    "date": "2026-01-30",
-    "time": "10:00",
-    "val": 1648.48
-  },
-  {
-    "ts": 1769742000000,
-    "date": "2026-01-30",
-    "time": "11:00",
-    "val": 1647.24
-  },
-  {
-    "ts": 1769745600000,
-    "date": "2026-01-30",
-    "time": "12:00",
-    "val": 1615.23
-  },
-  {
-    "ts": 1769749200000,
-    "date": "2026-01-30",
-    "time": "13:00",
-    "val": 1567.28
-  },
-  {
-    "ts": 1769922467213,
-    "date": "2026-01-31",
-    "time": "10:00",
-    "val": 1499.76
-  },
-  {
-    "ts": 1769922479699,
-    "date": "2026-02-01",
-    "time": "10:00",
-    "val": 1537.53
-  },
-  {
-    "ts": 1770188969456,
-    "date": "2026-02-03",
-    "time": "10:00",
-    "val": 1523.45
-  },
-  {
-    "ts": 1770188984340,
-    "date": "2026-02-04",
-    "time": "10:00",
-    "val": 1551.36
-  },
-  {
-    "ts": 1770188991324,
-    "date": "2026-02-04",
-    "time": "11:00",
-    "val": 1578.0
-  },
-  {
-    "ts": 1770285600000,
-    "date": "2026-02-05",
-    "time": "10:00",
-    "val": 1528.71
-  },
-  {
-    "ts": 1770289200000,
-    "date": "2026-02-05",
-    "time": "11:00",
-    "val": 1515.3
-  },
-  {
-    "ts": 1770372000000,
-    "date": "2026-02-06",
-    "time": "10:00",
-    "val": 1519.28
-  },
-  {
-    "ts": 1770458400000,
-    "date": "2026-02-07",
-    "time": "10:00",
-    "val": 1548.65
-  },
-  {
-    "ts": 1770544800000,
-    "date": "2026-02-08",
-    "time": "10:00",
-    "val": 1548.65
-  },
-  {
-    "ts": 1770631200000,
-    "date": "2026-02-09",
-    "time": "10:00",
-    "val": 1563.72
-  },
-  {
-    "ts": 1770717600000,
-    "date": "2026-02-10",
-    "time": "10:00",
-    "val": 1564.98
-  }
-];
+  const PRELOAD_HIST = [{"ts":1770000000000,"date":"2026-01-22","time":"00:00","val":558.05},{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89},{"ts":1769570138096,"date":"2026-01-26","time":"10:00","val":1580.48},{"ts":1769570149763,"date":"2026-01-27","time":"10:00","val":1571.57},{"ts":1769570157362,"date":"2026-01-28","time":"10:00","val":1597.82},{"ts":1769708569185,"date":"2026-01-29","time":"01:42","val":1648.48},{"ts":1769679309649,"date":"2026-01-29","time":"10:00","val":1623.05},{"ts":1769679322265,"date":"2026-01-29","time":"11:00","val":1627.36},{"ts":1769679331450,"date":"2026-01-29","time":"12:00","val":1708.71},{"ts":1769679360449,"date":"2026-01-29","time":"17:00","val":1696.79},{"ts":1769738400000,"date":"2026-01-30","time":"10:00","val":1648.48},{"ts":1769742000000,"date":"2026-01-30","time":"11:00","val":1647.24},{"ts":1769745600000,"date":"2026-01-30","time":"12:00","val":1615.23},{"ts":1769749200000,"date":"2026-01-30","time":"13:00","val":1567.28},{"ts":1769922467213,"date":"2026-01-31","time":"10:00","val":1499.76},{"ts":1769922479699,"date":"2026-02-01","time":"10:00","val":1537.53},{"ts":1770188969456,"date":"2026-02-03","time":"10:00","val":1523.45},{"ts":1770199200000,"date":"2026-02-04","time":"10:00","val":1551.36},{"ts":1770202800000,"date":"2026-02-04","time":"11:00","val":1578.0},{"ts":1770285600000,"date":"2026-02-05","time":"10:00","val":1528.71},{"ts":1770289200000,"date":"2026-02-05","time":"11:00","val":1515.3},{"ts":1770372000000,"date":"2026-02-06","time":"10:00","val":1519.28},{"ts":1770458400000,"date":"2026-02-07","time":"10:00","val":1548.65},{"ts":1770544800000,"date":"2026-02-08","time":"10:00","val":1548.65},{"ts":1770631200000,"date":"2026-02-09","time":"10:00","val":1563.72},{"ts":1770717600000,"date":"2026-02-10","time":"10:00","val":1564.98}];
   const KEY = { TX: 'tng_tx_v69', HS: 'tng_hs_v69', MK: 'tng_mk_v69' };
   const el = id => document.getElementById(id);
   
@@ -763,7 +594,7 @@
         const hs = getDB().hs.sort((a,b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
         hs.forEach(h => {
             const stats = getHoldingAt(h.date);
-            // FIXED: h.val is TOTAL VALUE, so Unit Price = Total Value / Holding
+            // FIXED: h.val IS TOTAL VALUE. Unit Price = h.val / stats.h
             const unitPrice = stats.h > 0 ? (h.val / stats.h) : 0;
             
             hList.innerHTML += `<div class="hist-item" onclick="editHist('${h.ts}')">
@@ -771,30 +602,19 @@
                 <div class="hist-btm"><span>持仓 ${stats.h.toFixed(6)}g</span><span>折合单价约 ${unitPrice.toFixed(2)}/g</span></div></div>`;
         });
         
-        // UPDATE CHART SUMMARY IF ON CHART TAB
         updateChartSummary();
     }
   }
   
   function updateChartSummary(){
      const {h, c} = getHoldingAt();
-     // If user entered total value in input, treat as Unit Price for HOME CALC, 
-     // BUT for CHART, we use history.
-     // For Summary Card, we prioritize latest history point for "Current Value" if input is empty
-     
      let currentVal = 0;
      const hs = getDB().hs;
      
-     // Get latest market value from history or input
-     // Since input on home is "Unit Price", let's use that if available
-     const inputUnitP = parseFloat(el('marketPrice').value);
-     
-     if(inputUnitP > 0) {
-         currentVal = h * inputUnitP;
-     } else if(hs.length > 0) {
-         // Sort to find latest
-         const latest = hs.sort((a,b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time))[0];
-         currentVal = latest.val; // This is Total Value
+     // Use last historic entry as current total value (more accurate for chart context)
+     if(hs.length > 0) {
+         const sortedHs = hs.sort((a,b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
+         currentVal = sortedHs[0].val; // h.val is TOTAL value now
      }
      
      const pl = currentVal - c;
@@ -838,11 +658,20 @@
           } else {
               const targetCost = parseFloat(el('simTargetCost').value);
               if(targetCost > 0){
-                  if(targetCost < curAvg && simP >= curAvg) error = "买入价过高，无法拉低成本";
-                  else if(targetCost > curAvg && simP <= curAvg) error = "买入价过低，无法拉高成本";
-                  else {
+                  if(targetCost < curAvg){
+                      el('simHintTarget').style.display = 'block';
+                      el('simHintTarget').innerText = `💡 提示：买入价必须低于 RM ${targetCost.toFixed(2)} 才能实现`;
+                  }
+                  if(targetCost < curAvg && simP < targetCost){ 
+                      if(Math.abs(1 - targetCost/simP) > 0.001){
+                          simAmt = (targetCost*h - c) / (1 - targetCost/simP);
+                          if(simAmt > 0) valid = true;
+                      }
+                  } else if (targetCost > curAvg && simP > targetCost) {
                       simAmt = (targetCost*h - c) / (1 - targetCost/simP);
                       if(simAmt > 0) valid = true;
+                  } else {
+                      error = "目标成本不可达成";
                   }
               }
           }
@@ -853,14 +682,12 @@
           const totalC = c + simAmt;
           const totalH = h + newG;
           const newAvg = totalC / totalH;
-          
           el('simNewAvg').innerText = "RM " + newAvg.toFixed(4);
           el('simNewHold').innerText = totalH.toFixed(4) + " g";
-          
           const riseNeed = ((newAvg - simP) / simP) * 100;
-          let breakEvenHtml = newAvg > simP ? `需涨 <span style="color:var(--red)">${riseNeed.toFixed(2)}%</span>` : `已盈 <span style="color:var(--green)">${Math.abs(riseNeed).toFixed(2)}%</span>`;
-          el('resBreakEven').innerHTML = breakEvenHtml;
-          
+          if(newAvg > simP) el('resBreakEven').innerHTML = `需涨 <span style="color:var(--red);font-weight:700">${riseNeed.toFixed(2)}%</span> 回本`;
+          else el('resBreakEven').innerHTML = `当前已盈 <span style="color:var(--green);font-weight:700">${Math.abs(riseNeed).toFixed(2)}%</span>`;
+
           if(sellP > 0){
               const revenue = totalH * sellP;
               const profit = revenue - totalC;
@@ -893,14 +720,25 @@
     
     let data = hs.sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
     
-    // Filter
     const now = new Date();
-    if(chartFilter === '1d'){ const latestDate = data[data.length-1].date; data = data.filter(d => d.date === latestDate); }
-    else if(chartFilter === '1w'){ const cut = new Date(); cut.setDate(now.getDate() - 7); data = data.filter(d => new Date(d.date) >= cut); }
-    else if(chartFilter === '1m'){ const cut = new Date(); cut.setMonth(now.getMonth() - 1); data = data.filter(d => new Date(d.date) >= cut); }
-    else if(chartFilter === '3m'){ const cut = new Date(); cut.setMonth(now.getMonth() - 3); data = data.filter(d => new Date(d.date) >= cut); }
-    else if(chartFilter === '6m'){ const cut = new Date(); cut.setMonth(now.getMonth() - 6); data = data.filter(d => new Date(d.date) >= cut); }
-
+    if(chartFilter === '1d'){
+        const latestDate = data[data.length-1].date;
+        data = data.filter(d => d.date === latestDate);
+        if(data.length === 0) { box.innerHTML='<div style="text-align:center;padding-top:120px;color:var(--sub)">暂无今日数据</div>'; return; }
+    } else if(chartFilter === '1w'){
+        const cut = new Date(); cut.setDate(now.getDate() - 7);
+        data = data.filter(d => new Date(d.date) >= cut);
+    } else if(chartFilter === '1m'){
+        const cut = new Date(); cut.setMonth(now.getMonth() - 1);
+        data = data.filter(d => new Date(d.date) >= cut);
+    } else if(chartFilter === '3m'){
+        const cut = new Date(); cut.setMonth(now.getMonth() - 3);
+        data = data.filter(d => new Date(d.date) >= cut);
+    } else if(chartFilter === '6m'){
+        const cut = new Date(); cut.setMonth(now.getMonth() - 6);
+        data = data.filter(d => new Date(d.date) >= cut);
+    }
+    
     if(data.length === 0) { box.innerHTML='<div style="text-align:center;padding-top:120px;color:var(--sub)">该时段无数据</div>'; return; }
 
     const mappedData = data.map(h=>{ 
@@ -908,12 +746,11 @@
         return {date:h.date, time:h.time, val:h.val, cost:s.c, hold:s.h}; 
     });
     
-    // V69 FIX: Direct Assignment
-    // h.val IS ALREADY THE TOTAL VALUE
+    // FIX V69: h.val IS TOTAL VALUE. DO NOT MULTIPLY BY HOLDING AGAIN.
     const candles = mappedData.filter(d => d.hold > 0).map(d => {
-        const totalAsset = d.val; // CORRECTED
+        const totalAsset = d.val; // Corrected: Value IS Total Asset
         const totalCost = d.cost;
-        const unitPrice = d.val / d.hold; // Derived for display
+        const unitPrice = d.val / d.hold;
         return { ...d, totalAsset, totalCost, unitPrice };
     });
     
@@ -927,13 +764,12 @@
     
     const minBarWidth = 50; 
     const totalW = Math.max(wrapper.offsetWidth, candles.length * minBarWidth);
-    const stepX = totalW / points.length; // Use mappedData length? No, candles.
+    const stepX = totalW / candles.length;
     const groupW = totalW / candles.length;
     const barW = Math.max(10, groupW * 0.4);
 
     let svg = `<svg style="width:${totalW}px;height:${h}px">`;
     
-    // Grid
     for(let i=0; i<=4; i++){ const y=h-20-(i/4)*(h-40); svg+=`<line x1="0" y1="${y}" x2="${totalW}" y2="${y}" class="grid-line"/>`; }
     
     let lineAsset = "", lineCost = "";
@@ -945,10 +781,11 @@
         
         const yTop = Math.min(yAsset, yCost);
         const height = Math.abs(yAsset - yCost);
-        const color = d.totalAsset >= d.totalCost ? "var(--green)" : "var(--red)";
+        const isProfit = d.totalAsset >= d.totalCost;
+        const colorClass = isProfit ? "green" : "red";
         
-        // Show derived unit price in alert
-        svg += `<rect x="${x-barW/2}" y="${yTop}" width="${barW}" height="${Math.max(2,height)}" fill="${color}" rx="2" onclick="alert('${d.date} ${d.time}\\n总资产: RM${d.totalAsset.toFixed(2)}\\n总成本: RM${d.totalCost.toFixed(2)}\\n折合单价: RM${d.unitPrice.toFixed(2)}')"/>`;
+        // Tooltip shows Unit Price
+        svg += `<rect x="${x-barW/2}" y="${yTop}" width="${barW}" height="${Math.max(2,height)}" fill="${isProfit?'var(--green)':'var(--red)'}" rx="2" onclick="alert('${d.date} ${d.time}\\n总资产: RM${d.totalAsset.toFixed(2)}\\n总成本: RM${d.totalCost.toFixed(2)}\\n折合单价: RM${d.unitPrice.toFixed(2)}')"/>`;
         
         if(i===0) { lineAsset=`M ${x} ${yAsset}`; lineCost=`M ${x} ${yCost}`; }
         else { lineAsset+=` L ${x} ${yAsset}`; lineCost+=` L ${x} ${yCost}`; }
@@ -958,7 +795,7 @@
             const lbl = chartFilter === '1d' ? d.time : d.date.slice(5);
             svg += `<text x="${x}" y="${h-5}" class="axis-label" style="text-anchor:middle">${lbl}</text>`;
             const pl = d.totalAsset - d.totalCost;
-            svg += `<text x="${x}" y="${yTop-5}" class="val-label" style="fill:${color}">${pl>0?'+':''}${pl.toFixed(0)}</text>`;
+            svg += `<text x="${x}" y="${yTop-5}" class="val-label" style="fill:${isProfit?'var(--green)':'var(--red)'}">${pl>0?'+':''}${pl.toFixed(0)}</text>`;
         }
     });
     
@@ -990,8 +827,12 @@
   function openShareModal(){ const {h, c} = getHoldingAt(); const mp = parseFloat(el('marketPrice').value)||0; const avg = h > 0 ? (c / h) : 0; if(mp && h){ const val = h * mp; const profit = val - c; const pct = c > 0 ? (profit / c) * 100 : 0; alert(`持仓: ${h.toFixed(4)}g\n市值: RM ${val.toFixed(2)}\n盈亏: ${profit.toFixed(2)} (${pct.toFixed(2)}%)`); } }
   function togglePrivacy(){ privacyMode = !privacyMode; render(true); }
   function confirmSave(){ const p=parseFloat(el('marketPrice').value); if(!p||p<=0)return alert("请输入有效金价"); if(confirm(`确认写入今日金价 RM ${p.toFixed(2)}?`)) saveAndChart(p); }
-  function saveAndChart(p){ localStorage.setItem(KEY.MK,p); const {h}=getHoldingAt(); if(h>0){ const now = new Date(); const d = now.toISOString().split('T')[0]; const time = now.toTimeString().slice(0,5); let hs=getDB().hs; hs.push({ts: Date.now(), date:d, time:time, val:p}); localStorage.setItem(KEY.HS,JSON.stringify(hs)); } render(); switchTab('chart'); }
-  function editT(ts){ editId = ts; const t=getDB().tx.find(x=>x.ts==ts); el('tDate').value=t.date; el('tAmt').value=t.amount; el('tPrice').value=t.price; calcG(); openModal('txModal'); el('btnDelTx').style.display='block'; }
+  function saveAndChart(p){ localStorage.setItem(KEY.MK,p); const {h}=getHoldingAt(); if(h>0){ const now = new Date(); const d = now.toISOString().split('T')[0]; const time = now.toTimeString().slice(0,5); let hs=getDB().hs; hs.push({ts: Date.now(), date:d, time:time, val:h*p}); localStorage.setItem(KEY.HS,JSON.stringify(hs)); } render(); switchTab('chart'); } // NOTE: Here we still multiply by h*p because Home input is Unit Price. This is correct for Home logic.
+
+  // Calendar Logic
+  function changeMonth(delta){ curCalMonth += delta; if(curCalMonth > 11) { curCalMonth=0; curCalYear++; } if(curCalMonth < 0) { curCalMonth=11; curCalYear--; } renderCalendar(); }
+  function renderCalendar(){ const y = curCalYear, m = curCalMonth; el('calTitle').innerText = `${y}年 ${m+1 < 10 ? '0'+(m+1) : m+1}月`; const firstDay = new Date(y, m, 1).getDay(); const daysInMonth = new Date(y, m+1, 0).getDate(); const tx = getDB().tx; let html = ''; for(let i=0; i<firstDay; i++) html += '<div></div>'; for(let i=1; i<=daysInMonth; i++){ const dateStr = `${y}-${(m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`; const hasTx = tx.some(t => t.date === dateStr); const isToday = (new Date().toDateString() === new Date(y,m,i).toDateString()); html += `<div class="cal-cell ${isToday?'today':''} ${hasTx?'has-tx':''}" onclick="showCalDetail('${dateStr}', this)">${i} ${hasTx?'<div class="cal-dot green"></div>':''}</div>`; } el('calDays').innerHTML = html; }
+  function showCalDetail(dateStr, cell){ document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('selected')); if(cell) cell.classList.add('selected'); const tx = getDB().tx.filter(t => t.date === dateStr); el('calDetailDate').innerText = dateStr; if(tx.length===0){ el('calDetailContent').innerHTML='<div style="text-align:center;color:var(--sub);padding:10px">当日无交易</div>'; return; } el('calDetailContent').innerHTML = tx.map(t=>`<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;border-bottom:1px solid #eee;padding-bottom:8px"><span style="color:${t.type=='buy'?'var(--green)':'var(--red)'};font-weight:700">${t.type=='buy'?'买入':'卖出'} RM ${Number(t.amount).toFixed(2)}</span><span>${Number(t.grams).toFixed(4)}g</span></div>`).join(''); }
 
   init();
 </script>
