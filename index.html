@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V74</title>
+  <title>TNG 黄金管家 V75</title>
   <style>
     /* --- 基础变量 --- */
     :root{
@@ -53,18 +53,15 @@
     .view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* 底部导航 (修复版：按钮更大) */
     .dock { 
       flex: 0 0 calc(var(--nav-h) + var(--safe-pb));
       background: var(--glass-bg); border-top: var(--glass-border);
-      display: grid; grid-template-columns: 1fr 1fr; /* 50% 50% 分布 */
+      display: grid; grid-template-columns: 1fr 1fr; 
       padding-bottom: var(--safe-pb); z-index: 100;
     }
     .dock-btn { 
       display: flex; flex-direction: column; align-items: center; justify-content: center; 
-      width: 100%; /* 填满格子 */ height: 100%; 
-      color: var(--sub); transition: 0.2s; cursor: pointer;
-      padding-top: 8px; /* 视觉微调 */
+      height: 100%; color: var(--sub); transition: 0.2s; cursor: pointer;
     }
     .dock-btn.active { color: var(--primary); background: rgba(0,122,255,0.03); }
     .dock-btn svg { width: 26px; height: 26px; fill: currentColor; margin-bottom: 4px; }
@@ -105,15 +102,15 @@
     .row-l { display: flex; flex-direction: column; gap: 4px; }
     .row-r { text-align: right; display: flex; flex-direction: column; gap: 4px; }
 
-    /* Chart V74 Fixed */
+    /* Chart V75 Fixed */
     .chart-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .chart-title { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
     .filter-tabs { display: flex; background: rgba(120,120,128,0.08); padding: 4px; border-radius: 10px; }
     .filter-btn { padding: 6px 12px; font-size: 12px; border-radius: 8px; border:none; background:transparent; color:var(--sub); font-weight:600; transition:0.2s; cursor:pointer; }
     .filter-btn.active { background: var(--glass-bg); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
     
-    /* Container needs to handle touch events properly */
-    .chart-box { height: 320px; width: 100%; position: relative; cursor: crosshair; touch-action: none; /* Prevent scroll when touching chart */ }
+    /* Important: touch-action: none prevents scrolling while interacting with chart */
+    .chart-box { height: 320px; width: 100%; position: relative; cursor: crosshair; touch-action: none; overflow: hidden; }
     .chart-scroll-wrapper { overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
     
     .area-cost { fill: var(--cost-color); opacity: 0.05; }
@@ -123,24 +120,28 @@
     .axis-label { font-size: 10px; fill: var(--sub); font-weight: 500; }
     .val-label { font-size: 9px; font-weight: 700; fill: var(--text); text-anchor: middle; opacity: 1; }
     
-    /* V74 Tooltip */
+    /* V75 Tooltip Styling */
     .chart-tooltip {
-      position: absolute; top: 10px; left: 10px; pointer-events: none;
+      position: absolute; top: 10px; left: 50%; transform: translateX(-50%); pointer-events: none;
       background: rgba(255,255,255,0.95); border: 1px solid var(--glass-border);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15); border-radius: 12px; padding: 12px;
-      font-size: 12px; z-index: 200; opacity: 0; transition: opacity 0.15s;
-      min-width: 140px; backdrop-filter: blur(10px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12); border-radius: 16px; padding: 12px 16px;
+      font-size: 12px; z-index: 200; opacity: 0; transition: opacity 0.1s;
+      min-width: 160px; backdrop-filter: blur(12px);
     }
-    @media (prefers-color-scheme: dark) { .chart-tooltip { background: rgba(28,28,30,0.95); } }
+    @media (prefers-color-scheme: dark) { .chart-tooltip { background: rgba(30,30,32,0.95); border: 1px solid rgba(255,255,255,0.1); } }
 
     .chart-tooltip.show { opacity: 1; }
-    .tt-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
-    .tt-row:last-child { margin-bottom: 0; }
-    .tt-label { color: var(--sub); margin-right: 12px; }
-    .tt-val { font-weight: 700; color: var(--text); }
+    .tt-date { font-weight: 700; color: var(--sub); margin-bottom: 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .tt-row { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: center; }
+    .tt-row:last-child { margin-bottom: 0; padding-top: 6px; border-top: 1px solid rgba(0,0,0,0.05); margin-top: 6px; }
+    .tt-label { color: var(--sub); }
+    .tt-val { font-weight: 700; color: var(--text); font-size: 13px; }
     
-    .hover-line { stroke: var(--text); stroke-width: 1; stroke-dasharray: 4,4; opacity: 0; pointer-events: none; transition: opacity 0.1s; }
-    .hover-dot { fill: var(--glass-bg); stroke: var(--primary); stroke-width: 3; r: 5; opacity: 0; pointer-events: none; transition: opacity 0.1s; }
+    /* V75 Crosshair */
+    .crosshair { stroke: var(--text); stroke-width: 1; stroke-dasharray: 4,4; opacity: 0; pointer-events: none; transition: opacity 0.1s; }
+    .crosshair.show { opacity: 0.5; }
+    .active-dot { fill: var(--glass-bg); stroke: var(--primary); stroke-width: 3; r: 6; opacity: 0; transition: opacity 0.1s; pointer-events: none; }
+    .active-dot.show { opacity: 1; }
 
     /* Summary Card */
     .chart-summary { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px; }
@@ -224,8 +225,7 @@
       
       <div class="chart-scroll-wrapper" id="chartWrapper">
         <div class="chart-box" id="trendChart">
-             <div id="chartTooltip" class="chart-tooltip"></div>
-        </div>
+             </div>
       </div>
       
       <div style="display:flex;justify-content:center;gap:15px;margin-top:15px;font-size:11px;color:var(--sub)">
@@ -418,9 +418,12 @@
     
     if(data.length===0){ box.innerHTML='<div style="display:flex;height:100%;align-items:center;justify-content:center;color:var(--sub)">无数据</div>'; return; }
 
+    // Prepare Global Chart Data for Tooltip
     chartData = data.map(d => {
         const s = getHoldingAt(d.date);
-        return { date: d.date, time: d.time, asset: d.val, cost: s.c, unitP: s.h>0?d.val/s.h:0 };
+        return { 
+            date: d.date, time: d.time, asset: d.val, cost: s.c, unitP: s.h>0?d.val/s.h:0 
+        };
     }).filter(c=>c.cost>0);
 
     const candles = chartData;
@@ -440,8 +443,10 @@
     const firstX=step/2, lastX=(candles.length-1)*step+step/2, bottomY=H-20;
     const pathCostArea = pathCost + ` L ${lastX} ${bottomY} L ${firstX} ${bottomY} Z`;
     
+    // Inject Tooltip Container (Hidden by default)
     let svg=`<svg width="${W}px" height="${H}px"><defs><linearGradient id="gradProfit" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--green)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--green)" stop-opacity="0.05"/></linearGradient><linearGradient id="gradLoss" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--red)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--red)" stop-opacity="0.05"/></linearGradient></defs>`;
     
+    // Grid
     for(let i=0;i<=4;i++){ const y=H-20-(i/4)*(H-40); svg+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" class="grid-line"/>`; }
     
     svg+=`<path d="${pathCostArea}" class="area-cost"/><path d="${pathCost}" class="line-cost"/>`;
@@ -453,11 +458,14 @@
     });
     svg+=`<path d="${pathAsset}" class="line-asset"/>`;
     
-    // Interactive Elements (Dots & Lines)
     candles.forEach((c,i)=>{
-        const x=i*step+step/2, yA=getY(c.asset);
-        svg += `<line id="line-${i}" class="hover-line" x1="${x}" y1="0" x2="${x}" y2="${H}" />`;
-        svg += `<circle id="dot-${i}" class="hover-dot" cx="${x}" cy="${yA}" />`;
+        const x=i*step+step/2, yA=getY(c.asset), diff=c.asset-c.cost;
+        
+        // Interactive Elements (V75)
+        // Crosshair Line
+        svg += `<line id="crosshair-${i}" class="crosshair" x1="${x}" y1="0" x2="${x}" y2="${H}" />`;
+        // Active Dot
+        svg += `<circle id="dot-${i}" class="active-dot" cx="${x}" cy="${yA}" />`;
         
         const skip=Math.ceil(candles.length/(wrapper.offsetWidth/70));
         if(i%skip===0||i===candles.length-1){
@@ -465,13 +473,13 @@
         }
     });
     
-    box.innerHTML=svg+'</svg>'; 
+    box.innerHTML=svg+'<div id="chartTooltip" class="chart-tooltip"></div></svg>'; 
     setTimeout(()=>{wrapper.scrollLeft=wrapper.scrollWidth},50);
   }
 
-  // --- New Tooltip Interaction ---
+  // --- V75 Tooltip Logic (No Click Required) ---
   function handleTouch(e){
-      e.preventDefault(); // Stop scrolling while dragging on chart
+      e.preventDefault(); 
       const touch = e.touches[0];
       showTooltipAt(touch.clientX);
   }
@@ -484,7 +492,7 @@
       if(!chartData.length) return;
       const box = el('trendChart');
       const rect = box.getBoundingClientRect();
-      const x = clientX - rect.left; // X relative to container
+      const x = clientX - rect.left + el('chartWrapper').scrollLeft; // Correct scroll offset
       
       const W = box.firstChild.width.baseVal.value; 
       const step = W / chartData.length;
@@ -499,40 +507,41 @@
       
       const tt = el('chartTooltip');
       tt.innerHTML = `
-        <div class="tt-row"><span class="tt-label">日期</span><span class="tt-val">${c.date} ${c.time}</span></div>
+        <div class="tt-date">${c.date} ${c.time}</div>
         <div class="tt-row"><span class="tt-label">总资产</span><span class="tt-val">RM ${c.asset.toFixed(2)}</span></div>
         <div class="tt-row"><span class="tt-label">总成本</span><span class="tt-val">RM ${c.cost.toFixed(2)}</span></div>
         <div class="tt-row"><span class="tt-label">折合单价</span><span class="tt-val">RM ${c.unitP.toFixed(2)}</span></div>
-        <div class="tt-row" style="margin-top:4px;border-top:1px solid var(--glass-border);padding-top:4px">
+        <div class="tt-row">
             <span class="tt-label">盈亏</span>
             <span class="tt-val" style="color:${plColor}">${pl>=0?'+':''}${pl.toFixed(2)}</span>
         </div>
       `;
       
-      // Smart Position (Avoid going off screen right)
-      let leftPos = x + 20;
-      if(x > rect.width / 2) leftPos = x - 160; 
-      
-      tt.style.left = leftPos + "px";
+      // Position calculation
+      const chartX = idx * step + step/2;
+      // Keep tooltip within bounds
+      let left = chartX;
+      // Simple bound check (visual only)
+      tt.style.left = left + "px";
       tt.style.top = "10px";
       tt.classList.add('show');
       
-      // Highlight Crosshair
-      document.querySelectorAll('.hover-line').forEach(l => l.style.opacity = 0);
-      document.querySelectorAll('.hover-dot').forEach(d => d.style.opacity = 0);
-      const line = document.getElementById(`line-${idx}`);
+      // Toggle Crosshair & Dot
+      document.querySelectorAll('.crosshair').forEach(l => l.classList.remove('show'));
+      document.querySelectorAll('.active-dot').forEach(d => d.classList.remove('show'));
+      const line = document.getElementById(`crosshair-${idx}`);
       const dot = document.getElementById(`dot-${idx}`);
-      if(line) line.style.opacity = 1;
-      if(dot) dot.style.opacity = 1;
+      if(line) line.classList.add('show');
+      if(dot) dot.classList.add('show');
   }
 
   function hideTip(){
       el('chartTooltip').classList.remove('show');
-      document.querySelectorAll('.hover-line').forEach(l => l.style.opacity = 0);
-      document.querySelectorAll('.hover-dot').forEach(d => d.style.opacity = 0);
+      document.querySelectorAll('.crosshair').forEach(l => l.classList.remove('show'));
+      document.querySelectorAll('.active-dot').forEach(d => d.classList.remove('show'));
   }
 
-  // --- CRUD & Utils ---
+  // Common Functions
   function confirmSave(){ const v = parseFloat(el('inputTotalVal').value); if(!v) return; if(confirm(`确认录入今日总市值: RM ${v.toFixed(2)} ?`)){ let hs=getDB().hs; hs.push({ts:Date.now(), date:new Date().toISOString().split('T')[0], time:new Date().toTimeString().slice(0,5), val:v}); localStorage.setItem(KEY.HS,JSON.stringify(hs)); alert("已保存"); el('inputTotalVal').value=''; render(); } }
   function saveTx(){ const t={ ts:Date.now(), type:'buy', date:el('tDate').value, amount:el('tAmt').value, price:el('tPrice').value, grams:el('tGrams').value }; let db=getDB(); db.tx.push(t); localStorage.setItem(KEY.TX,JSON.stringify(db.tx)); el('txModal').classList.remove('show'); render(); }
   function saveHist(){ const h={ ts:Date.now(), date:el('hDate').value, time:el('hTime').value, val:parseFloat(el('hTotalVal').value) }; let db=getDB(); db.hs.push(h); localStorage.setItem(KEY.HS,JSON.stringify(db.hs)); el('histModal').classList.remove('show'); drawChart(); render(); }
