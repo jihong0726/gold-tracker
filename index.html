@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V75.1</title>
+  <title>TNG 黄金管家 V76</title>
   <style>
     /* --- 基础变量 --- */
     :root{
@@ -102,7 +102,7 @@
     .row-l { display: flex; flex-direction: column; gap: 4px; }
     .row-r { text-align: right; display: flex; flex-direction: column; gap: 4px; }
 
-    /* Chart V75.1 */
+    /* Chart V76: Added Padding */
     .chart-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .chart-title { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
     .filter-tabs { display: flex; background: rgba(120,120,128,0.08); padding: 4px; border-radius: 10px; }
@@ -119,13 +119,12 @@
     .axis-label { font-size: 10px; fill: var(--sub); font-weight: 500; }
     .val-label { font-size: 9px; font-weight: 700; fill: var(--text); text-anchor: middle; opacity: 1; }
     
-    /* Tooltip */
     .chart-tooltip {
-      position: absolute; top: 10px; left: 50%; pointer-events: none;
+      position: absolute; top: 10px; left: 50%; transform: translateX(-50%); pointer-events: none;
       background: rgba(255,255,255,0.95); border: 1px solid var(--glass-border);
       box-shadow: 0 8px 30px rgba(0,0,0,0.12); border-radius: 16px; padding: 12px 16px;
       font-size: 12px; z-index: 200; opacity: 0; transition: opacity 0.1s;
-      min-width: 160px; backdrop-filter: blur(12px); transform: translateX(0); /* Handled by JS */
+      min-width: 160px; backdrop-filter: blur(12px);
     }
     @media (prefers-color-scheme: dark) { .chart-tooltip { background: rgba(30,30,32,0.95); border: 1px solid rgba(255,255,255,0.1); } }
 
@@ -136,7 +135,6 @@
     .tt-label { color: var(--sub); }
     .tt-val { font-weight: 700; color: var(--text); font-size: 13px; }
     
-    /* Crosshair */
     .crosshair { stroke: var(--text); stroke-width: 1; stroke-dasharray: 4,4; opacity: 0; pointer-events: none; transition: opacity 0.1s; }
     .crosshair.show { opacity: 0.5; }
     .active-dot { fill: var(--glass-bg); stroke: var(--primary); stroke-width: 3; r: 6; opacity: 0; transition: opacity 0.1s; pointer-events: none; }
@@ -280,7 +278,11 @@
     <div class="form-group"><label class="form-label">时间</label><input type="time" class="form-input" id="hTime"></div>
     <div class="form-group"><label class="form-label">总市值 (RM)</label><input type="number" class="form-input" id="hTotalVal" placeholder="注意：是总值"></div>
     <button class="btn-main" onclick="saveHist()">保存</button>
-    <div style="text-align:center;margin-top:15px;color:var(--sub);cursor:pointer" onclick="document.getElementById('histModal').classList.remove('show')">取消</div>
+    
+    <div style="display:flex; justify-content:space-between; margin-top:15px; align-items:center">
+        <div id="btnDelHist" style="color:var(--red);font-size:13px;cursor:pointer;display:none" onclick="delHist()">🗑️ 删除</div>
+        <div style="font-size:13px;color:var(--sub);cursor:pointer" onclick="document.getElementById('histModal').classList.remove('show')">取消</div>
+    </div>
   </div>
 </div>
 
@@ -297,7 +299,8 @@
 </div>
 
 <script>
-  const KEY = { TX: 'tng_tx_v75', HS: 'tng_hs_v75' };
+  // Data V76 (22nd Deleted)
+  const KEY = { TX: 'tng_tx_v76', HS: 'tng_hs_v76' };
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401},{"ts":1769679188602,"type":"buy","date":"2025-04-23","amount":10,"grams":0.021294,"price":469.623106},{"ts":1769679209117,"type":"buy","date":"2025-05-10","amount":10,"grams":0.021391,"price":467.48292},{"ts":1770188908558,"type":"buy","date":"2026-01-31","amount":10,"grams":0.014681,"price":681.146353},{"ts":1770188927873,"type":"buy","date":"2026-01-30","amount":10,"grams":0.014713,"price":679.665226}];
   const PRELOAD_HIST = [{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89},{"ts":1769570138096,"date":"2026-01-26","time":"10:00","val":1580.48},{"ts":1769570149763,"date":"2026-01-27","time":"10:00","val":1571.57},{"ts":1769570157362,"date":"2026-01-28","time":"10:00","val":1597.82},{"ts":1769708569185,"date":"2026-01-29","time":"01:42","val":1648.48},{"ts":1769679309649,"date":"2026-01-29","time":"10:00","val":1623.05},{"ts":1769679322265,"date":"2026-01-29","time":"11:00","val":1627.36},{"ts":1769679331450,"date":"2026-01-29","time":"12:00","val":1708.71},{"ts":1769679360449,"date":"2026-01-29","time":"17:00","val":1696.79},{"ts":1769738400000,"date":"2026-01-30","time":"10:00","val":1648.48},{"ts":1769742000000,"date":"2026-01-30","time":"11:00","val":1647.24},{"ts":1769745600000,"date":"2026-01-30","time":"12:00","val":1615.23},{"ts":1769749200000,"date":"2026-01-30","time":"13:00","val":1567.28},{"ts":1769922467213,"date":"2026-01-31","time":"10:00","val":1499.76},{"ts":1769922479699,"date":"2026-02-01","time":"10:00","val":1537.53},{"ts":1770188969456,"date":"2026-02-03","time":"10:00","val":1523.45},{"ts":1770199200000,"date":"2026-02-04","time":"10:00","val":1551.36},{"ts":1770202800000,"date":"2026-02-04","time":"11:00","val":1578.0},{"ts":1770285600000,"date":"2026-02-05","time":"10:00","val":1528.71},{"ts":1770289200000,"date":"2026-02-05","time":"11:00","val":1515.3},{"ts":1770372000000,"date":"2026-02-06","time":"10:00","val":1519.28},{"ts":1770458400000,"date":"2026-02-07","time":"10:00","val":1548.65},{"ts":1770544800000,"date":"2026-02-08","time":"10:00","val":1548.65},{"ts":1770631200000,"date":"2026-02-09","time":"10:00","val":1563.72},{"ts":1770717600000,"date":"2026-02-10","time":"10:00","val":1564.98}];
   const el = id => document.getElementById(id);
@@ -414,7 +417,6 @@
     else if(chartFilter === '1w'){ const cut=new Date(); cut.setDate(now.getDate()-7); data = data.filter(d=>new Date(d.date)>=cut); }
     else if(chartFilter === '1m'){ const cut=new Date(); cut.setMonth(now.getMonth()-1); data = data.filter(d=>new Date(d.date)>=cut); }
     else if(chartFilter === '3m'){ const cut=new Date(); cut.setMonth(now.getMonth()-3); data = data.filter(d=>new Date(d.date)>=cut); }
-    else if(chartFilter === 'all'){ }
     
     if(data.length===0){ box.innerHTML='<div style="display:flex;height:100%;align-items:center;justify-content:center;color:var(--sub)">无数据</div>'; return; }
 
@@ -427,11 +429,11 @@
     const allVals = candles.map(c=>c.asset).concat(candles.map(c=>c.cost));
     const minVal=Math.min(...allVals), maxVal=Math.max(...allVals);
     const range=maxVal-minVal, minY=Math.max(0,minVal-range*0.1), maxY=maxVal+range*0.1;
-    const H=320;
+    const H=320; 
     
-    // Future Padding: Add 15% space to the right
-    const W = Math.max(wrapper.offsetWidth, candles.length * 50) + (wrapper.offsetWidth * 0.15); 
-    const step = (W - (wrapper.offsetWidth * 0.15)) / candles.length;
+    // V76: Add Right Padding
+    const W = Math.max(wrapper.offsetWidth, candles.length * 50) + (wrapper.offsetWidth * 0.2); 
+    const step = (W - (wrapper.offsetWidth * 0.2)) / candles.length;
     
     const getY=(v)=>H-20-((v-minY)/(maxY-minY))*(H-40);
 
@@ -447,7 +449,6 @@
     
     let svg=`<svg width="${W}px" height="${H}px"><defs><linearGradient id="gradProfit" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--green)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--green)" stop-opacity="0.05"/></linearGradient><linearGradient id="gradLoss" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--red)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--red)" stop-opacity="0.05"/></linearGradient></defs>`;
     
-    // Grid
     for(let i=0;i<=4;i++){ const y=H-20-(i/4)*(H-40); svg+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" class="grid-line"/>`; }
     
     svg+=`<path d="${pathCostArea}" class="area-cost"/><path d="${pathCost}" class="line-cost"/>`;
@@ -459,17 +460,13 @@
     });
     svg+=`<path d="${pathAsset}" class="line-asset"/>`;
     
-    // Interactive Elements
     candles.forEach((c,i)=>{
         const x=i*step+step/2, yA=getY(c.asset), diff=c.asset-c.cost;
         
-        // V75 Interactive Elements
         svg += `<line id="crosshair-${i}" class="crosshair" x1="${x}" y1="0" x2="${x}" y2="${H}" />`;
         svg += `<circle id="dot-${i}" class="active-dot" cx="${x}" cy="${yA}" />`;
         
-        // Axis Labels (skip logic)
-        // Adjust skip logic based on visual density
-        const skip=Math.ceil(candles.length/(wrapper.offsetWidth/80));
+        const skip=Math.ceil(candles.length/(wrapper.offsetWidth/70));
         if(i%skip===0||i===candles.length-1){
              svg+=`<text x="${x}" y="${H-5}" class="axis-label" text-anchor="middle">${c.date.slice(5)}</text>`;
         }
@@ -479,7 +476,7 @@
     setTimeout(()=>{wrapper.scrollLeft=wrapper.scrollWidth},50);
   }
 
-  // --- Tooltip Logic (Fixed) ---
+  // --- Tooltip Logic ---
   function handleTouch(e){ e.preventDefault(); const touch = e.touches[0]; showTooltipAt(touch.clientX); }
   function handleMouse(e){ e.preventDefault(); showTooltipAt(e.clientX); }
   
@@ -489,34 +486,15 @@
       const rect = box.getBoundingClientRect();
       const xInBox = clientX - rect.left;
       const scrollLeft = el('chartWrapper').scrollLeft;
-      const xTotal = xInBox + scrollLeft; // Absolute X in SVG
+      const xTotal = xInBox + scrollLeft; 
       
       const W = box.firstChild.width.baseVal.value; 
-      // Need to use the same 'W' calculation logic as in drawChart
-      // Since we don't have scope access to 'W' from drawChart easily without global, 
-      // let's re-calculate step based on current svg width.
       
-      // Calculate step width again:
-      const candlesCount = chartData.length;
-      // W is the SVG width. 
-      // But wait, "future padding" adds extra width.
-      // The chart logic: W = max(wrapper, len*50) + padding. 
-      // Actual data width = W - padding.
-      // Step = (W - padding) / candlesCount
-      
-      // Better way: Re-derive step from SVG width directly?
-      // Or just look at SVG width?
-      // Let's assume step is uniform.
-      
-      // Re-calculate step approximately or store it globally?
-      // Storing globally is cleaner.
-      // But let's try to infer:
-      // The actual data area width = W * (1 / 1.15) if we added 15%. No, math is: W = DataW + DataW*0.15 => W = 1.15 * DataW.
-      // So DataW = W / 1.15.
-      // Step = DataW / candlesCount.
-      
-      const dataWidth = W / 1.15;
-      const step = dataWidth / candlesCount;
+      // Re-calc step based on Data + Padding logic
+      // Total W = DataArea + Padding
+      // DataArea = W / 1.2
+      const dataArea = W / 1.2;
+      const step = dataArea / chartData.length;
       
       let idx = Math.floor(xTotal / step);
       if(idx < 0) idx = 0;
@@ -532,19 +510,18 @@
         <div class="tt-row"><span class="tt-label">总资产</span><span class="tt-val">RM ${c.asset.toFixed(2)}</span></div>
         <div class="tt-row"><span class="tt-label">总成本</span><span class="tt-val">RM ${c.cost.toFixed(2)}</span></div>
         <div class="tt-row"><span class="tt-label">折合单价</span><span class="tt-val">RM ${c.unitP.toFixed(2)}</span></div>
-        <div class="tt-row"><span class="tt-label">盈亏</span><span class="tt-val" style="color:${plColor}">${pl>=0?'+':''}${pl.toFixed(2)}</span></div>
+        <div class="tt-row">
+            <span class="tt-label">盈亏</span>
+            <span class="tt-val" style="color:${plColor}">${pl>=0?'+':''}${pl.toFixed(2)}</span>
+        </div>
       `;
       
       // Position calculation
-      // We want tooltip to be near the touch point visually, but stay inside box.
-      // X position: relative to the VIEWPORT box (not SVG absolute)
-      let tipLeft = xInBox; 
-      
-      // Smart Position: Flip to left if too close to right edge
-      if(xInBox > rect.width / 2) tipLeft -= 170; // 160 width + margin
-      else tipLeft += 20;
+      let leftPos = xInBox; 
+      if(xInBox > rect.width / 2) leftPos = xInBox - 170; 
+      else leftPos += 20;
 
-      tt.style.left = tipLeft + "px";
+      tt.style.left = leftPos + "px";
       tt.style.top = "10px";
       tt.classList.add('show');
       
@@ -566,13 +543,14 @@
   // Common Functions
   function confirmSave(){ const v = parseFloat(el('inputTotalVal').value); if(!v) return; if(confirm(`确认录入今日总市值: RM ${v.toFixed(2)} ?`)){ let hs=getDB().hs; hs.push({ts:Date.now(), date:new Date().toISOString().split('T')[0], time:new Date().toTimeString().slice(0,5), val:v}); localStorage.setItem(KEY.HS,JSON.stringify(hs)); alert("已保存"); el('inputTotalVal').value=''; render(); } }
   function saveTx(){ const t={ ts:Date.now(), type:'buy', date:el('tDate').value, amount:el('tAmt').value, price:el('tPrice').value, grams:el('tGrams').value }; let db=getDB(); db.tx.push(t); localStorage.setItem(KEY.TX,JSON.stringify(db.tx)); el('txModal').classList.remove('show'); render(); }
-  function saveHist(){ const h={ ts:Date.now(), date:el('hDate').value, time:el('hTime').value, val:parseFloat(el('hTotalVal').value) }; let db=getDB(); db.hs.push(h); localStorage.setItem(KEY.HS,JSON.stringify(db.hs)); el('histModal').classList.remove('show'); drawChart(); render(); }
+  function saveHist(){ const h={ ts:Date.now(), date:el('hDate').value, time:el('hTime').value, val:parseFloat(el('hTotalVal').value) }; let db=getDB(); if(editHistId){const i=db.hs.findIndex(x=>x.ts==editHistId);if(i>-1)db.hs[i]={...db.hs[i],date:h.date,time:h.time,val:h.val};}else{db.hs.push(h);} localStorage.setItem(KEY.HS,JSON.stringify(db.hs)); el('histModal').classList.remove('show'); drawChart(); render(); }
   function delTx(){ if(confirm('删?')){ let db=getDB(); db.tx=db.tx.filter(x=>x.ts!=editId); localStorage.setItem(KEY.TX,JSON.stringify(db.tx)); el('txModal').classList.remove('show'); render(); } }
+  function delHist(){ if(confirm('删除此条市值记录?')){ let db=getDB(); db.hs=db.hs.filter(x=>x.ts!=editHistId); localStorage.setItem(KEY.HS,JSON.stringify(db.hs)); el('histModal').classList.remove('show'); drawChart(); render(); } }
   function calcG(){ const a=parseFloat(el('tAmt').value), p=parseFloat(el('tPrice').value); if(a && p) el('tGrams').value = (a/p).toFixed(6); }
   function openTxModal(){ el('txModal').classList.add('show'); el('tDate').value=new Date().toISOString().split('T')[0]; el('btnDelTx').style.display='none'; }
   function editT(ts){ editId=ts; const t=getDB().tx.find(x=>x.ts==ts); el('tDate').value=t.date; el('tAmt').value=t.amount; el('tPrice').value=t.price; calcG(); el('txModal').classList.add('show'); el('btnDelTx').style.display='block'; }
-  function openHistModal(){ el('histModal').classList.add('show'); el('hDate').value=new Date().toISOString().split('T')[0]; el('hTime').value="10:00"; }
-  function editHist(ts){ editHistId=ts; const h=getDB().hs.find(x=>x.ts==ts); el('hDate').value=h.date; el('hTime').value=h.time; el('hTotalVal').value=h.val; el('histModal').classList.add('show'); }
+  function openHistModal(){ editHistId=null; el('histModal').classList.add('show'); el('hDate').value=new Date().toISOString().split('T')[0]; el('hTime').value="10:00"; el('hTotalVal').value=''; el('btnDelHist').style.display='none'; }
+  function editHist(ts){ editHistId=ts; const h=getDB().hs.find(x=>x.ts==ts); el('hDate').value=h.date; el('hTime').value=h.time; el('hTotalVal').value=h.val; el('histModal').classList.add('show'); el('btnDelHist').style.display='block'; }
   function openSettings(){ el('settingsModal').classList.add('show'); }
   function openShareModal(){ alert('截图即可分享'); }
   function togglePrivacy(){ privacyMode=!privacyMode; render(true); }
