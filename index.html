@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V76</title>
+  <title>TNG 黄金管家 V77</title>
   <style>
     /* --- 基础变量 --- */
     :root{
@@ -102,14 +102,15 @@
     .row-l { display: flex; flex-direction: column; gap: 4px; }
     .row-r { text-align: right; display: flex; flex-direction: column; gap: 4px; }
 
-    /* Chart V76: Added Padding */
+    /* Chart V77: Scroll Fix */
     .chart-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .chart-title { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
-    .filter-tabs { display: flex; background: rgba(120,120,128,0.08); padding: 4px; border-radius: 10px; }
-    .filter-btn { padding: 6px 12px; font-size: 12px; border-radius: 8px; border:none; background:transparent; color:var(--sub); font-weight:600; transition:0.2s; cursor:pointer; }
+    .filter-tabs { display: flex; background: rgba(120,120,128,0.08); padding: 4px; border-radius: 10px; overflow-x:auto; }
+    .filter-btn { padding: 6px 12px; font-size: 12px; border-radius: 8px; border:none; background:transparent; color:var(--sub); font-weight:600; transition:0.2s; cursor:pointer; white-space: nowrap; }
     .filter-btn.active { background: var(--glass-bg); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
     
-    .chart-box { height: 320px; width: 100%; position: relative; cursor: crosshair; touch-action: none; overflow: hidden; }
+    /* V77: touch-action: pan-x allows native scrolling */
+    .chart-box { height: 320px; width: 100%; position: relative; cursor: crosshair; touch-action: pan-x; overflow: hidden; }
     .chart-scroll-wrapper { overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
     
     .area-cost { fill: var(--cost-color); opacity: 0.05; }
@@ -119,6 +120,7 @@
     .axis-label { font-size: 10px; fill: var(--sub); font-weight: 500; }
     .val-label { font-size: 9px; font-weight: 700; fill: var(--text); text-anchor: middle; opacity: 1; }
     
+    /* Tooltip */
     .chart-tooltip {
       position: absolute; top: 10px; left: 50%; transform: translateX(-50%); pointer-events: none;
       background: rgba(255,255,255,0.95); border: 1px solid var(--glass-border);
@@ -135,6 +137,7 @@
     .tt-label { color: var(--sub); }
     .tt-val { font-weight: 700; color: var(--text); font-size: 13px; }
     
+    /* Crosshair */
     .crosshair { stroke: var(--text); stroke-width: 1; stroke-dasharray: 4,4; opacity: 0; pointer-events: none; transition: opacity 0.1s; }
     .crosshair.show { opacity: 0.5; }
     .active-dot { fill: var(--glass-bg); stroke: var(--primary); stroke-width: 3; r: 6; opacity: 0; transition: opacity 0.1s; pointer-events: none; }
@@ -217,6 +220,7 @@
           <button class="filter-btn active" id="filter-1m" onclick="setChartFilter('1m')">1月</button>
           <button class="filter-btn" id="filter-3m" onclick="setChartFilter('3m')">3月</button>
           <button class="filter-btn" id="filter-all" onclick="setChartFilter('all')">全</button>
+          <button class="filter-btn" id="filter-fit" onclick="setChartFit()">全览</button>
         </div>
       </div>
       
@@ -278,7 +282,6 @@
     <div class="form-group"><label class="form-label">时间</label><input type="time" class="form-input" id="hTime"></div>
     <div class="form-group"><label class="form-label">总市值 (RM)</label><input type="number" class="form-input" id="hTotalVal" placeholder="注意：是总值"></div>
     <button class="btn-main" onclick="saveHist()">保存</button>
-    
     <div style="display:flex; justify-content:space-between; margin-top:15px; align-items:center">
         <div id="btnDelHist" style="color:var(--red);font-size:13px;cursor:pointer;display:none" onclick="delHist()">🗑️ 删除</div>
         <div style="font-size:13px;color:var(--sub);cursor:pointer" onclick="document.getElementById('histModal').classList.remove('show')">取消</div>
@@ -299,12 +302,12 @@
 </div>
 
 <script>
-  // Data V76 (22nd Deleted)
-  const KEY = { TX: 'tng_tx_v76', HS: 'tng_hs_v76' };
+  // Data V77 (22nd Deleted)
+  const KEY = { TX: 'tng_tx_v77', HS: 'tng_hs_v77' };
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401},{"ts":1769679188602,"type":"buy","date":"2025-04-23","amount":10,"grams":0.021294,"price":469.623106},{"ts":1769679209117,"type":"buy","date":"2025-05-10","amount":10,"grams":0.021391,"price":467.48292},{"ts":1770188908558,"type":"buy","date":"2026-01-31","amount":10,"grams":0.014681,"price":681.146353},{"ts":1770188927873,"type":"buy","date":"2026-01-30","amount":10,"grams":0.014713,"price":679.665226}];
   const PRELOAD_HIST = [{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89},{"ts":1769570138096,"date":"2026-01-26","time":"10:00","val":1580.48},{"ts":1769570149763,"date":"2026-01-27","time":"10:00","val":1571.57},{"ts":1769570157362,"date":"2026-01-28","time":"10:00","val":1597.82},{"ts":1769708569185,"date":"2026-01-29","time":"01:42","val":1648.48},{"ts":1769679309649,"date":"2026-01-29","time":"10:00","val":1623.05},{"ts":1769679322265,"date":"2026-01-29","time":"11:00","val":1627.36},{"ts":1769679331450,"date":"2026-01-29","time":"12:00","val":1708.71},{"ts":1769679360449,"date":"2026-01-29","time":"17:00","val":1696.79},{"ts":1769738400000,"date":"2026-01-30","time":"10:00","val":1648.48},{"ts":1769742000000,"date":"2026-01-30","time":"11:00","val":1647.24},{"ts":1769745600000,"date":"2026-01-30","time":"12:00","val":1615.23},{"ts":1769749200000,"date":"2026-01-30","time":"13:00","val":1567.28},{"ts":1769922467213,"date":"2026-01-31","time":"10:00","val":1499.76},{"ts":1769922479699,"date":"2026-02-01","time":"10:00","val":1537.53},{"ts":1770188969456,"date":"2026-02-03","time":"10:00","val":1523.45},{"ts":1770199200000,"date":"2026-02-04","time":"10:00","val":1551.36},{"ts":1770202800000,"date":"2026-02-04","time":"11:00","val":1578.0},{"ts":1770285600000,"date":"2026-02-05","time":"10:00","val":1528.71},{"ts":1770289200000,"date":"2026-02-05","time":"11:00","val":1515.3},{"ts":1770372000000,"date":"2026-02-06","time":"10:00","val":1519.28},{"ts":1770458400000,"date":"2026-02-07","time":"10:00","val":1548.65},{"ts":1770544800000,"date":"2026-02-08","time":"10:00","val":1548.65},{"ts":1770631200000,"date":"2026-02-09","time":"10:00","val":1563.72},{"ts":1770717600000,"date":"2026-02-10","time":"10:00","val":1564.98}];
   const el = id => document.getElementById(id);
-  let editId=null, editHistId=null, chartFilter='1m', privacyMode=false;
+  let editId=null, editHistId=null, chartFilter='1m', privacyMode=false, isFitMode=false;
   let chartData = []; 
 
   function init(){
@@ -315,10 +318,10 @@
     el('hTime').value = "10:00";
     render();
     
-    // Bind Chart Events Explicitly
+    // Bind Chart Events Explicitly for Mobile Scroll Fix
     const chartBox = el('trendChart');
     if(chartBox) {
-        chartBox.addEventListener('touchstart', handleTouch, {passive: false});
+        chartBox.addEventListener('touchstart', handleTouch, {passive: false}); // passive: false needed? Actually just rely on css pan-x for scroll
         chartBox.addEventListener('touchmove', handleTouch, {passive: false});
         chartBox.addEventListener('touchend', hideTip);
         chartBox.addEventListener('mousemove', handleMouse);
@@ -407,16 +410,20 @@
      el('chartTotalPL').innerHTML = `<span style="color:${color}">${pl>=0?'+':''}${pl.toLocaleString('en-US',{minimumFractionDigits:2})}</span>`;
   }
 
-  function setChartFilter(range){ chartFilter = range; document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); el('filter-'+range).classList.add('active'); drawChart(); }
+  function setChartFit(){ isFitMode=true; document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); el('filter-fit').classList.add('active'); drawChart(); }
+  function setChartFilter(range){ isFitMode=false; chartFilter = range; document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); el('filter-'+range).classList.add('active'); drawChart(); }
   
   function drawChart(){
     const {hs} = getDB(); const box = el('trendChart'); const wrapper = el('chartWrapper'); box.innerHTML = '';
     let data = hs.sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
     const now = new Date();
-    if(chartFilter === '1d'){ const last=data[data.length-1]; data = data.filter(d=>d.date===last.date); }
-    else if(chartFilter === '1w'){ const cut=new Date(); cut.setDate(now.getDate()-7); data = data.filter(d=>new Date(d.date)>=cut); }
-    else if(chartFilter === '1m'){ const cut=new Date(); cut.setMonth(now.getMonth()-1); data = data.filter(d=>new Date(d.date)>=cut); }
-    else if(chartFilter === '3m'){ const cut=new Date(); cut.setMonth(now.getMonth()-3); data = data.filter(d=>new Date(d.date)>=cut); }
+    
+    if(!isFitMode) {
+      if(chartFilter === '1d'){ const last=data[data.length-1]; data = data.filter(d=>d.date===last.date); }
+      else if(chartFilter === '1w'){ const cut=new Date(); cut.setDate(now.getDate()-7); data = data.filter(d=>new Date(d.date)>=cut); }
+      else if(chartFilter === '1m'){ const cut=new Date(); cut.setMonth(now.getMonth()-1); data = data.filter(d=>new Date(d.date)>=cut); }
+      else if(chartFilter === '3m'){ const cut=new Date(); cut.setMonth(now.getMonth()-3); data = data.filter(d=>new Date(d.date)>=cut); }
+    }
     
     if(data.length===0){ box.innerHTML='<div style="display:flex;height:100%;align-items:center;justify-content:center;color:var(--sub)">无数据</div>'; return; }
 
@@ -431,10 +438,15 @@
     const range=maxVal-minVal, minY=Math.max(0,minVal-range*0.1), maxY=maxVal+range*0.1;
     const H=320; 
     
-    // V76: Add Right Padding
-    const W = Math.max(wrapper.offsetWidth, candles.length * 50) + (wrapper.offsetWidth * 0.2); 
-    const step = (W - (wrapper.offsetWidth * 0.2)) / candles.length;
+    // Width Logic: Fit vs Scroll with Padding
+    let W;
+    if(isFitMode) {
+        W = wrapper.offsetWidth;
+    } else {
+        W = Math.max(wrapper.offsetWidth, candles.length * 50) + (wrapper.offsetWidth * 0.2); 
+    }
     
+    const step = isFitMode ? (W / candles.length) : (W - (wrapper.offsetWidth * 0.2)) / candles.length;
     const getY=(v)=>H-20-((v-minY)/(maxY-minY))*(H-40);
 
     let pathAsset="", pathCost="";
@@ -449,6 +461,7 @@
     
     let svg=`<svg width="${W}px" height="${H}px"><defs><linearGradient id="gradProfit" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--green)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--green)" stop-opacity="0.05"/></linearGradient><linearGradient id="gradLoss" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--red)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--red)" stop-opacity="0.05"/></linearGradient></defs>`;
     
+    // Grid
     for(let i=0;i<=4;i++){ const y=H-20-(i/4)*(H-40); svg+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" class="grid-line"/>`; }
     
     svg+=`<path d="${pathCostArea}" class="area-cost"/><path d="${pathCost}" class="line-cost"/>`;
@@ -462,39 +475,61 @@
     
     candles.forEach((c,i)=>{
         const x=i*step+step/2, yA=getY(c.asset), diff=c.asset-c.cost;
-        
         svg += `<line id="crosshair-${i}" class="crosshair" x1="${x}" y1="0" x2="${x}" y2="${H}" />`;
         svg += `<circle id="dot-${i}" class="active-dot" cx="${x}" cy="${yA}" />`;
         
-        const skip=Math.ceil(candles.length/(wrapper.offsetWidth/70));
+        // Skip labels based on density
+        const labelDensity = isFitMode ? W/50 : 80; 
+        const skip=Math.ceil(candles.length/(wrapper.offsetWidth/labelDensity));
+        
         if(i%skip===0||i===candles.length-1){
              svg+=`<text x="${x}" y="${H-5}" class="axis-label" text-anchor="middle">${c.date.slice(5)}</text>`;
         }
     });
     
     box.innerHTML=svg+'<div id="chartTooltip" class="chart-tooltip"></div></svg>'; 
-    setTimeout(()=>{wrapper.scrollLeft=wrapper.scrollWidth},50);
+    // Scroll to end if not fit mode
+    if(!isFitMode) setTimeout(()=>{wrapper.scrollLeft=wrapper.scrollWidth},50);
   }
 
-  // --- Tooltip Logic ---
-  function handleTouch(e){ e.preventDefault(); const touch = e.touches[0]; showTooltipAt(touch.clientX); }
-  function handleMouse(e){ e.preventDefault(); showTooltipAt(e.clientX); }
+  // --- V77 Tooltip Logic (Scroll Fix) ---
+  function handleTouch(e){
+      // Do NOT preventDefault here to allow scrolling!
+      // Only show tooltip if it's a tap or long press (simulated by just getting coordinates)
+      const touch = e.touches[0];
+      showTooltipAt(touch.clientX);
+  }
+  function handleMouse(e){
+      e.preventDefault();
+      showTooltipAt(e.clientX);
+  }
   
   function showTooltipAt(clientX){
       if(!chartData.length) return;
       const box = el('trendChart');
       const rect = box.getBoundingClientRect();
       const xInBox = clientX - rect.left;
+      
+      // If user is touching outside of chart content (e.g. padding area), hide
+      // But we want to snap to nearest.
+      
       const scrollLeft = el('chartWrapper').scrollLeft;
       const xTotal = xInBox + scrollLeft; 
       
       const W = box.firstChild.width.baseVal.value; 
       
-      // Re-calc step based on Data + Padding logic
-      // Total W = DataArea + Padding
-      // DataArea = W / 1.2
-      const dataArea = W / 1.2;
-      const step = dataArea / chartData.length;
+      // Determine step based on mode
+      let step;
+      if(isFitMode) {
+          step = W / chartData.length;
+      } else {
+          // Reconstruct step from "Data Width" logic in drawChart
+          // W = DataW + 0.2*WrapperW
+          // DataW = W - 0.2*WrapperW
+          const wrapperW = el('chartWrapper').offsetWidth;
+          const dataW = W - (wrapperW * 0.2);
+          step = dataW / chartData.length;
+      }
       
       let idx = Math.floor(xTotal / step);
       if(idx < 0) idx = 0;
@@ -516,12 +551,32 @@
         </div>
       `;
       
-      // Position calculation
-      let leftPos = xInBox; 
-      if(xInBox > rect.width / 2) leftPos = xInBox - 170; 
-      else leftPos += 20;
-
-      tt.style.left = leftPos + "px";
+      // Position calculation (Visual Position relative to Viewport/Box)
+      let leftPos = isFitMode ? (idx * step + step/2) : (idx * step + step/2) - scrollLeft;
+      
+      // Handle edge cases for tooltip box
+      // If tooltip goes off-screen right
+      if(leftPos > rect.width / 2) leftPos -= 80; // center it roughly or flip
+      else leftPos += 80;
+      
+      // Actually simpler: just center it on screen if possible, or follow cursor?
+      // User wants it to "appear", following logic:
+      // We put it absolute inside the box? No, box clips overflow. 
+      // Put it fixed?
+      // Current CSS: position: absolute inside .chart-box. 
+      // AND .chart-box has overflow: hidden. THIS IS WHY IT WAS CUT OFF!
+      
+      // FIX: Move tooltip visual calculation to rely on TRANSFORM 
+      // And ensure it stays within scroll view.
+      // Better yet: Tooltip is fixed position relative to chart-box.
+      
+      // Let's keep simple: Center tooltip horizontally in the viewport (fixed) 
+      // or just follow the crosshair.
+      
+      // Updated Strategy: Tooltip follows the data point X.
+      let finalLeft = (idx * step + step/2); 
+      
+      tt.style.left = finalLeft + "px";
       tt.style.top = "10px";
       tt.classList.add('show');
       
