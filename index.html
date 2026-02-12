@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V80</title>
+  <title>TNG 黄金管家 V81</title>
   <style>
     /* --- 基础变量 --- */
     :root{
@@ -102,15 +102,15 @@
     .row-l { display: flex; flex-direction: column; gap: 4px; }
     .row-r { text-align: right; display: flex; flex-direction: column; gap: 4px; }
 
-    /* Chart V80 Optimized */
+    /* Chart V81 */
     .chart-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .chart-title { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
     .filter-tabs { display: flex; background: rgba(120,120,128,0.08); padding: 4px; border-radius: 10px; }
     .filter-btn { padding: 6px 12px; font-size: 12px; border-radius: 8px; border:none; background:transparent; color:var(--sub); font-weight:600; transition:0.2s; cursor:pointer; }
     .filter-btn.active { background: var(--glass-bg); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
     
-    .chart-box { height: 320px; width: 100%; position: relative; cursor: crosshair; touch-action: pan-x; overflow: hidden; }
-    .chart-scroll-wrapper { overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
+    .chart-box { height: 320px; position: relative; cursor: crosshair; touch-action: pan-x; overflow: hidden; }
+    .chart-scroll-wrapper { overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; width:100%; flex-shrink:0; }
     
     .area-cost { fill: var(--cost-color); opacity: 0.05; }
     .line-asset { fill: none; stroke: var(--primary); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
@@ -119,12 +119,12 @@
     .axis-label { font-size: 10px; fill: var(--sub); font-weight: 500; }
     .val-label { font-size: 9px; font-weight: 700; fill: var(--text); text-anchor: middle; opacity: 1; }
     
-    /* V80 Tooltip */
+    /* V81 Tooltip */
     .chart-tooltip {
       position: absolute; top: 10px; left: 0; pointer-events: none;
       background: rgba(255,255,255,0.95); border: 1px solid var(--glass-border);
       box-shadow: 0 8px 30px rgba(0,0,0,0.15); border-radius: 16px; padding: 12px 16px;
-      font-size: 12px; z-index: 200; opacity: 0; transition: opacity 0.15s;
+      font-size: 12px; z-index: 200; opacity: 0; transition: opacity 0.1s;
       min-width: 160px; backdrop-filter: blur(12px); transform: translateX(0); 
     }
     @media (prefers-color-scheme: dark) { .chart-tooltip { background: rgba(30,30,32,0.95); border: 1px solid rgba(255,255,255,0.1); } }
@@ -300,8 +300,8 @@
 </div>
 
 <script>
-  // Data V80 (Retaining V79 Data)
-  const KEY = { TX: 'tng_tx_v80', HS: 'tng_hs_v80' };
+  // Data V81
+  const KEY = { TX: 'tng_tx_v81', HS: 'tng_hs_v81' };
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401},{"ts":1769679188602,"type":"buy","date":"2025-04-23","amount":10,"grams":0.021294,"price":469.623106},{"ts":1769679209117,"type":"buy","date":"2025-05-10","amount":10,"grams":0.021391,"price":467.48292},{"ts":1770188908558,"type":"buy","date":"2026-01-31","amount":10,"grams":0.014681,"price":681.146353},{"ts":1770188927873,"type":"buy","date":"2026-01-30","amount":10,"grams":0.014713,"price":679.665226}];
   const PRELOAD_HIST = [{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89},{"ts":1769570138096,"date":"2026-01-26","time":"10:00","val":1580.48},{"ts":1769570149763,"date":"2026-01-27","time":"10:00","val":1571.57},{"ts":1769570157362,"date":"2026-01-28","time":"10:00","val":1597.82},{"ts":1769708569185,"date":"2026-01-29","time":"01:42","val":1648.48},{"ts":1769679309649,"date":"2026-01-29","time":"10:00","val":1623.05},{"ts":1769679322265,"date":"2026-01-29","time":"11:00","val":1627.36},{"ts":1769679331450,"date":"2026-01-29","time":"12:00","val":1708.71},{"ts":1769679360449,"date":"2026-01-29","time":"17:00","val":1696.79},{"ts":1769738400000,"date":"2026-01-30","time":"10:00","val":1648.48},{"ts":1769742000000,"date":"2026-01-30","time":"11:00","val":1647.24},{"ts":1769745600000,"date":"2026-01-30","time":"12:00","val":1615.23},{"ts":1769749200000,"date":"2026-01-30","time":"13:00","val":1567.28},{"ts":1769922467213,"date":"2026-01-31","time":"10:00","val":1499.76},{"ts":1769922479699,"date":"2026-02-01","time":"10:00","val":1537.53},{"ts":1770188969456,"date":"2026-02-03","time":"10:00","val":1523.45},{"ts":1770199200000,"date":"2026-02-04","time":"10:00","val":1551.36},{"ts":1770202800000,"date":"2026-02-04","time":"11:00","val":1578.0},{"ts":1770285600000,"date":"2026-02-05","time":"10:00","val":1528.71},{"ts":1770289200000,"date":"2026-02-05","time":"11:00","val":1515.3},{"ts":1770372000000,"date":"2026-02-06","time":"10:00","val":1519.28},{"ts":1770458400000,"date":"2026-02-07","time":"10:00","val":1548.65},{"ts":1770544800000,"date":"2026-02-08","time":"10:00","val":1548.65},{"ts":1770631200000,"date":"2026-02-09","time":"10:00","val":1563.72},{"ts":1770717600000,"date":"2026-02-10","time":"10:00","val":1564.98}];
   const el = id => document.getElementById(id);
@@ -317,18 +317,14 @@
     el('hTime').value = "10:00";
     render();
     
+    // Bind Chart Events Explicitly
     const chartBox = el('trendChart');
     if(chartBox) {
-        chartBox.addEventListener('touchstart', handleTouch, {passive: false}); // passive: false to maybe capture but allow scroll if needed? Actually we want tooltip on tap.
-        chartBox.addEventListener('touchmove', handleTouchMove, {passive: false}); // Handle drag to inspect
-        chartBox.addEventListener('touchend', () => {/* optional: hide on end? */});
-        // chartBox.addEventListener('mousemove', handleMouse); // Let's keep mouse for PC
-        chartBox.onmousemove = handleMouse;
-        chartBox.onmouseleave = hideTip;
-        // Global click to hide if clicked outside?
-        document.addEventListener('click', (e) => {
-            if(!chartBox.contains(e.target)) hideTip();
-        });
+        chartBox.addEventListener('touchstart', handleTouch, {passive: false}); 
+        chartBox.addEventListener('touchmove', handleTouchMove, {passive: false});
+        chartBox.addEventListener('touchend', () => {});
+        chartBox.addEventListener('mousemove', handleMouse);
+        chartBox.addEventListener('mouseleave', hideTip);
     }
   }
 
@@ -448,7 +444,6 @@
     const range=maxVal-minVal, minY=Math.max(0,minVal-range*0.1), maxY=maxVal+range*0.1;
     const H=320;
     
-    // V80 Logic: Future Padding & Scrollable Width
     const futureDays = 10;
     const dataLen = candles.length;
     const totalLen = dataLen + futureDays;
@@ -457,15 +452,14 @@
     if(isFitMode) {
         W = wrapper.offsetWidth;
     } else {
-        // Force width to allow scroll
         W = Math.max(wrapper.offsetWidth, totalLen * 50); 
     }
     
-    // Explicitly set box width to trigger scroll in wrapper
-    box.style.width = W + "px";
+    // Explicitly set width to allow scrolling
+    box.style.width = W + "px"; 
     
     const step = W / totalLen;
-    chartStep = step; // Global for interactions
+    chartStep = step; 
     
     const getY=(v)=>H-20-((v-minY)/(maxY-minY))*(H-40);
 
@@ -476,7 +470,6 @@
         else{ pathAsset+=` L ${x} ${yA}`; pathCost+=` L ${x} ${yC}`; }
     });
     
-    // Close Cost Area for gradient
     const firstX=step/2;
     const lastDataX=(dataLen-1)*step+step/2;
     const bottomY=H-20;
@@ -484,10 +477,8 @@
     
     let svg=`<svg width="${W}px" height="${H}px"><defs><linearGradient id="gradProfit" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--green)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--green)" stop-opacity="0.05"/></linearGradient><linearGradient id="gradLoss" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--red)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--red)" stop-opacity="0.05"/></linearGradient></defs>`;
     
-    // Grid Lines (Full width including future)
     for(let i=0;i<=4;i++){ const y=H-20-(i/4)*(H-40); svg+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" class="grid-line"/>`; }
     
-    // Areas & Lines (Stop at dataLen)
     svg+=`<path d="${pathCostArea}" class="area-cost"/><path d="${pathCost}" class="line-cost"/>`;
     
     candles.forEach((c,i)=>{
@@ -497,30 +488,24 @@
     });
     svg+=`<path d="${pathAsset}" class="line-asset"/>`;
     
-    // Interactions
     candles.forEach((c,i)=>{
-        const x=i*step+step/2, yA=getY(c.asset);
-        // Elements for Hover
+        const x=i*step+step/2, yA=getY(c.asset), diff=c.asset-c.cost;
         svg += `<line id="crosshair-${i}" class="crosshair" x1="${x}" y1="0" x2="${x}" y2="${H}" />`;
         svg += `<circle id="dot-${i}" class="active-dot" cx="${x}" cy="${yA}" />`;
+        
+        const density = isFitMode ? Math.max(2, Math.floor(totalLen/5)) : 2; 
+        if(i % density === 0 || i === dataLen - 1){
+             svg+=`<text x="${x}" y="${H-5}" class="axis-label" text-anchor="middle">${c.date.slice(5)}</text>`;
+        }
     });
-
-    // X Axis Labels (Including Future)
+    
     const density = isFitMode ? Math.max(2, Math.floor(totalLen/5)) : 2; 
-    for (let i = 0; i < totalLen; i++) {
-        if (i % density === 0 || i === dataLen - 1) { 
+    for(let i=dataLen; i<totalLen; i++){
+        if(i % density === 0){
              const x = i * step + step/2;
-             let labelText = "";
-             if (i < dataLen) {
-                 labelText = candles[i].date.slice(5);
-             } else {
-                 const lastDate = candles[dataLen-1].date;
-                 const futureOffset = i - (dataLen - 1);
-                 const futureDate = addDays(lastDate, futureOffset);
-                 labelText = futureDate.slice(5);
-             }
-             const opacity = i >= dataLen ? 0.4 : 1;
-             svg += `<text x="${x}" y="${H-5}" class="axis-label" text-anchor="middle" style="opacity:${opacity}">${labelText}</text>`;
+             const lastDate = candles[dataLen-1].date;
+             const futureDate = addDays(lastDate, i - (dataLen - 1));
+             svg+=`<text x="${x}" y="${H-5}" class="axis-label" text-anchor="middle" style="opacity:0.4">${futureDate.slice(5)}</text>`;
         }
     }
     
@@ -528,30 +513,14 @@
     if(!isFitMode) setTimeout(()=>{wrapper.scrollLeft=wrapper.scrollWidth},50);
   }
 
-  // --- V80 Fixed Interaction Logic ---
-  // Tap (Click): Show tool tip at tap location (mapped to nearest point)
-  // Drag (TouchMove): Move crosshair
-  
+  // --- V81 Fixed Tooltip Logic ---
   function handleTouch(e) {
-      // Tap event
-      // Don't prevent default initially to allow scroll start
-      // If tap, show. 
       const touch = e.touches[0];
       updateTooltip(touch.clientX);
   }
   
   function handleTouchMove(e) {
-      // If user dragging horizontally on chart, prevent scroll and show crosshair
-      // But we set touch-action: pan-x in CSS, so browser handles scroll.
-      // If we want crosshair dragging, we might fight with scroll.
-      // Let's allow native scroll, and update crosshair if visible.
-      // Or: touch-action: none on box prevents scroll, forcing drag interaction.
-      // User said "Can't scroll". 
-      // V79 fix: touch-action: pan-x.
-      // So touchmove here is for logic updates while scrolling?
-      // No, usually touchmove fires when scrolling. 
-      // Let's just update tooltip on tap (touch start). 
-      // Scrolling is prioritized.
+      // Just for feedback, do not block scroll
   }
 
   function handleMouse(e) {
@@ -563,23 +532,21 @@
       if(!chartData.length) return;
       const box = el('trendChart');
       const rect = box.getBoundingClientRect();
-      const scrollLeft = el('chartWrapper').scrollLeft;
+      const xInBox = clientX - rect.left; 
+
+      // FIX V81: Do not add scrollLeft! clientX is relative to viewport, rect.left is container position.
+      // xInBox is already the correct pixel inside the visible box area.
+      // Wait, but content is scrolled inside wrapper.
+      // We need X relative to the SVG content start.
+      // Since 'box' is the wide element (width=W), rect.left moves as we scroll.
+      // So clientX - rect.left IS the x coordinate in the SVG.
       
-      // Calculate X relative to the SVG canvas
-      const xOnScreen = clientX - rect.left; 
-      const xInSvg = xOnScreen + scrollLeft;
+      const xInSvg = xInBox; 
       
-      const W = parseFloat(box.style.width); // Actual SVG width
-      const step = W / (chartData.length + 10); // +10 future days
+      let idx = Math.floor(xInSvg / chartStep);
       
-      let idx = Math.floor(xInSvg / step);
-      
-      // Bounds
       if (idx < 0) idx = 0;
-      if (idx >= chartData.length) {
-          hideTip(); // Touched future empty space
-          return;
-      }
+      if (idx >= chartData.length) { hideTip(); return; }
       
       const c = chartData[idx];
       const pl = c.asset - c.cost;
@@ -591,26 +558,17 @@
         <div class="tt-row"><span class="tt-label">总资产</span><span class="tt-val">RM ${c.asset.toFixed(2)}</span></div>
         <div class="tt-row"><span class="tt-label">总成本</span><span class="tt-val">RM ${c.cost.toFixed(2)}</span></div>
         <div class="tt-row"><span class="tt-label">折合单价</span><span class="tt-val">RM ${c.unitP.toFixed(2)}</span></div>
-        <div class="tt-row">
-            <span class="tt-label">盈亏</span>
-            <span class="tt-val" style="color:${plColor}">${pl>=0?'+':''}${pl.toFixed(2)}</span>
-        </div>
+        <div class="tt-row"><span class="tt-label">盈亏</span><span class="tt-val" style="color:${plColor}">${pl>=0?'+':''}${pl.toFixed(2)}</span></div>
       `;
       
-      // Visual Position (Sticky to bar or follow finger?)
-      // Stick to bar center
-      const barCenterX = (idx * step + step/2);
-      
-      // Tooltip Left relative to the BOX (which scrolls)
-      // Wait, tooltip is absolute inside box. So left = barCenterX.
+      const barCenterX = (idx * chartStep + chartStep/2);
       let tipLeft = barCenterX;
       
-      // Smart flip check? 
-      // We need check relative to SCREEN Viewport to flip.
-      // xOnScreen is cursor pos on screen inside box.
-      // If xOnScreen > boxWidth/2, flip left.
-      if (xOnScreen > rect.width / 2) {
-          tipLeft -= 170; // Flip left
+      const wrapperRect = el('chartWrapper').getBoundingClientRect();
+      const screenX = rect.left + barCenterX; 
+      
+      if ((screenX - wrapperRect.left) > wrapperRect.width / 2) {
+          tipLeft -= 170;
       } else {
           tipLeft += 10;
       }
@@ -619,7 +577,6 @@
       tt.style.top = "10px";
       tt.classList.add('show');
       
-      // Crosshair
       document.querySelectorAll('.crosshair').forEach(l => l.classList.remove('show'));
       document.querySelectorAll('.active-dot').forEach(d => d.classList.remove('show'));
       const line = document.getElementById(`crosshair-${idx}`);
@@ -648,7 +605,7 @@
   function openSettings(){ el('settingsModal').classList.add('show'); }
   function openShareModal(){ alert('截图即可分享'); }
   function togglePrivacy(){ privacyMode=!privacyMode; render(true); }
-  function switchTab(t){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.querySelectorAll('.dock-btn').forEach(b=>b.classList.remove('active')); el('view-'+t).classList.add('active'); el('nav-'+t).classList.add('active'); if(t=='chart'){drawChart(); updateChartSummary();} }
+  function switchTab(t){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.querySelectorAll('.dock-btn').forEach(b=>b.classList.remove('active')); el('view-'+t).classList.add('active'); el('nav-'+t).classList.add('active'); if(t=='chart'){ setTimeout(() => { drawChart(); updateChartSummary(); }, 50); } }
   function exportData(){ const blob=new Blob([JSON.stringify(getDB())],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='tng_backup.json'; a.click(); }
   function importData(e){ const r=new FileReader(); r.onload=ev=>{ const d=JSON.parse(ev.target.result); localStorage.setItem(KEY.TX,JSON.stringify(d.tx)); localStorage.setItem(KEY.HS,JSON.stringify(d.hs)); location.reload(); }; r.readAsText(e.files[0]); }
   function resetAll(){ if(confirm('清空?')) { localStorage.clear(); location.reload(); } }
