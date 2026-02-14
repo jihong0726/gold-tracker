@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V82</title>
+  <title>TNG 黄金管家 V84</title>
   <style>
     /* --- 基础变量 --- */
     :root{
@@ -15,9 +15,7 @@
       --glass-bg: #ffffff; 
       --glass-border: 1px solid rgba(0,0,0,0.05);
       --glass-shadow: 0 8px 20px rgba(0,0,0,0.08);
-      /* V82 Update: Increased Nav Height */
-      --nav-h: 80px; 
-      --safe-pb: env(safe-area-inset-bottom);
+      --nav-h: 65px; --safe-pb: env(safe-area-inset-bottom);
       --green: #34c759; --red: #ff3b30;
       --bg-color: #f5f5f7;
     }
@@ -55,25 +53,19 @@
     .view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* V82 底部导航优化: 更大、更舒适 */
     .dock { 
       flex: 0 0 calc(var(--nav-h) + var(--safe-pb));
       background: var(--glass-bg); border-top: var(--glass-border);
       display: grid; grid-template-columns: 1fr 1fr; 
       padding-bottom: var(--safe-pb); z-index: 100;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.03); /* Slight shadow for depth */
     }
     .dock-btn { 
       display: flex; flex-direction: column; align-items: center; justify-content: center; 
-      height: 100%; color: var(--sub); transition: 0.15s; cursor: pointer;
-      /* Remove visual padding so click area is max */
+      height: 100%; color: var(--sub); transition: 0.2s; cursor: pointer;
     }
-    .dock-btn:active { background: rgba(0,0,0,0.03); transform: scale(0.98); }
-    .dock-btn.active { color: var(--primary); }
-    /* V82: Bigger Icons */
-    .dock-btn svg { width: 32px; height: 32px; fill: currentColor; margin-bottom: 6px; }
-    /* V82: Bigger Text */
-    .dock-label { font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
+    .dock-btn.active { color: var(--primary); background: rgba(0,122,255,0.03); }
+    .dock-btn svg { width: 26px; height: 26px; fill: currentColor; margin-bottom: 4px; }
+    .dock-label { font-size: 11px; font-weight: 600; }
 
     /* --- 组件 --- */
     .glass-card {
@@ -110,14 +102,14 @@
     .row-l { display: flex; flex-direction: column; gap: 4px; }
     .row-r { text-align: right; display: flex; flex-direction: column; gap: 4px; }
 
-    /* Chart */
+    /* Chart V84 */
     .chart-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .chart-title { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
     .filter-tabs { display: flex; background: rgba(120,120,128,0.08); padding: 4px; border-radius: 10px; }
     .filter-btn { padding: 6px 12px; font-size: 12px; border-radius: 8px; border:none; background:transparent; color:var(--sub); font-weight:600; transition:0.2s; cursor:pointer; }
     .filter-btn.active { background: var(--glass-bg); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
     
-    .chart-box { height: 320px; position: relative; cursor: crosshair; touch-action: pan-x; overflow: hidden; }
+    .chart-box { height: 320px; width: 100%; position: relative; cursor: crosshair; touch-action: pan-x; overflow: hidden; }
     .chart-scroll-wrapper { overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; width:100%; flex-shrink:0; }
     
     .area-cost { fill: var(--cost-color); opacity: 0.05; }
@@ -156,7 +148,7 @@
     .cs-val { font-size: 14px; font-weight: 800; white-space: nowrap; }
 
     /* Modals & Utils */
-    .fab { position: fixed; bottom: calc(110px + var(--safe-pb)); right: 24px; width: 56px; height: 56px; background: var(--primary); border-radius: 50%; color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 25px rgba(0,122,255,0.4); z-index: 90; cursor: pointer; }
+    .fab { position: fixed; bottom: calc(90px + var(--safe-pb)); right: 24px; width: 56px; height: 56px; background: var(--primary); border-radius: 50%; color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 25px rgba(0,122,255,0.4); z-index: 90; cursor: pointer; }
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
     .modal-overlay.show { display: flex; }
     .modal-card { width: 85%; max-width: 320px; background: var(--glass-bg); border-radius: 24px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.25); }
@@ -164,6 +156,15 @@
     .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--sub); margin-bottom: 6px; }
     input.form-input { width: 100%; padding: 12px; background: rgba(120,120,128,0.08); border: none; border-radius: 12px; font-size: 16px; color: var(--text); outline: none; font-weight: 600; }
     .btn-main { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 14px; font-weight: 700; font-size: 16px; cursor: pointer; }
+    
+    /* V83 Batch Import Styles */
+    textarea.batch-input { width: 100%; height: 120px; padding: 12px; background: rgba(120,120,128,0.05); border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 12px; font-family: monospace; resize: none; margin-bottom: 10px; outline:none; }
+    .batch-hint { font-size: 11px; color: var(--sub); background: rgba(120,120,128,0.05); padding: 8px; border-radius: 8px; margin-bottom: 10px; line-height: 1.4; }
+    .settings-list { display: flex; flex-direction: column; background: var(--glass-bg); border-radius: 16px; overflow: hidden; box-shadow: var(--glass-shadow); border: var(--glass-border); margin-bottom: 20px; }
+    .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: white; border: none; width: 100%; text-align: left; font-size: 16px; color: var(--text); border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
+    .settings-item:last-child { border-bottom: none; }
+    .settings-item:active { background: rgba(0,0,0,0.05); }
+
   </style>
 </head>
 <body>
@@ -299,6 +300,7 @@
   <div class="modal-card">
     <h3 style="text-align:center;margin-bottom:20px">数据管理</h3>
     <div class="settings-list">
+        <div class="settings-item" onclick="openBatchModal()"><span>📋 从 Excel 批量导入</span></div>
         <div class="settings-item" onclick="exportData()"><span>📤 备份数据</span></div>
         <div class="settings-item" style="position:relative"><span>📥 恢复数据</span><input type="file" onchange="importData(this)" style="position:absolute;left:0;top:0;width:100%;height:100%;opacity:0"></div>
         <div class="settings-item" onclick="resetAll()"><span style="color:var(--red)">🗑️ 清空数据</span></div>
@@ -307,11 +309,26 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="batchModal">
+  <div class="modal-card" style="max-width:360px">
+    <h3 style="text-align:center;margin-bottom:16px">批量导入市值</h3>
+    <div class="batch-hint">
+        <b>格式：</b>日期[Tab]时间[Tab]总值<br>
+        <b>Excel：</b>选中A/B/C三列 (日期/时间/金额) -> 复制 -> 粘贴到下方。<br>
+        示例：<br>
+        2026-02-10	10:00	1564.98
+    </div>
+    <textarea id="batchInput" class="batch-input" placeholder="在此处粘贴 Excel 内容..."></textarea>
+    <button class="btn-main" onclick="processBatchImport()">开始导入</button>
+    <div style="text-align:center;margin-top:15px;color:var(--sub);cursor:pointer" onclick="document.getElementById('batchModal').classList.remove('show')">取消</div>
+  </div>
+</div>
+
 <script>
-  // Data V82
-  const KEY = { TX: 'tng_tx_v82', HS: 'tng_hs_v82' };
+  // Data V84
+  const KEY = { TX: 'tng_tx_v84', HS: 'tng_hs_v84' };
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401},{"ts":1769679188602,"type":"buy","date":"2025-04-23","amount":10,"grams":0.021294,"price":469.623106},{"ts":1769679209117,"type":"buy","date":"2025-05-10","amount":10,"grams":0.021391,"price":467.48292},{"ts":1770188908558,"type":"buy","date":"2026-01-31","amount":10,"grams":0.014681,"price":681.146353},{"ts":1770188927873,"type":"buy","date":"2026-01-30","amount":10,"grams":0.014713,"price":679.665226}];
-  const PRELOAD_HIST = [{"ts":1770000000001,"date":"2026-01-23","time":"00:00","val":1547.97},{"ts":1770000000002,"date":"2026-01-24","time":"00:00","val":1559.44},{"ts":1770000000003,"date":"2026-01-25","time":"00:00","val":1558.89},{"ts":1769570138096,"date":"2026-01-26","time":"10:00","val":1580.48},{"ts":1769570149763,"date":"2026-01-27","time":"10:00","val":1571.57},{"ts":1769570157362,"date":"2026-01-28","time":"10:00","val":1597.82},{"ts":1769708569185,"date":"2026-01-29","time":"01:42","val":1648.48},{"ts":1769679309649,"date":"2026-01-29","time":"10:00","val":1623.05},{"ts":1769679322265,"date":"2026-01-29","time":"11:00","val":1627.36},{"ts":1769679331450,"date":"2026-01-29","time":"12:00","val":1708.71},{"ts":1769679360449,"date":"2026-01-29","time":"17:00","val":1696.79},{"ts":1769738400000,"date":"2026-01-30","time":"10:00","val":1648.48},{"ts":1769742000000,"date":"2026-01-30","time":"11:00","val":1647.24},{"ts":1769745600000,"date":"2026-01-30","time":"12:00","val":1615.23},{"ts":1769749200000,"date":"2026-01-30","time":"13:00","val":1567.28},{"ts":1769922467213,"date":"2026-01-31","time":"10:00","val":1499.76},{"ts":1769922479699,"date":"2026-02-01","time":"10:00","val":1537.53},{"ts":1770188969456,"date":"2026-02-03","time":"10:00","val":1523.45},{"ts":1770199200000,"date":"2026-02-04","time":"10:00","val":1551.36},{"ts":1770202800000,"date":"2026-02-04","time":"11:00","val":1578.0},{"ts":1770285600000,"date":"2026-02-05","time":"10:00","val":1528.71},{"ts":1770289200000,"date":"2026-02-05","time":"11:00","val":1515.3},{"ts":1770372000000,"date":"2026-02-06","time":"10:00","val":1519.28},{"ts":1770458400000,"date":"2026-02-07","time":"10:00","val":1548.65},{"ts":1770544800000,"date":"2026-02-08","time":"10:00","val":1548.65},{"ts":1770631200000,"date":"2026-02-09","time":"10:00","val":1563.72},{"ts":1770717600000,"date":"2026-02-10","time":"10:00","val":1564.98}];
+  const PRELOAD_HIST = [{"ts":1769158800000,"date":"2026-01-23","time":"09:00","val":1547.97},{"ts":1769245200000,"date":"2026-01-24","time":"09:00","val":1559.44},{"ts":1769331600000,"date":"2026-01-25","time":"09:00","val":1558.89},{"ts":1769418000000,"date":"2026-01-26","time":"09:00","val":1580.48},{"ts":1769504400000,"date":"2026-01-27","time":"09:00","val":1571.57},{"ts":1769590800000,"date":"2026-01-28","time":"09:00","val":1597.82},{"ts":1769677200000,"date":"2026-01-29","time":"09:00","val":1623.05},{"ts":1769680800000,"date":"2026-01-29","time":"10:00","val":1627.36},{"ts":1769684400000,"date":"2026-01-29","time":"11:00","val":1708.71},{"ts":1769763600000,"date":"2026-01-30","time":"09:00","val":1648.48},{"ts":1769767200000,"date":"2026-01-30","time":"10:00","val":1647.24},{"ts":1769770800000,"date":"2026-01-30","time":"11:00","val":1615.23},{"ts":1769774400000,"date":"2026-01-30","time":"12:00","val":1567.28},{"ts":1769850000000,"date":"2026-01-31","time":"09:00","val":1499.76},{"ts":1769936400000,"date":"2026-02-01","time":"09:00","val":1537.53},{"ts":1770109200000,"date":"2026-02-03","time":"09:00","val":1523.45},{"ts":1770195600000,"date":"2026-02-04","time":"09:00","val":1551.36},{"ts":1770199200000,"date":"2026-02-04","time":"10:00","val":1578.0},{"ts":1770282000000,"date":"2026-02-05","time":"09:00","val":1528.71},{"ts":1770285600000,"date":"2026-02-05","time":"10:00","val":1515.3},{"ts":1770368400000,"date":"2026-02-06","time":"09:00","val":1519.28},{"ts":1770454800000,"date":"2026-02-07","time":"09:00","val":1548.65},{"ts":1770541200000,"date":"2026-02-08","time":"09:00","val":1548.65},{"ts":1770627600000,"date":"2026-02-09","time":"09:00","val":1563.72},{"ts":1770714000000,"date":"2026-02-10","time":"09:00","val":1564.98},{"ts":1770717600000,"date":"2026-02-10","time":"10:00","val":1561.26},{"ts":1770800400000,"date":"2026-02-11","time":"09:00","val":1562.3},{"ts":1770804000000,"date":"2026-02-11","time":"10:00","val":1564.66},{"ts":1770886800000,"date":"2026-02-12","time":"09:00","val":1562.76},{"ts":1770973200000,"date":"2026-02-13","time":"09:00","val":1535.21},{"ts":1771059600000,"date":"2026-02-14","time":"09:00","val":1558.77}];
   const el = id => document.getElementById(id);
   let editId=null, editHistId=null, chartFilter='1m', privacyMode=false, isFitMode=false;
   let chartData = []; 
@@ -420,7 +437,6 @@
   function setChartFit(){ isFitMode=true; document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); el('filter-fit').classList.add('active'); drawChart(); }
   function setChartFilter(range){ isFitMode=false; chartFilter = range; document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); el('filter-'+range).classList.add('active'); drawChart(); }
   
-  // Date Helpers
   function addDays(dateStr, days) {
       const result = new Date(dateStr);
       result.setDate(result.getDate() + days);
@@ -463,11 +479,10 @@
         W = Math.max(wrapper.offsetWidth, totalLen * 50); 
     }
     
-    // Explicitly set width to allow scrolling
     box.style.width = W + "px"; 
     
     const step = W / totalLen;
-    chartStep = step; // Store for interaction calculations
+    chartStep = step; 
     
     const getY=(v)=>H-20-((v-minY)/(maxY-minY))*(H-40);
 
@@ -478,7 +493,6 @@
         else{ pathAsset+=` L ${x} ${yA}`; pathCost+=` L ${x} ${yC}`; }
     });
     
-    // Close Cost Area for gradient
     const firstX=step/2;
     const lastDataX=(dataLen-1)*step+step/2;
     const bottomY=H-20;
@@ -486,10 +500,8 @@
     
     let svg=`<svg width="${W}px" height="${H}px"><defs><linearGradient id="gradProfit" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--green)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--green)" stop-opacity="0.05"/></linearGradient><linearGradient id="gradLoss" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--red)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--red)" stop-opacity="0.05"/></linearGradient></defs>`;
     
-    // Grid Lines (Full width including future)
     for(let i=0;i<=4;i++){ const y=H-20-(i/4)*(H-40); svg+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" class="grid-line"/>`; }
     
-    // Areas & Lines (Stop at dataLen)
     svg+=`<path d="${pathCostArea}" class="area-cost"/><path d="${pathCost}" class="line-cost"/>`;
     
     candles.forEach((c,i)=>{
@@ -499,10 +511,8 @@
     });
     svg+=`<path d="${pathAsset}" class="line-asset"/>`;
     
-    // Interactions
     candles.forEach((c,i)=>{
-        const x=i*step+step/2, yA=getY(c.asset);
-        // Elements for Hover
+        const x=i*step+step/2, yA=getY(c.asset), diff=c.asset-c.cost;
         svg += `<line id="crosshair-${i}" class="crosshair" x1="${x}" y1="0" x2="${x}" y2="${H}" />`;
         svg += `<circle id="dot-${i}" class="active-dot" cx="${x}" cy="${yA}" />`;
         
@@ -512,7 +522,6 @@
         }
     });
     
-    // Future labels
     const density = isFitMode ? Math.max(2, Math.floor(totalLen/5)) : 2; 
     for(let i=dataLen; i<totalLen; i++){
         if(i % density === 0){
@@ -527,7 +536,7 @@
     if(!isFitMode) setTimeout(()=>{wrapper.scrollLeft=wrapper.scrollWidth},50);
   }
 
-  // --- V81 Fixed Tooltip Logic ---
+  // --- V81 Tooltip Fix: Logic with Scroll Awareness ---
   function handleTouch(e) {
       const touch = e.touches[0];
       updateTooltip(touch.clientX);
@@ -546,16 +555,13 @@
       if(!chartData.length) return;
       const box = el('trendChart');
       const rect = box.getBoundingClientRect();
-      const xInBox = clientX - rect.left; 
-
-      // FIX V81: Do not add scrollLeft! clientX is relative to viewport, rect.left is container position.
-      // xInBox is already the correct pixel inside the visible box area.
-      // Wait, but content is scrolled inside wrapper.
-      // We need X relative to the SVG content start.
-      // Since 'box' is the wide element (width=W), rect.left moves as we scroll.
-      // So clientX - rect.left IS the x coordinate in the SVG.
       
-      const xInSvg = xInBox; 
+      // Calculate X relative to the SCROLLED CONTENT
+      // ClientX is screen coord. 
+      // box.getBoundingClientRect().left shifts as we scroll (it goes negative).
+      // So (clientX - rect.left) IS the correct X coordinate inside the SVG canvas.
+      
+      const xInSvg = clientX - rect.left; 
       
       let idx = Math.floor(xInSvg / chartStep);
       
@@ -575,13 +581,20 @@
         <div class="tt-row"><span class="tt-label">盈亏</span><span class="tt-val" style="color:${plColor}">${pl>=0?'+':''}${pl.toFixed(2)}</span></div>
       `;
       
-      const barCenterX = (idx * chartStep + chartStep/2);
-      let tipLeft = barCenterX;
+      // Tooltip positioning
+      // We want tooltip to stay visible on screen.
+      // xInSvg is the absolute position in the large chart.
+      // wrapper.scrollLeft is how much is hidden.
+      // Visible X = xInSvg - wrapper.scrollLeft.
       
-      const wrapperRect = el('chartWrapper').getBoundingClientRect();
-      const screenX = rect.left + barCenterX; 
+      const wrapper = el('chartWrapper');
+      const visibleX = xInSvg - wrapper.scrollLeft;
+      const viewportWidth = wrapper.offsetWidth;
       
-      if ((screenX - wrapperRect.left) > wrapperRect.width / 2) {
+      let tipLeft = xInSvg; // Absolute position for 'absolute' tooltip
+      
+      // If visual position is too far right
+      if(visibleX > viewportWidth / 2) {
           tipLeft -= 170;
       } else {
           tipLeft += 10;
@@ -603,6 +616,38 @@
       el('chartTooltip').classList.remove('show');
       document.querySelectorAll('.crosshair').forEach(l => l.classList.remove('show'));
       document.querySelectorAll('.active-dot').forEach(d => d.classList.remove('show'));
+  }
+
+  // --- V83 Batch Import Logic ---
+  function openBatchModal(){ el('batchModal').classList.add('show'); el('batchInput').value=''; }
+  function processBatchImport(){
+      const text = el('batchInput').value.trim();
+      if(!text) return alert("请粘贴内容");
+      const rows = text.split('\n');
+      let count = 0;
+      let db = getDB();
+      let newHs = db.hs;
+      rows.forEach(row => {
+          let cols = row.split(/\t|,/); 
+          if(cols.length >= 3){
+              let d = cols[0].trim();
+              let t = cols[1].trim();
+              let v = parseFloat(cols[2].trim().replace(/,/g, ''));
+              if(d && !isNaN(v)){
+                 const existsIdx = newHs.findIndex(h => h.date === d && h.time === t);
+                 const rec = { ts: Date.now() + count, date: d, time: t, val: v };
+                 if(existsIdx > -1) newHs[existsIdx] = rec;
+                 else newHs.push(rec);
+                 count++;
+              }
+          }
+      });
+      if(count > 0){
+          localStorage.setItem(KEY.HS, JSON.stringify(newHs));
+          alert(`成功导入 ${count} 条记录`);
+          el('batchModal').classList.remove('show');
+          render(); if(el('view-chart').classList.contains('active')) drawChart();
+      } else { alert("未识别到有效数据，请检查格式"); }
   }
 
   // Common Functions
