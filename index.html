@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V84</title>
+  <title>TNG 黄金管家 V85</title>
   <style>
     /* --- 基础变量 --- */
     :root{
@@ -102,14 +102,14 @@
     .row-l { display: flex; flex-direction: column; gap: 4px; }
     .row-r { text-align: right; display: flex; flex-direction: column; gap: 4px; }
 
-    /* Chart V84 */
+    /* Chart V81/85 */
     .chart-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .chart-title { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
     .filter-tabs { display: flex; background: rgba(120,120,128,0.08); padding: 4px; border-radius: 10px; }
     .filter-btn { padding: 6px 12px; font-size: 12px; border-radius: 8px; border:none; background:transparent; color:var(--sub); font-weight:600; transition:0.2s; cursor:pointer; }
     .filter-btn.active { background: var(--glass-bg); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
     
-    .chart-box { height: 320px; width: 100%; position: relative; cursor: crosshair; touch-action: pan-x; overflow: hidden; }
+    .chart-box { height: 320px; position: relative; cursor: crosshair; touch-action: pan-x; overflow: hidden; }
     .chart-scroll-wrapper { overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; width:100%; flex-shrink:0; }
     
     .area-cost { fill: var(--cost-color); opacity: 0.05; }
@@ -157,7 +157,6 @@
     input.form-input { width: 100%; padding: 12px; background: rgba(120,120,128,0.08); border: none; border-radius: 12px; font-size: 16px; color: var(--text); outline: none; font-weight: 600; }
     .btn-main { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 14px; font-weight: 700; font-size: 16px; cursor: pointer; }
     
-    /* V83 Batch Import Styles */
     textarea.batch-input { width: 100%; height: 120px; padding: 12px; background: rgba(120,120,128,0.05); border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 12px; font-family: monospace; resize: none; margin-bottom: 10px; outline:none; }
     .batch-hint { font-size: 11px; color: var(--sub); background: rgba(120,120,128,0.05); padding: 8px; border-radius: 8px; margin-bottom: 10px; line-height: 1.4; }
     .settings-list { display: flex; flex-direction: column; background: var(--glass-bg); border-radius: 16px; overflow: hidden; box-shadow: var(--glass-shadow); border: var(--glass-border); margin-bottom: 20px; }
@@ -325,10 +324,11 @@
 </div>
 
 <script>
-  // Data V84
-  const KEY = { TX: 'tng_tx_v84', HS: 'tng_hs_v84' };
+  // Data V85
+  const KEY = { TX: 'tng_tx_v85', HS: 'tng_hs_v85' };
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401},{"ts":1769679188602,"type":"buy","date":"2025-04-23","amount":10,"grams":0.021294,"price":469.623106},{"ts":1769679209117,"type":"buy","date":"2025-05-10","amount":10,"grams":0.021391,"price":467.48292},{"ts":1770188908558,"type":"buy","date":"2026-01-31","amount":10,"grams":0.014681,"price":681.146353},{"ts":1770188927873,"type":"buy","date":"2026-01-30","amount":10,"grams":0.014713,"price":679.665226}];
-  const PRELOAD_HIST = [{"ts":1769158800000,"date":"2026-01-23","time":"09:00","val":1547.97},{"ts":1769245200000,"date":"2026-01-24","time":"09:00","val":1559.44},{"ts":1769331600000,"date":"2026-01-25","time":"09:00","val":1558.89},{"ts":1769418000000,"date":"2026-01-26","time":"09:00","val":1580.48},{"ts":1769504400000,"date":"2026-01-27","time":"09:00","val":1571.57},{"ts":1769590800000,"date":"2026-01-28","time":"09:00","val":1597.82},{"ts":1769677200000,"date":"2026-01-29","time":"09:00","val":1623.05},{"ts":1769680800000,"date":"2026-01-29","time":"10:00","val":1627.36},{"ts":1769684400000,"date":"2026-01-29","time":"11:00","val":1708.71},{"ts":1769763600000,"date":"2026-01-30","time":"09:00","val":1648.48},{"ts":1769767200000,"date":"2026-01-30","time":"10:00","val":1647.24},{"ts":1769770800000,"date":"2026-01-30","time":"11:00","val":1615.23},{"ts":1769774400000,"date":"2026-01-30","time":"12:00","val":1567.28},{"ts":1769850000000,"date":"2026-01-31","time":"09:00","val":1499.76},{"ts":1769936400000,"date":"2026-02-01","time":"09:00","val":1537.53},{"ts":1770109200000,"date":"2026-02-03","time":"09:00","val":1523.45},{"ts":1770195600000,"date":"2026-02-04","time":"09:00","val":1551.36},{"ts":1770199200000,"date":"2026-02-04","time":"10:00","val":1578.0},{"ts":1770282000000,"date":"2026-02-05","time":"09:00","val":1528.71},{"ts":1770285600000,"date":"2026-02-05","time":"10:00","val":1515.3},{"ts":1770368400000,"date":"2026-02-06","time":"09:00","val":1519.28},{"ts":1770454800000,"date":"2026-02-07","time":"09:00","val":1548.65},{"ts":1770541200000,"date":"2026-02-08","time":"09:00","val":1548.65},{"ts":1770627600000,"date":"2026-02-09","time":"09:00","val":1563.72},{"ts":1770714000000,"date":"2026-02-10","time":"09:00","val":1564.98},{"ts":1770717600000,"date":"2026-02-10","time":"10:00","val":1561.26},{"ts":1770800400000,"date":"2026-02-11","time":"09:00","val":1562.3},{"ts":1770804000000,"date":"2026-02-11","time":"10:00","val":1564.66},{"ts":1770886800000,"date":"2026-02-12","time":"09:00","val":1562.76},{"ts":1770973200000,"date":"2026-02-13","time":"09:00","val":1535.21},{"ts":1771059600000,"date":"2026-02-14","time":"09:00","val":1558.77}];
+  const PRELOAD_HIST = [{"ts":1769158800000,"date":"2026-01-23","time":"09:00","val":1547.97},{"ts":1769245200000,"date":"2026-01-24","time":"09:00","val":1559.44},{"ts":1769331600000,"date":"2026-01-25","time":"09:00","val":1558.89},{"ts":1769418000000,"date":"2026-01-26","time":"09:00","val":1580.48},{"ts":1769504400000,"date":"2026-01-27","time":"09:00","val":1571.57},{"ts":1769590800000,"date":"2026-01-28","time":"09:00","val":1597.82},{"ts":1769677200000,"date":"2026-01-29","time":"09:00","val":1623.05},{"ts":1769680800000,"date":"2026-01-29","time":"10:00","val":1627.36},{"ts":1769684400000,"date":"2026-01-29","time":"11:00","val":1708.71},{"ts":1769763600000,"date":"2026-01-30","time":"09:00","val":1648.48},{"ts":1769767200000,"date":"2026-01-30","time":"10:00","val":1647.24},{"ts":1769770800000,"date":"2026-01-30","time":"11:00","val":1615.23},{"ts":1769774400000,"date":"2026-01-30","time":"12:00","val":1567.28},{"ts":1769850000000,"date":"2026-01-31","time":"09:00","val":1499.76},{"ts":1769936400000,"date":"2026-02-01","time":"09:00","val":1537.53},{"ts":1770109200000,"date":"2026-02-03","time":"09:00","val":1523.45},{"ts":1770195600000,"date":"2026-02-04","time":"09:00","val":1551.36},{"ts":1770199200000,"date":"2026-02-04","time":"10:00","val":1578.0},{"ts":1770282000000,"date":"2026-02-05","time":"09:00","val":1528.71},{"ts":1770285600000,"date":"2026-02-05","time":"10:00","val":1515.3},{"ts":1770368400000,"date":"2026-02-06","time":"09:00","val":1519.28},{"ts":1770454800000,"date":"2026-02-07","time":"09:00","val":1548.65},{"ts":1770541200000,"date":"2026-02-08","time":"09:00","val":1548.65},{"ts":1770627600000,"date":"2026-02-09","time":"09:00","val":1563.72},{"ts":1770714000000,"date":"2026-02-10","time":"09:00","val":1564.98},{"ts":1770717600000,"date":"2026-02-10","time":"10:00","val":1561.26},{"ts":1770800400000,"date":"2026-02-11","time":"09:00","val":1562.3},{"ts":1770804000000,"date":"2026-02-11","time":"10:00","val":1564.66},{"ts":1770886800000,"date":"2026-02-12","time":"09:00","val":1562.76},{"ts":1770973200000,"date":"2026-02-13","time":"09:00","val":1535.21},{"ts":1771059600000,"date":"2026-02-14","time":"09:00","val":1558.77},{"ts":1771146000000,"date":"2026-02-15","time":"09:00","val":1558.77},{"ts":1771232400000,"date":"2026-02-16","time":"09:00","val":1558.77},{"ts":1771318800000,"date":"2026-02-17","time":"09:00","val":1522.54},{"ts":1771491600000,"date":"2026-02-19","time":"09:00","val":1543.78},{"ts":1771664400000,"date":"2026-02-21","time":"09:00","val":1572.01},{"ts":1771837200000,"date":"2026-02-23","time":"09:00","val":1583.01},{"ts":1771840800000,"date":"2026-02-23","time":"10:00","val":1581.12},{"ts":1771923600000,"date":"2026-02-24","time":"09:00","val":1593.38}];
+  
   const el = id => document.getElementById(id);
   let editId=null, editHistId=null, chartFilter='1m', privacyMode=false, isFitMode=false;
   let chartData = []; 
@@ -342,7 +342,7 @@
     el('hTime').value = "10:00";
     render();
     
-    // Bind Chart Events
+    // Bind Chart Events Explicitly
     const chartBox = el('trendChart');
     if(chartBox) {
         chartBox.addEventListener('touchstart', handleTouch, {passive: false}); 
@@ -410,7 +410,7 @@
         
         const hList = el('histList'); hList.innerHTML='';
         const sortedHs = getDB().hs.sort((a,b)=>b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
-        sortedHs.forEach(h=>{
+        [...sortedHs].reverse().forEach(h=>{
             const s = getHoldingAt(h.date);
             const unit = s.h>0 ? h.val/s.h : 0;
             hList.innerHTML += `<div class="list-row" onclick="editHist(${h.ts})">
@@ -536,15 +536,12 @@
     if(!isFitMode) setTimeout(()=>{wrapper.scrollLeft=wrapper.scrollWidth},50);
   }
 
-  // --- V81 Tooltip Fix: Logic with Scroll Awareness ---
   function handleTouch(e) {
       const touch = e.touches[0];
       updateTooltip(touch.clientX);
   }
   
-  function handleTouchMove(e) {
-      // Just for feedback, do not block scroll
-  }
+  function handleTouchMove(e) {}
 
   function handleMouse(e) {
       e.preventDefault();
@@ -555,13 +552,9 @@
       if(!chartData.length) return;
       const box = el('trendChart');
       const rect = box.getBoundingClientRect();
+      const xInBox = clientX - rect.left; 
       
-      // Calculate X relative to the SCROLLED CONTENT
-      // ClientX is screen coord. 
-      // box.getBoundingClientRect().left shifts as we scroll (it goes negative).
-      // So (clientX - rect.left) IS the correct X coordinate inside the SVG canvas.
-      
-      const xInSvg = clientX - rect.left; 
+      const xInSvg = xInBox; 
       
       let idx = Math.floor(xInSvg / chartStep);
       
@@ -581,20 +574,13 @@
         <div class="tt-row"><span class="tt-label">盈亏</span><span class="tt-val" style="color:${plColor}">${pl>=0?'+':''}${pl.toFixed(2)}</span></div>
       `;
       
-      // Tooltip positioning
-      // We want tooltip to stay visible on screen.
-      // xInSvg is the absolute position in the large chart.
-      // wrapper.scrollLeft is how much is hidden.
-      // Visible X = xInSvg - wrapper.scrollLeft.
+      const barCenterX = (idx * chartStep + chartStep/2);
+      let tipLeft = barCenterX;
       
-      const wrapper = el('chartWrapper');
-      const visibleX = xInSvg - wrapper.scrollLeft;
-      const viewportWidth = wrapper.offsetWidth;
+      const wrapperRect = el('chartWrapper').getBoundingClientRect();
+      const screenX = rect.left + barCenterX; 
       
-      let tipLeft = xInSvg; // Absolute position for 'absolute' tooltip
-      
-      // If visual position is too far right
-      if(visibleX > viewportWidth / 2) {
+      if ((screenX - wrapperRect.left) > wrapperRect.width / 2) {
           tipLeft -= 170;
       } else {
           tipLeft += 10;
@@ -618,39 +604,6 @@
       document.querySelectorAll('.active-dot').forEach(d => d.classList.remove('show'));
   }
 
-  // --- V83 Batch Import Logic ---
-  function openBatchModal(){ el('batchModal').classList.add('show'); el('batchInput').value=''; }
-  function processBatchImport(){
-      const text = el('batchInput').value.trim();
-      if(!text) return alert("请粘贴内容");
-      const rows = text.split('\n');
-      let count = 0;
-      let db = getDB();
-      let newHs = db.hs;
-      rows.forEach(row => {
-          let cols = row.split(/\t|,/); 
-          if(cols.length >= 3){
-              let d = cols[0].trim();
-              let t = cols[1].trim();
-              let v = parseFloat(cols[2].trim().replace(/,/g, ''));
-              if(d && !isNaN(v)){
-                 const existsIdx = newHs.findIndex(h => h.date === d && h.time === t);
-                 const rec = { ts: Date.now() + count, date: d, time: t, val: v };
-                 if(existsIdx > -1) newHs[existsIdx] = rec;
-                 else newHs.push(rec);
-                 count++;
-              }
-          }
-      });
-      if(count > 0){
-          localStorage.setItem(KEY.HS, JSON.stringify(newHs));
-          alert(`成功导入 ${count} 条记录`);
-          el('batchModal').classList.remove('show');
-          render(); if(el('view-chart').classList.contains('active')) drawChart();
-      } else { alert("未识别到有效数据，请检查格式"); }
-  }
-
-  // Common Functions
   function confirmSave(){ const v = parseFloat(el('inputTotalVal').value); if(!v) return; if(confirm(`确认录入今日总市值: RM ${v.toFixed(2)} ?`)){ let hs=getDB().hs; hs.push({ts:Date.now(), date:new Date().toISOString().split('T')[0], time:new Date().toTimeString().slice(0,5), val:v}); localStorage.setItem(KEY.HS,JSON.stringify(hs)); alert("已保存"); el('inputTotalVal').value=''; render(); } }
   function saveTx(){ const t={ ts:Date.now(), type:'buy', date:el('tDate').value, amount:el('tAmt').value, price:el('tPrice').value, grams:el('tGrams').value }; let db=getDB(); db.tx.push(t); localStorage.setItem(KEY.TX,JSON.stringify(db.tx)); el('txModal').classList.remove('show'); render(); }
   function saveHist(){ const h={ ts:Date.now(), date:el('hDate').value, time:el('hTime').value, val:parseFloat(el('hTotalVal').value) }; let db=getDB(); if(editHistId){const i=db.hs.findIndex(x=>x.ts==editHistId);if(i>-1)db.hs[i]={...db.hs[i],date:h.date,time:h.time,val:h.val};}else{db.hs.push(h);} localStorage.setItem(KEY.HS,JSON.stringify(db.hs)); el('histModal').classList.remove('show'); drawChart(); render(); }
@@ -668,6 +621,26 @@
   function exportData(){ const blob=new Blob([JSON.stringify(getDB())],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='tng_backup.json'; a.click(); }
   function importData(e){ const r=new FileReader(); r.onload=ev=>{ const d=JSON.parse(ev.target.result); localStorage.setItem(KEY.TX,JSON.stringify(d.tx)); localStorage.setItem(KEY.HS,JSON.stringify(d.hs)); location.reload(); }; r.readAsText(e.files[0]); }
   function resetAll(){ if(confirm('清空?')) { localStorage.clear(); location.reload(); } }
+
+  function openBatchModal(){ el('batchModal').classList.add('show'); el('batchInput').value=''; }
+  function processBatchImport(){
+      const text = el('batchInput').value.trim();
+      if(!text) return alert("请粘贴内容");
+      const rows = text.split('\n');
+      let count = 0; let db = getDB(); let newHs = db.hs;
+      rows.forEach(row => {
+          let cols = row.split(/\t|,/); 
+          if(cols.length >= 3){
+              let d = cols[0].trim(); let t = cols[1].trim(); let v = parseFloat(cols[2].trim().replace(/,/g, ''));
+              if(d && !isNaN(v)){
+                 const existsIdx = newHs.findIndex(h => h.date === d && h.time === t);
+                 const rec = { ts: Date.now() + count, date: d, time: t, val: v };
+                 if(existsIdx > -1) newHs[existsIdx] = rec; else newHs.push(rec); count++;
+              }
+          }
+      });
+      if(count > 0){ localStorage.setItem(KEY.HS, JSON.stringify(newHs)); alert(`导入 ${count} 条`); el('batchModal').classList.remove('show'); render(); if(el('view-chart').classList.contains('active')) drawChart(); } else { alert("格式错"); }
+  }
 
   init();
 </script>
