@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TNG 黄金管家 V85</title>
+  <title>TNG 黄金管家 V86</title>
   <style>
     /* --- 基础变量 --- */
     :root{
@@ -102,7 +102,7 @@
     .row-l { display: flex; flex-direction: column; gap: 4px; }
     .row-r { text-align: right; display: flex; flex-direction: column; gap: 4px; }
 
-    /* Chart V81/85 */
+    /* Chart */
     .chart-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .chart-title { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
     .filter-tabs { display: flex; background: rgba(120,120,128,0.08); padding: 4px; border-radius: 10px; }
@@ -163,8 +163,11 @@
     .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: white; border: none; width: 100%; text-align: left; font-size: 16px; color: var(--text); border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
     .settings-item:last-child { border-bottom: none; }
     .settings-item:active { background: rgba(0,0,0,0.05); }
-
+    
+    .sync-indicator { font-size: 12px; color: var(--green); text-align: center; margin-bottom: 10px; font-weight: 600; display: none; }
   </style>
+  
+  <script src="data.js" onerror="console.log('未检测到外部 data.js，使用内部存储')"></script>
 </head>
 <body>
 
@@ -176,6 +179,8 @@
 <div class="app-content">
 
   <div id="view-home" class="view active">
+    <div id="syncIndicator" class="sync-indicator">✅ 已从 data.js 同步最新数据</div>
+
     <div class="glass-card hero-card">
       <div class="hero-label">当前持仓总值 (RM) <span class="eye-btn" onclick="togglePrivacy()">👁️</span></div>
       <div class="hero-val" id="kpiVal">0.00</div>
@@ -299,7 +304,6 @@
   <div class="modal-card">
     <h3 style="text-align:center;margin-bottom:20px">数据管理</h3>
     <div class="settings-list">
-        <div class="settings-item" onclick="openBatchModal()"><span>📋 从 Excel 批量导入</span></div>
         <div class="settings-item" onclick="exportData()"><span>📤 备份数据</span></div>
         <div class="settings-item" style="position:relative"><span>📥 恢复数据</span><input type="file" onchange="importData(this)" style="position:absolute;left:0;top:0;width:100%;height:100%;opacity:0"></div>
         <div class="settings-item" onclick="resetAll()"><span style="color:var(--red)">🗑️ 清空数据</span></div>
@@ -308,41 +312,32 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="batchModal">
-  <div class="modal-card" style="max-width:360px">
-    <h3 style="text-align:center;margin-bottom:16px">批量导入市值</h3>
-    <div class="batch-hint">
-        <b>格式：</b>日期[Tab]时间[Tab]总值<br>
-        <b>Excel：</b>选中A/B/C三列 (日期/时间/金额) -> 复制 -> 粘贴到下方。<br>
-        示例：<br>
-        2026-02-10	10:00	1564.98
-    </div>
-    <textarea id="batchInput" class="batch-input" placeholder="在此处粘贴 Excel 内容..."></textarea>
-    <button class="btn-main" onclick="processBatchImport()">开始导入</button>
-    <div style="text-align:center;margin-top:15px;color:var(--sub);cursor:pointer" onclick="document.getElementById('batchModal').classList.remove('show')">取消</div>
-  </div>
-</div>
-
 <script>
-  // Data V85
   const KEY = { TX: 'tng_tx_v85', HS: 'tng_hs_v85' };
+  
+  // 您的全量基础数据 (已包含1.23 - 2.24)
   const PRELOAD_TX = [{"ts":1769197202982,"type":"buy","date":"2025-05-18","amount":10,"grams":0.022438,"price":445.669382},{"ts":1769197251472,"type":"buy","date":"2025-12-25","amount":10,"grams":0.016995,"price":588.417299},{"ts":1769197276233,"type":"buy","date":"2025-12-31","amount":10,"grams":0.017494,"price":571.610734},{"ts":1769197303771,"type":"buy","date":"2026-01-21","amount":500,"grams":0.796725,"price":627.568989},{"ts":1769197324261,"type":"buy","date":"2026-01-23","amount":1000,"grams":1.553877,"price":643.551401},{"ts":1769679188602,"type":"buy","date":"2025-04-23","amount":10,"grams":0.021294,"price":469.623106},{"ts":1769679209117,"type":"buy","date":"2025-05-10","amount":10,"grams":0.021391,"price":467.48292},{"ts":1770188908558,"type":"buy","date":"2026-01-31","amount":10,"grams":0.014681,"price":681.146353},{"ts":1770188927873,"type":"buy","date":"2026-01-30","amount":10,"grams":0.014713,"price":679.665226}];
   const PRELOAD_HIST = [{"ts":1769158800000,"date":"2026-01-23","time":"09:00","val":1547.97},{"ts":1769245200000,"date":"2026-01-24","time":"09:00","val":1559.44},{"ts":1769331600000,"date":"2026-01-25","time":"09:00","val":1558.89},{"ts":1769418000000,"date":"2026-01-26","time":"09:00","val":1580.48},{"ts":1769504400000,"date":"2026-01-27","time":"09:00","val":1571.57},{"ts":1769590800000,"date":"2026-01-28","time":"09:00","val":1597.82},{"ts":1769677200000,"date":"2026-01-29","time":"09:00","val":1623.05},{"ts":1769680800000,"date":"2026-01-29","time":"10:00","val":1627.36},{"ts":1769684400000,"date":"2026-01-29","time":"11:00","val":1708.71},{"ts":1769763600000,"date":"2026-01-30","time":"09:00","val":1648.48},{"ts":1769767200000,"date":"2026-01-30","time":"10:00","val":1647.24},{"ts":1769770800000,"date":"2026-01-30","time":"11:00","val":1615.23},{"ts":1769774400000,"date":"2026-01-30","time":"12:00","val":1567.28},{"ts":1769850000000,"date":"2026-01-31","time":"09:00","val":1499.76},{"ts":1769936400000,"date":"2026-02-01","time":"09:00","val":1537.53},{"ts":1770109200000,"date":"2026-02-03","time":"09:00","val":1523.45},{"ts":1770195600000,"date":"2026-02-04","time":"09:00","val":1551.36},{"ts":1770199200000,"date":"2026-02-04","time":"10:00","val":1578.0},{"ts":1770282000000,"date":"2026-02-05","time":"09:00","val":1528.71},{"ts":1770285600000,"date":"2026-02-05","time":"10:00","val":1515.3},{"ts":1770368400000,"date":"2026-02-06","time":"09:00","val":1519.28},{"ts":1770454800000,"date":"2026-02-07","time":"09:00","val":1548.65},{"ts":1770541200000,"date":"2026-02-08","time":"09:00","val":1548.65},{"ts":1770627600000,"date":"2026-02-09","time":"09:00","val":1563.72},{"ts":1770714000000,"date":"2026-02-10","time":"09:00","val":1564.98},{"ts":1770717600000,"date":"2026-02-10","time":"10:00","val":1561.26},{"ts":1770800400000,"date":"2026-02-11","time":"09:00","val":1562.3},{"ts":1770804000000,"date":"2026-02-11","time":"10:00","val":1564.66},{"ts":1770886800000,"date":"2026-02-12","time":"09:00","val":1562.76},{"ts":1770973200000,"date":"2026-02-13","time":"09:00","val":1535.21},{"ts":1771059600000,"date":"2026-02-14","time":"09:00","val":1558.77},{"ts":1771146000000,"date":"2026-02-15","time":"09:00","val":1558.77},{"ts":1771232400000,"date":"2026-02-16","time":"09:00","val":1558.77},{"ts":1771318800000,"date":"2026-02-17","time":"09:00","val":1522.54},{"ts":1771491600000,"date":"2026-02-19","time":"09:00","val":1543.78},{"ts":1771664400000,"date":"2026-02-21","time":"09:00","val":1572.01},{"ts":1771837200000,"date":"2026-02-23","time":"09:00","val":1583.01},{"ts":1771840800000,"date":"2026-02-23","time":"10:00","val":1581.12},{"ts":1771923600000,"date":"2026-02-24","time":"09:00","val":1593.38}];
-  
+
   const el = id => document.getElementById(id);
   let editId=null, editHistId=null, chartFilter='1m', privacyMode=false, isFitMode=false;
   let chartData = []; 
   let chartStep = 0; 
 
   function init(){
+    // 初始化基础数据
     if(!localStorage.getItem(KEY.TX)) localStorage.setItem(KEY.TX, JSON.stringify(PRELOAD_TX));
     if(!localStorage.getItem(KEY.HS)) localStorage.setItem(KEY.HS, JSON.stringify(PRELOAD_HIST));
+    
+    // 执行自动同步外部 data.js 文件
+    syncExternalData();
+
     el('tDate').value = new Date().toISOString().split('T')[0];
     el('hDate').value = new Date().toISOString().split('T')[0];
     el('hTime').value = "10:00";
+    
     render();
     
-    // Bind Chart Events Explicitly
     const chartBox = el('trendChart');
     if(chartBox) {
         chartBox.addEventListener('touchstart', handleTouch, {passive: false}); 
@@ -351,6 +346,73 @@
         chartBox.addEventListener('mousemove', handleMouse);
         chartBox.addEventListener('mouseleave', hideTip);
     }
+  }
+
+  // --- 核心更新：解析 data.js 里的数据自动入库 ---
+  function syncExternalData() {
+      if (!window.MY_GOLD_DATA) return; // 如果没有挂载 data.js 或者里面没内容，就跳过
+      
+      const lines = window.MY_GOLD_DATA.trim().split('\n');
+      let db = getDB();
+      let newHs = db.hs;
+      let addedCount = 0;
+
+      lines.forEach(line => {
+          if(!line || !line.includes(':') || line.trim().startsWith('//')) return;
+          
+          let [datePart, valsPart] = line.split(':');
+          datePart = datePart.trim();
+          
+          let year = "2026", month = "01", day = "01";
+          
+          // 适配 "DD.MM" 或 "DD.MM.YYYY" 格式
+          if (datePart.includes('.')) {
+              let parts = datePart.split('.');
+              day = parts[0];
+              month = parts[1];
+              if(parts.length === 3) year = parts[2];
+          } else if (datePart.includes('-')) {
+              // 适配 "YYYY-MM-DD" 格式
+              let parts = datePart.split('-');
+              year = parts[0];
+              month = parts[1];
+              day = parts[2];
+          }
+          
+          let dateStr = `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`;
+          
+          // 解析价格，支持斜杠分割
+          let vals = valsPart.split('/').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
+          
+          let startHour = 9; // 每天第一条默认早上 9 点
+          vals.forEach((v, i) => {
+              let timeStr = `${String(startHour + i).padStart(2, '0')}:00`;
+              
+              // 检查是否已经存在同一天同一个时间的数据
+              const existsIdx = newHs.findIndex(h => h.date === dateStr && h.time === timeStr);
+              const ts = existsIdx > -1 ? newHs[existsIdx].ts : Date.now() + addedCount;
+              
+              const rec = { ts: ts, date: dateStr, time: timeStr, val: v };
+              
+              if (existsIdx > -1) {
+                  newHs[existsIdx] = rec; // 覆盖更新
+              } else {
+                  newHs.push(rec); // 新增
+                  addedCount++;
+              }
+          });
+      });
+      
+      if (addedCount > 0) {
+          localStorage.setItem(KEY.HS, JSON.stringify(newHs));
+          // 可以在界面上显示个小绿标提示同步成功
+          const indicator = el('syncIndicator');
+          if(indicator) {
+             indicator.innerText = `✅ 从 data.js 自动同步了 ${addedCount} 条新数据`;
+             indicator.style.display = 'block';
+             setTimeout(() => { indicator.style.display = 'none'; }, 3000);
+          }
+      }
   }
 
   function getDB(){ return { tx: JSON.parse(localStorage.getItem(KEY.TX)||'[]'), hs: JSON.parse(localStorage.getItem(KEY.HS)||'[]') }; }
@@ -383,7 +445,7 @@
     const hs = getDB().hs;
     if(hs.length > 0) {
         const sorted = hs.sort((a,b)=>b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
-        currentVal = sorted[0].val;
+        currentVal = sorted[sorted.length-1].val;
     }
     
     const blurClass = privacyMode ? 'blur-mode' : '';
@@ -426,7 +488,7 @@
      const {h, c} = getHoldingAt();
      let currentVal = 0;
      const hs = getDB().hs;
-     if(hs.length>0) currentVal = hs.sort((a,b)=>b.date.localeCompare(a.date) || b.time.localeCompare(a.time))[0].val;
+     if(hs.length>0) currentVal = hs.sort((a,b)=>a.date.localeCompare(b.date) || a.time.localeCompare(b.time)).reverse()[0].val;
      const pl = currentVal - c;
      const color = pl >= 0 ? 'var(--green)' : 'var(--red)';
      el('chartTotalCost').innerText = "RM " + c.toLocaleString('en-US',{minimumFractionDigits:2});
@@ -553,7 +615,6 @@
       const box = el('trendChart');
       const rect = box.getBoundingClientRect();
       const xInBox = clientX - rect.left; 
-      
       const xInSvg = xInBox; 
       
       let idx = Math.floor(xInSvg / chartStep);
@@ -621,26 +682,6 @@
   function exportData(){ const blob=new Blob([JSON.stringify(getDB())],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='tng_backup.json'; a.click(); }
   function importData(e){ const r=new FileReader(); r.onload=ev=>{ const d=JSON.parse(ev.target.result); localStorage.setItem(KEY.TX,JSON.stringify(d.tx)); localStorage.setItem(KEY.HS,JSON.stringify(d.hs)); location.reload(); }; r.readAsText(e.files[0]); }
   function resetAll(){ if(confirm('清空?')) { localStorage.clear(); location.reload(); } }
-
-  function openBatchModal(){ el('batchModal').classList.add('show'); el('batchInput').value=''; }
-  function processBatchImport(){
-      const text = el('batchInput').value.trim();
-      if(!text) return alert("请粘贴内容");
-      const rows = text.split('\n');
-      let count = 0; let db = getDB(); let newHs = db.hs;
-      rows.forEach(row => {
-          let cols = row.split(/\t|,/); 
-          if(cols.length >= 3){
-              let d = cols[0].trim(); let t = cols[1].trim(); let v = parseFloat(cols[2].trim().replace(/,/g, ''));
-              if(d && !isNaN(v)){
-                 const existsIdx = newHs.findIndex(h => h.date === d && h.time === t);
-                 const rec = { ts: Date.now() + count, date: d, time: t, val: v };
-                 if(existsIdx > -1) newHs[existsIdx] = rec; else newHs.push(rec); count++;
-              }
-          }
-      });
-      if(count > 0){ localStorage.setItem(KEY.HS, JSON.stringify(newHs)); alert(`导入 ${count} 条`); el('batchModal').classList.remove('show'); render(); if(el('view-chart').classList.contains('active')) drawChart(); } else { alert("格式错"); }
-  }
 
   init();
 </script>
